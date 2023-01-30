@@ -12,6 +12,8 @@ public static class Deserializer
             WriteIndented = true,
             Converters =
             {
+                new AlertStatusConverter(),
+                new ApiIntegrationTypeConverter(),
                 new RecipientTypeConverter(),
                 new AlertPriorityConverter(),
                 new CustomFloatConverter(),
