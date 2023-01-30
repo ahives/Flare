@@ -35,9 +35,9 @@ public static class JsonExtensions
     {
         string rawResponse = await responseMessage.Content.ReadAsStringAsync();
 
-        return string.IsNullOrWhiteSpace(rawResponse)
+        return (string.IsNullOrWhiteSpace(rawResponse)
             ? default
-            : JsonSerializer.Deserialize<T>(rawResponse, options);
+            : JsonSerializer.Deserialize<T>(rawResponse, options))!;
     }
 
     /// <summary>
@@ -50,9 +50,9 @@ public static class JsonExtensions
     {
         string rawResponse = await responseMessage.Content.ReadAsStringAsync();
 
-        return string.IsNullOrWhiteSpace(rawResponse)
+        return (string.IsNullOrWhiteSpace(rawResponse)
             ? default
-            : JsonSerializer.Deserialize<T>(rawResponse, Deserializer.Options);
+            : JsonSerializer.Deserialize<T>(rawResponse, Deserializer.Options))!;
     }
 
     /// <summary>
@@ -63,9 +63,9 @@ public static class JsonExtensions
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     public static T ToObject<T>(this string value, JsonSerializerOptions options) =>
-        string.IsNullOrWhiteSpace(value)
+        (string.IsNullOrWhiteSpace(value)
             ? default
-            : JsonSerializer.Deserialize<T>(value, options);
+            : JsonSerializer.Deserialize<T>(value, options))!;
 
     /// <summary>
     /// Deserializes the contents of a string encoded object and returns <see cref="T"/> using default deserialization options.
@@ -74,7 +74,7 @@ public static class JsonExtensions
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     public static T ToObject<T>(this string value) =>
-        string.IsNullOrWhiteSpace(value)
+        (string.IsNullOrWhiteSpace(value)
             ? default
-            : JsonSerializer.Deserialize<T>(value, Deserializer.Options);
+            : JsonSerializer.Deserialize<T>(value, Deserializer.Options))!;
 }

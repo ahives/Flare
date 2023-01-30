@@ -27,7 +27,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result<IReadOnlyList<T>>> GetAllRequest<T>(string url, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {
@@ -66,7 +66,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result<T>> GetRequest<T>(string url, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {
@@ -105,7 +105,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result> GetRequest(string url, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {
@@ -142,7 +142,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result> DeleteRequest(string url, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {
@@ -179,7 +179,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result> PutRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {
@@ -218,7 +218,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result> PutRequest(string url, string request, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {
@@ -256,7 +256,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result<T>> PostRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {
@@ -297,7 +297,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result> PostRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {
@@ -336,7 +336,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result<IReadOnlyList<T>>> PostListRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {
@@ -377,7 +377,7 @@ public abstract class FlareHttpClient
 
     protected async Task<Result> PostEmptyRequest(string url, CancellationToken cancellationToken = default)
     {
-        string rawResponse = null;
+        string rawResponse = null!;
 
         try
         {

@@ -1,8 +1,8 @@
-namespace Flare.Serialization;
-
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Converters;
+using Flare.Serialization.Converters;
+
+namespace Flare.Serialization;
 
 public static class Deserializer
 {
@@ -12,6 +12,9 @@ public static class Deserializer
             WriteIndented = true,
             Converters =
             {
+                new RecipientTypeConverter(),
+                new AlertPriorityConverter(),
+                new CustomFloatConverter(),
                 new CustomDecimalConverter(),
                 new CustomDateTimeConverter(),
                 new CustomLongConverter(),

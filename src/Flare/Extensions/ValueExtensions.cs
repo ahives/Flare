@@ -2,7 +2,7 @@ namespace Flare.Extensions;
 
 public static class ValueExtensions
 {
-        /// <summary>
+    /// <summary>
     /// Returns true if all the values in the specified list is not equal to null, empty, or whitespace, otherwise, false.
     /// </summary>
     /// <param name="values"></param>
@@ -31,7 +31,7 @@ public static class ValueExtensions
     /// <param name="data"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static IReadOnlyList<T> GetDataOrEmpty<T>(this List<T> data) => data ?? new List<T>();
+    public static IReadOnlyList<T> GetDataOrEmpty<T>(this List<T>? data) => data ?? new List<T>();
 
     /// <summary>
     /// 
@@ -39,5 +39,5 @@ public static class ValueExtensions
     /// <param name="data"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T GetDataOrDefault<T>(this T data) => data is null ? default : data;
+    public static T? GetDataOrDefault<T>(this T? data) => data is null ? default : data;
 }
