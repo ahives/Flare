@@ -14,7 +14,7 @@ public class Tests
     [Test]
     public void Test1()
     {
-        var expected = new AlertDefinitionRequest
+        var expected = new CreateAlertRequest
         {
             Description = "Every alert needs a description",
             Responders = new object[]
@@ -45,7 +45,7 @@ public class Tests
         };
         
         Console.WriteLine(expected.ToJsonString(Deserializer.Options));
-        var actual = expected.ToJsonString(Deserializer.Options).ToObject<AlertDefinitionRequest>();
+        var actual = expected.ToJsonString(Deserializer.Options).ToObject<CreateAlertRequest>();
         
         // Assert.That(actual, Is.EqualTo(expected));
     }

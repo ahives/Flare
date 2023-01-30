@@ -11,6 +11,7 @@ public class AlertStatusConverter :
         return reader.GetString() switch
         {
             "closed" => AlertStatus.Closed,
+            "open" => AlertStatus.Open,
             _ => throw new JsonException()
         };
     }

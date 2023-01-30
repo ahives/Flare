@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Flare;
 
-public record AlertDefinitionRequest
+public record CreateAlertRequest
 {
     [JsonPropertyName("message")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
