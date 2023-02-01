@@ -1,9 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Flare;
+namespace Flare.Model;
 
-public record CreateAlertRequest :
-    IRequest
+public record CreateAlertRequest
 {
     [JsonPropertyName("message")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

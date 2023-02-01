@@ -4,7 +4,7 @@ using Flare.Serialization.Converters;
 
 namespace Flare.Serialization;
 
-public static class Deserializer
+public static class Serializer
 {
     public static JsonSerializerOptions Options =>
         new()

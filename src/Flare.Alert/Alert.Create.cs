@@ -1,11 +1,17 @@
 using Flare.Extensions;
+using Flare.Model;
 using Flare.Serialization;
 
-namespace Flare;
+namespace Flare.Alert;
 
-public class Alert :
+public partial class Alert :
+    // FlareHttpClient,
     IAlert
 {
+    // public Alert(HttpClient client) : base(client)
+    // {
+    // }
+
     public Result Create(Action<AlertDefinition> action)
     {
         var impl = new AlertDefinitionImpl();
@@ -13,7 +19,7 @@ public class Alert :
 
         var request = impl.Request;
 
-        return new SuccessfulResult {DebugInfo = new DebugInfo {Request = request.ToJsonString(Deserializer.Options)}};
+        return new SuccessfulResult {DebugInfo = new DebugInfo {Request = request.ToJsonString()}};
     }
 
 
@@ -314,109 +320,4 @@ public class Alert :
             }
         }
     }
-}
-
-public interface IAlert
-{
-    Result Create(Action<AlertDefinition> action);
-}
-
-public interface AlertDefinition2
-{
-}
-
-public record CreateAlertRequest2
-{
-}
-
-public interface IRequest
-{
-}
-
-public interface AlertDefinition
-{
-    void Description(string description);
-
-    void Responders(Action<Responder> action);
-
-    void VisibleTo(Action<VisibleTo> action);
-
-    void ClientIdentifier(string alias);
-
-    void AdditionalNotes(string notes);
-
-    void CustomProperties(Action<AlertProperty> action);
-
-    void CustomActions(string action, params string[] actions);
-    
-    void CustomTags(string tag, params string[] tags);
-
-    void DomainRelatedTo(string entity);
-
-    void Priority(AlertPriority priority);
-}
-
-public interface AlertProperty
-{
-    void Add(string name, string value);
-}
-
-public interface VisibleTo
-{
-    void Team(Action<VisibleToTeam> action);
-
-    void User(Action<VisibleToUser> action);
-}
-
-public interface VisibleToTeam
-{
-    void Id(Guid id);
-
-    void Name(string name);
-}
-
-public interface VisibleToUser
-{
-    void Id(Guid id);
-
-    void Username(string username);
-}
-
-public interface RespondToUser
-{
-    void Id(Guid id);
-
-    void Username(string username);
-}
-
-public interface RespondToTeam
-{
-    void Id(Guid id);
-
-    void Name(string name);
-}
-
-public interface RespondToEscalation
-{
-    void Id(Guid id);
-
-    void Name(string name);
-}
-
-public interface RespondToSchedule
-{
-    void Id(Guid id);
-
-    void Name(string name);
-}
-
-public interface Responder
-{
-    void Team(Action<RespondToTeam> action);
-
-    void User(Action<RespondToUser> action);
-    
-    void Escalation(Action<RespondToEscalation> action);
-    
-    void Schedule(Action<RespondToSchedule> action);
 }

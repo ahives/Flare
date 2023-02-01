@@ -183,7 +183,7 @@ public abstract class FlareHttpClient
 
         try
         {
-            string requestContent = request.ToJsonString(Deserializer.Options);
+            string requestContent = request.ToJsonString(Serializer.Options);
             var content = GetRequestContent(requestContent);
             var response = await _client.PutAsync(url, content, cancellationToken).ConfigureAwait(false);
 
@@ -260,7 +260,7 @@ public abstract class FlareHttpClient
 
         try
         {
-            string requestContent = request.ToJsonString(Deserializer.Options);
+            string requestContent = request.ToJsonString(Serializer.Options);
             var content = GetRequestContent(requestContent);
             var response = await _client.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
@@ -301,7 +301,7 @@ public abstract class FlareHttpClient
 
         try
         {
-            string requestContent = request.ToJsonString(Deserializer.Options);
+            string requestContent = request.ToJsonString(Serializer.Options);
             var content = GetRequestContent(requestContent);
             var response = await _client.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
@@ -340,7 +340,7 @@ public abstract class FlareHttpClient
 
         try
         {
-            string requestContent = request.ToJsonString(Deserializer.Options);
+            string requestContent = request.ToJsonString(Serializer.Options);
             var content = GetRequestContent(requestContent);
             var response = await _client.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
@@ -421,5 +421,8 @@ public abstract class FlareHttpClient
         return content;
     }
 
-    protected abstract Error GetError(HttpStatusCode statusCode);
+    protected Error GetError(HttpStatusCode statusCode)
+    {
+        throw new NotSupportedException();
+    }
 }

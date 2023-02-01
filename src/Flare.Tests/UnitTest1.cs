@@ -1,4 +1,5 @@
 using Flare.Extensions;
+using Flare.Model;
 using Flare.Serialization;
 using MassTransit;
 
@@ -14,41 +15,6 @@ public class Tests
     [Test]
     public void Test1()
     {
-        var request = new Alert();
-        var result = request.Create(x =>
-        {
-            x.Description("Every alert needs a description");
-            x.Responders(r =>
-            {
-                r.Team(o => o.Id(NewId.NextGuid()));
-                r.Team(o => o.Name("NOC"));
-                r.User(o => o.Id(NewId.NextGuid()));
-                r.User(o => o.Username("trinity@opsgenie.com"));
-                r.Escalation(o => o.Id(NewId.NextGuid()));
-                r.Escalation(o => o.Name("Nightwatch Escalation"));
-                r.Schedule(o => o.Id(NewId.NextGuid()));
-                r.Schedule(o => o.Name("First Responders Schedule"));
-            });
-            x.VisibleTo(v =>
-            {
-                v.Team(o => o.Id(NewId.NextGuid()));
-                v.Team(o => o.Name("rocket_team"));
-                v.User(o => o.Id(NewId.NextGuid()));
-                v.User(o => o.Username("trinity@opsgenie.com"));
-            });
-            x.ClientIdentifier("Life is too short for no alias");
-            x.AdditionalNotes("Some fake notes here");
-            x.CustomProperties(p =>
-            {
-                p.Add("key1", "value1");
-                p.Add("key2", "value2");
-            });
-            x.CustomActions("Restart", "AnExampleAction");
-            x.CustomTags("OverwriteQuietHours", "Critical");
-            x.DomainRelatedTo("Fake entity");
-            x.Priority(AlertPriority.P1);
-        });
-        
         // var expected = new CreateAlertRequest
         // {
         //     Description = "Every alert needs a description",
@@ -79,7 +45,6 @@ public class Tests
         //     Priority = AlertPriority.P1
         // };
         
-        Console.WriteLine(result.DebugInfo.Request);
         // Console.WriteLine(result.DebugInfo.Request.ToJsonString(Deserializer.Options));
         // var actual = expected.ToJsonString(Deserializer.Options).ToObject<CreateAlertRequest>();
         
@@ -96,7 +61,7 @@ public class Tests
             RequestId = NewId.NextGuid()
         };
 
-        var actual = expected.ToJsonString(Deserializer.Options).ToObject<AlertResponse>();
+        var actual = expected.ToJsonString(Serializer.Options).ToObject<AlertResponse>();
         
         Assert.That(actual, Is.EqualTo(expected));
     }
@@ -153,7 +118,7 @@ public class Tests
             }
         };
         
-        Console.WriteLine(expected.ToJsonString(Deserializer.Options));
+        Console.WriteLine(expected.ToJsonString(Serializer.Options));
         // var actual = expected.ToJsonString(Deserializer.Options).ToObject<AlertDefinitionRequest>();
         
         // Assert.That(actual, Is.EqualTo(expected));

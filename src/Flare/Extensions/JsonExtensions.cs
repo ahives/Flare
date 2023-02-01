@@ -22,7 +22,7 @@ public static class JsonExtensions
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     public static string ToJsonString<T>(this T obj) =>
-        obj is null ? string.Empty : JsonSerializer.Serialize(obj, Deserializer.Options);
+        obj is null ? string.Empty : JsonSerializer.Serialize(obj, Serializer.Options);
 
     /// <summary>
     /// Deserializes the contents of <see cref="HttpResponseMessage"/> and returns <see cref="Task{T}"/> given the specified deserialization options.
@@ -52,7 +52,7 @@ public static class JsonExtensions
 
         return (string.IsNullOrWhiteSpace(rawResponse)
             ? default
-            : JsonSerializer.Deserialize<T>(rawResponse, Deserializer.Options))!;
+            : JsonSerializer.Deserialize<T>(rawResponse, Serializer.Options))!;
     }
 
     /// <summary>
@@ -76,5 +76,5 @@ public static class JsonExtensions
     public static T ToObject<T>(this string value) =>
         (string.IsNullOrWhiteSpace(value)
             ? default
-            : JsonSerializer.Deserialize<T>(value, Deserializer.Options))!;
+            : JsonSerializer.Deserialize<T>(value, Serializer.Options))!;
 }
