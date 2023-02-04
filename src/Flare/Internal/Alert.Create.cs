@@ -19,7 +19,7 @@ public partial class AlertImpl :
 
         var request = impl.Request;
 
-        return await Create(request);
+        return await Create(request, cancellationToken);
     }
 
     public async Task<Result> Create(CreateAlertRequest request, CancellationToken cancellationToken = default)

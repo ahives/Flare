@@ -70,6 +70,34 @@ public class Tests
         // Assert.That(actual, Is.EqualTo(expected));
     }
 
+    [Test]
+    public async Task Test2()
+    {
+        var config = new FlareConfigProvider()
+            .Configure(p =>
+            {
+                p.Client(c =>
+                {
+                    c.ConnectTo("");
+                    c.UsingApiKey("");
+                    c.UsingCredentials("guest", "guest");
+                });
+            });
+
+        var result = await new FlareClient(config)
+            .API<Alert>()
+            .List(x =>
+            {
+                x.Offset(5);
+                x.Limit(100);
+                x.Order(OrderType.Asc);
+                x.Sort(SortField.Status);
+                x.SearchIdentifier(NewId.NextGuid());
+            });
+        
+        Console.WriteLine(result.DebugInfo.URL);
+    }
+
     // [Test]
     // public void Test1b()
     // {
@@ -110,7 +138,7 @@ public class Tests
     // }
 
     [Test]
-    public void Test2()
+    public void Test3()
     {
         var expected = new AlertResponse
         {
@@ -125,7 +153,7 @@ public class Tests
     }
 
     [Test]
-    public void Test3()
+    public void Test4()
     {
         var expected = new AlertData
         {
