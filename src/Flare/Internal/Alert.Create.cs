@@ -1,24 +1,29 @@
+using Flare.Configuration;
 using Flare.Extensions;
 using Flare.Model;
-using Flare.Serialization;
 
-namespace Flare.Alert;
+namespace Flare.Internal;
 
-public partial class Alert :
-    // FlareHttpClient,
-    IAlert
+public partial class AlertImpl :
+    FlareHttpClient,
+    Alert
 {
-    // public Alert(HttpClient client) : base(client)
-    // {
-    // }
+    public AlertImpl(FlareConfig config) : base(config)
+    {
+    }
 
-    public Result Create(Action<AlertDefinition> action)
+    public async Task<Result> Create(Action<AlertDefinition> action, CancellationToken cancellationToken = default)
     {
         var impl = new AlertDefinitionImpl();
         action?.Invoke(impl);
 
         var request = impl.Request;
 
+        return await Create(request);
+    }
+
+    public async Task<Result> Create(CreateAlertRequest request, CancellationToken cancellationToken = default)
+    {
         return new SuccessfulResult {DebugInfo = new DebugInfo {Request = request.ToJsonString()}};
     }
 
@@ -120,9 +125,9 @@ public partial class Alert :
             _tags = temp;
         }
 
-        public void DomainRelatedTo(string entity)
+        public void RelatedToDomain(string domain)
         {
-            _domain = entity;
+            _domain = domain;
         }
 
         public void Priority(AlertPriority priority)

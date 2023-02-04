@@ -1,4 +1,4 @@
-namespace Flare.Alert;
+namespace Flare;
 
 public interface AlertProperty
 {

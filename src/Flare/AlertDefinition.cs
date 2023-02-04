@@ -1,6 +1,6 @@
 using Flare.Model;
 
-namespace Flare.Alert;
+namespace Flare;
 
 public interface AlertDefinition
 {
@@ -20,7 +20,7 @@ public interface AlertDefinition
     
     void CustomTags(string tag, params string[] tags);
 
-    void DomainRelatedTo(string entity);
+    void RelatedToDomain(string domain);
 
     void Priority(AlertPriority priority);
 }

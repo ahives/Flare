@@ -1,20 +1,21 @@
-namespace Flare;
-
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Extensions;
-using Serialization;
+using Flare.Configuration;
+using Flare.Extensions;
+using Flare.Serialization;
+
+namespace Flare;
 
 public abstract class FlareHttpClient
 {
     readonly HttpClient _client;
     readonly IDictionary<string, Error> _errors;
 
-    protected FlareHttpClient(HttpClient client)
+    protected FlareHttpClient(FlareConfig config)
     {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
+        _client = GetClient(config) ?? throw new ArgumentNullException(nameof(config));
         _errors = new Dictionary<string, Error>
         {
             {nameof(MissingMethodException), new() {Reason = "Could not properly handle '.' and/or '/' characters in URL."}},
@@ -410,6 +411,23 @@ public abstract class FlareHttpClient
         {
             return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
         }
+    }
+
+    HttpClient GetClient(FlareConfig config)
+    {
+        var uri = new Uri($"{config.Url}/");
+        var handler = new HttpClientHandler
+        {
+            Credentials = new NetworkCredential(config.Credentials.Username, config.Credentials.Password)
+        };
+
+        var client = new HttpClient(handler){BaseAddress = uri};
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        if (config.Timeout != TimeSpan.Zero)
+            client.Timeout = config.Timeout;
+
+        return client;
     }
 
     HttpContent GetRequestContent(string request)
