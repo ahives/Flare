@@ -25,7 +25,9 @@ public partial class AlertImpl :
 
     public async Task<Result> Create(CreateAlertRequest request, CancellationToken cancellationToken = default)
     {
-        return new SuccessfulResult {DebugInfo = new DebugInfo {Request = request.ToJsonString()}};
+        string url = "https://api.opsgenie.com/v2/alerts";
+        
+        return new SuccessfulResult {DebugInfo = new DebugInfo {URL = url, Request = request.ToJsonString()}};
     }
 
 

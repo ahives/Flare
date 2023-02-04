@@ -11,7 +11,9 @@ public interface Alert :
 
     Task<Result<AlertStatusData>> GetStatus(Guid requestId, CancellationToken cancellationToken = default);
 
-    Task<Result<AlertData>> Get(Guid identifier, CancellationToken cancellationToken = default);
+    Task<Result<AlertData>> Get(Guid identifier, Action<AlertGetQuery> query, CancellationToken cancellationToken = default);
 
     Task<Result<AbbreviatedAlertData>> List(Action<AlertListQuery> query, CancellationToken cancellationToken = default);
+
+    Task<Result<AlertCountData>> Count(Action<AlertCountQuery> query, CancellationToken cancellationToken = default);
 }
