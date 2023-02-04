@@ -1,8 +1,9 @@
+using Flare.API.Model;
 using Flare.Configuration;
 using Flare.Extensions;
 using Flare.Model;
 
-namespace Flare.Internal;
+namespace Flare.API.Internal;
 
 public partial class AlertImpl :
     FlareHttpClient,

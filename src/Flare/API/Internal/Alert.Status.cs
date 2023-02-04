@@ -1,4 +1,4 @@
-namespace Flare.Internal;
+namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {

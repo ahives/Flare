@@ -1,3 +1,4 @@
+using Flare.API.Model;
 using Flare.Configuration;
 using Flare.Extensions;
 using Flare.Model;
@@ -91,7 +92,7 @@ public class Tests
                 x.Offset(5);
                 x.Limit(100);
                 x.Order(OrderType.Asc);
-                x.Sort(SortField.Status);
+                x.Sort(SortableFields.Status);
                 x.SearchIdentifier(NewId.NextGuid());
             });
         

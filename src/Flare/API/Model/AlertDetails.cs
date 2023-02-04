@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Flare.Model;
+namespace Flare.API.Model;
 
 public record AlertDetails
 {

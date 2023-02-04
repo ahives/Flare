@@ -12,7 +12,7 @@ public interface AlertListQuery
 
     void Limit(int limit);
 
-    void Sort(SortField field);
+    void Sort(SortableFields field);
 
     void Order(OrderType type);
 }

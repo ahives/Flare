@@ -1,6 +1,6 @@
 namespace Flare;
 
-public enum SortField
+public enum SortableFields
 {
     CreatedAt,
     UpdatedAt,

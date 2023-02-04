@@ -1,8 +1,9 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
+using Flare.Model;
 
-namespace Flare.Model;
+namespace Flare.API.Model;
 
-public class AlertData
+public class AbbreviatedAlertData
 {
     [JsonPropertyName("id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -35,10 +36,6 @@ public class AlertData
 
     [JsonPropertyName("snoozed")]
     public bool Snoozed { get; set; }
-
-    [JsonPropertyName("snoozedUntil")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTimeOffset SnoozedUntil { get; set; }
 
     [JsonPropertyName("count")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -74,24 +71,4 @@ public class AlertData
     [JsonPropertyName("integration")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ApiIntegration Integration { get; set; }
-
-    [JsonPropertyName("report")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public AlertReport Report { get; set; }
-
-    [JsonPropertyName("actions")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<string> Actions { get; set; }
-
-    [JsonPropertyName("entity")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Entity { get; set; }
-
-    [JsonPropertyName("description")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Description { get; set; }
-
-    [JsonPropertyName("details")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public AlertDetails Details { get; set; }
 }

@@ -1,6 +1,6 @@
-using Flare.Model;
+using Flare.API.Model;
 
-namespace Flare.Internal;
+namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {

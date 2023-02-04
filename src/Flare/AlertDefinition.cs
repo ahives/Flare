@@ -1,4 +1,4 @@
-using Flare.Model;
+using Flare.API.Model;
 
 namespace Flare;
 
