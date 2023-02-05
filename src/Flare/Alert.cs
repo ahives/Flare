@@ -16,4 +16,12 @@ public interface Alert :
     Task<Result<AbbreviatedAlertData>> List(Action<AlertListQuery> query, CancellationToken cancellationToken = default);
 
     Task<Result<AlertCountData>> Count(Action<AlertCountQuery> query, CancellationToken cancellationToken = default);
+
+    Task<Result> Delete(Guid identifier, Action<AlertDeleteQuery> query, CancellationToken cancellationToken = default);
+
+    Task<Result> Acknowledge(Guid identifier, Action<AlertAcknowledge> action, Action<AlertAcknowledgeQuery> query,
+        CancellationToken cancellationToken = default);
+
+    Task<Result> Acknowledge(Guid identifier, AcknowledgeAlertRequest request, Action<AlertAcknowledgeQuery> query,
+        CancellationToken cancellationToken = default);
 }

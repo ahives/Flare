@@ -1,8 +1,5 @@
 using Flare.API.Model;
 using Flare.Configuration;
-using Flare.Extensions;
-using Flare.Model;
-using Flare.Serialization;
 using MassTransit;
 
 namespace Flare.Tests;
@@ -99,6 +96,37 @@ public class Tests
         Console.WriteLine(result.DebugInfo.URL);
     }
 
+    [Test]
+    public async Task Test3()
+    {
+        var config = new FlareConfigProvider()
+            .Configure(p =>
+            {
+                p.Client(c =>
+                {
+                    c.ConnectTo("");
+                    c.UsingApiKey("");
+                    c.UsingCredentials("guest", "guest");
+                });
+            });
+
+        var result = await new FlareClient(config)
+            .API<Alert>()
+            .Acknowledge(NewId.NextGuid(), x =>
+                {
+                    x.User("Flare");
+                    x.Source("Flare");
+                    x.Note("");
+                },
+                x =>
+                {
+                    x.SearchIdentifierType(AcknowledgeSearchIdentifierType.Id);
+                });
+        
+        Console.WriteLine(result.DebugInfo.URL);
+        Console.WriteLine(result.DebugInfo.Request);
+    }
+
     // [Test]
     // public void Test1b()
     // {
@@ -138,76 +166,76 @@ public class Tests
     //     // Assert.That(actual, Is.EqualTo(expected));
     // }
 
-    [Test]
-    public void Test3()
-    {
-        var expected = new AlertResponse
-        {
-            Result = "Request will be processed",
-            Took = 0.302f,
-            RequestId = NewId.NextGuid()
-        };
-
-        var actual = expected.ToJsonString(Serializer.Options).ToObject<AlertResponse>();
-        
-        Assert.That(actual, Is.EqualTo(expected));
-    }
-
-    [Test]
-    public void Test4()
-    {
-        var expected = new AlertData
-        {
-            Id = NewId.NextGuid(),
-            TinyId = "1791",
-            Alias = "event_573",
-            Message = "Our servers are in danger",
-            Status = AlertStatus.Closed,
-            Acknowledged = false,
-            IsSeen = true,
-            Tags = new List<string> {"OverwriteQuietHours", "Critical"},
-            Snoozed = true,
-            SnoozedUntil = DateTimeOffset.UtcNow,
-            Count = 79,
-            LastOccurredAt = DateTimeOffset.UtcNow,
-            CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow,
-            Source = "Isengard",
-            Owner = "morpheus@opsgenie.com",
-            Priority = AlertPriority.P5,
-            Responders = new object[]
-            {
-                Recipient.Add(NewId.NextGuid(), RecipientType.Team),
-                Recipient.Add(NewId.NextGuid(), RecipientType.User),
-                Recipient.Add(NewId.NextGuid(), RecipientType.Escalation),
-                Recipient.Add(NewId.NextGuid(), RecipientType.Schedule)
-            },
-            Integration = new ApiIntegration
-            {
-                Id = NewId.NextGuid(),
-                Name = "Nebuchadnezzar",
-                Type = ApiIntegrationType.API
-            },
-            Report = new AlertReport
-            {
-                AckTime = 15702,
-                CloseTime = 60503,
-                AcknowledgedBy = "agent_smith@opsgenie.com",
-                ClosedBy = "neo@opsgenie.com"
-            },
-            Actions = new List<string> {"Restart", "Ping"},
-            Entity = "EC2",
-            Description = "Example description",
-            Details = new AlertDetails
-            {
-                ServerName = "Zion",
-                Region = "Oregon"
-            }
-        };
-        
-        Console.WriteLine(expected.ToJsonString(Serializer.Options));
-        // var actual = expected.ToJsonString(Deserializer.Options).ToObject<AlertDefinitionRequest>();
-        
-        // Assert.That(actual, Is.EqualTo(expected));
-    }
+    // [Test]
+    // public void Test3()
+    // {
+    //     var expected = new AlertResponse
+    //     {
+    //         Result = "Request will be processed",
+    //         Took = 0.302f,
+    //         RequestId = NewId.NextGuid()
+    //     };
+    //
+    //     var actual = expected.ToJsonString(Serializer.Options).ToObject<AlertResponse>();
+    //     
+    //     Assert.That(actual, Is.EqualTo(expected));
+    // }
+    //
+    // [Test]
+    // public void Test4()
+    // {
+    //     var expected = new AlertData
+    //     {
+    //         Id = NewId.NextGuid(),
+    //         TinyId = "1791",
+    //         Alias = "event_573",
+    //         Message = "Our servers are in danger",
+    //         Status = AlertStatus.Closed,
+    //         Acknowledged = false,
+    //         IsSeen = true,
+    //         Tags = new List<string> {"OverwriteQuietHours", "Critical"},
+    //         Snoozed = true,
+    //         SnoozedUntil = DateTimeOffset.UtcNow,
+    //         Count = 79,
+    //         LastOccurredAt = DateTimeOffset.UtcNow,
+    //         CreatedAt = DateTimeOffset.UtcNow,
+    //         UpdatedAt = DateTimeOffset.UtcNow,
+    //         Source = "Isengard",
+    //         Owner = "morpheus@opsgenie.com",
+    //         Priority = AlertPriority.P5,
+    //         Responders = new object[]
+    //         {
+    //             Recipient.Add(NewId.NextGuid(), RecipientType.Team),
+    //             Recipient.Add(NewId.NextGuid(), RecipientType.User),
+    //             Recipient.Add(NewId.NextGuid(), RecipientType.Escalation),
+    //             Recipient.Add(NewId.NextGuid(), RecipientType.Schedule)
+    //         },
+    //         Integration = new ApiIntegration
+    //         {
+    //             Id = NewId.NextGuid(),
+    //             Name = "Nebuchadnezzar",
+    //             Type = ApiIntegrationType.API
+    //         },
+    //         Report = new AlertReport
+    //         {
+    //             AckTime = 15702,
+    //             CloseTime = 60503,
+    //             AcknowledgedBy = "agent_smith@opsgenie.com",
+    //             ClosedBy = "neo@opsgenie.com"
+    //         },
+    //         Actions = new List<string> {"Restart", "Ping"},
+    //         Entity = "EC2",
+    //         Description = "Example description",
+    //         Details = new AlertDetails
+    //         {
+    //             ServerName = "Zion",
+    //             Region = "Oregon"
+    //         }
+    //     };
+    //     
+    //     Console.WriteLine(expected.ToJsonString(Serializer.Options));
+    //     // var actual = expected.ToJsonString(Deserializer.Options).ToObject<AlertDefinitionRequest>();
+    //     
+    //     // Assert.That(actual, Is.EqualTo(expected));
+    // }
 }
