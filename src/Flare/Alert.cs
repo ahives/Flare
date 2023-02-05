@@ -24,4 +24,10 @@ public interface Alert :
 
     Task<Result> Acknowledge(Guid identifier, AcknowledgeAlertRequest request, Action<AlertAcknowledgeQuery> query,
         CancellationToken cancellationToken = default);
+
+    Task<Result> Close(Guid identifier, Action<AlertClosure> action, Action<AlertClosureQuery> query,
+        CancellationToken cancellationToken = default);
+
+    Task<Result> Close(Guid identifier, CloseAlertRequest request, Action<AlertClosureQuery> query,
+        CancellationToken cancellationToken = default);
 }

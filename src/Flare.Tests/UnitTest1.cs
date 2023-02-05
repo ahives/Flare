@@ -118,9 +118,40 @@ public class Tests
                     x.Source("Flare");
                     x.Note("");
                 },
-                x =>
+                q =>
                 {
-                    x.SearchIdentifierType(AcknowledgeSearchIdentifierType.Id);
+                    q.SearchIdentifierType(AcknowledgeSearchIdentifierType.Id);
+                });
+        
+        Console.WriteLine(result.DebugInfo.URL);
+        Console.WriteLine(result.DebugInfo.Request);
+    }
+
+    [Test]
+    public async Task Test4()
+    {
+        var config = new FlareConfigProvider()
+            .Configure(p =>
+            {
+                p.Client(c =>
+                {
+                    c.ConnectTo("");
+                    c.UsingApiKey("");
+                    c.UsingCredentials("guest", "guest");
+                });
+            });
+
+        var result = await new FlareClient(config)
+            .API<Alert>()
+            .Close(NewId.NextGuid(), x =>
+                {
+                    x.User("Flare");
+                    x.Source("Flare");
+                    x.Note("");
+                },
+                q =>
+                {
+                    q.SearchIdentifierType(CloseSearchIdentifierType.Id);
                 });
         
         Console.WriteLine(result.DebugInfo.URL);
