@@ -1,20 +1,13 @@
-using Flare.API.Model;
-using Flare.Configuration;
-using MassTransit;
-
 namespace Flare.Tests;
 
-public class Tests
+public class CreateAlertTests
 {
+    FlareConfig _config;
+
     [SetUp]
     public void Setup()
     {
-    }
-
-    [Test]
-    public async Task Test1()
-    {
-        var config = new FlareConfigProvider()
+        _config = new FlareConfigProvider()
             .Configure(p =>
             {
                 p.Client(c =>
@@ -24,8 +17,12 @@ public class Tests
                     c.UsingCredentials("guest", "guest");
                 });
             });
+    }
 
-        var result = await new FlareClient(config)
+    [Test]
+    public async Task Test1()
+    {
+        var result = await new FlareClient(_config)
             .API<Alert>()
             .Create(x =>
             {
@@ -66,96 +63,6 @@ public class Tests
         // var actual = expected.ToJsonString(Deserializer.Options).ToObject<CreateAlertRequest>();
         
         // Assert.That(actual, Is.EqualTo(expected));
-    }
-
-    [Test]
-    public async Task Test2()
-    {
-        var config = new FlareConfigProvider()
-            .Configure(p =>
-            {
-                p.Client(c =>
-                {
-                    c.ConnectTo("");
-                    c.UsingApiKey("");
-                    c.UsingCredentials("guest", "guest");
-                });
-            });
-
-        var result = await new FlareClient(config)
-            .API<Alert>()
-            .List(x =>
-            {
-                x.Offset(5);
-                x.Limit(100);
-                x.Order(OrderType.Asc);
-                x.Sort(SortableFields.Status);
-                x.SearchIdentifier(NewId.NextGuid());
-            });
-        
-        Console.WriteLine(result.DebugInfo.URL);
-    }
-
-    [Test]
-    public async Task Test3()
-    {
-        var config = new FlareConfigProvider()
-            .Configure(p =>
-            {
-                p.Client(c =>
-                {
-                    c.ConnectTo("");
-                    c.UsingApiKey("");
-                    c.UsingCredentials("guest", "guest");
-                });
-            });
-
-        var result = await new FlareClient(config)
-            .API<Alert>()
-            .Acknowledge(NewId.NextGuid(), x =>
-                {
-                    x.User("Flare");
-                    x.Source("Flare");
-                    x.Note("");
-                },
-                q =>
-                {
-                    q.SearchIdentifierType(AcknowledgeSearchIdentifierType.Id);
-                });
-        
-        Console.WriteLine(result.DebugInfo.URL);
-        Console.WriteLine(result.DebugInfo.Request);
-    }
-
-    [Test]
-    public async Task Test4()
-    {
-        var config = new FlareConfigProvider()
-            .Configure(p =>
-            {
-                p.Client(c =>
-                {
-                    c.ConnectTo("");
-                    c.UsingApiKey("");
-                    c.UsingCredentials("guest", "guest");
-                });
-            });
-
-        var result = await new FlareClient(config)
-            .API<Alert>()
-            .Close(NewId.NextGuid(), x =>
-                {
-                    x.User("Flare");
-                    x.Source("Flare");
-                    x.Note("");
-                },
-                q =>
-                {
-                    q.SearchIdentifierType(CloseSearchIdentifierType.Id);
-                });
-        
-        Console.WriteLine(result.DebugInfo.URL);
-        Console.WriteLine(result.DebugInfo.Request);
     }
 
     // [Test]
