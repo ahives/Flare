@@ -17,6 +17,11 @@ public class FlareConfigProvider :
         return config;
     }
 
+    public FlareConfig Configure(string file)
+    {
+        return null;
+    }
+
     
     class FlareConfigProviderImpl :
         FlareConfigurator

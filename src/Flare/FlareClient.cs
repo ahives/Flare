@@ -1,13 +1,14 @@
 using System.Collections.Concurrent;
-using System.Runtime.Serialization;
 using Flare.Configuration;
+using Flare.Exceptions;
 using Flare.Extensions;
 
 namespace Flare;
 
-public class FlareClient
+public class FlareClient :
+    IFlareClient
 {
-    private readonly FlareConfig _config;
+    readonly FlareConfig _config;
     readonly ConcurrentDictionary<string, object> _cache;
 
     public FlareClient(FlareConfig config)
@@ -17,6 +18,10 @@ public class FlareClient
             
         if (!TryRegisterAll())
             throw new FlareApiInitException("Could not register APIs.");
+    }
+
+    public FlareClient(IFlareConfigProvider configProvider, string file) : this(configProvider.Configure(file))
+    {
     }
 
     public T API<T>()
@@ -82,20 +87,6 @@ public class FlareClient
         }
     }
 
-    bool RegisterInstance(Type type, string key)
-    {
-        try
-        {
-            var instance = CreateInstance(type);
-
-            return instance is not null && _cache.TryAdd(key, instance);
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     IDictionary<string, Type> GetTypeMap(Type findType)
     {
         var types = findType.Assembly.GetTypes();
@@ -121,29 +112,5 @@ public class FlareClient
         return typeMap;
     }
 
-    object? CreateInstance(Type type) =>
-        type.IsDerivedFrom(typeof(FlareHttpClient))
-            ? Activator.CreateInstance(type, _config)
-            : Activator.CreateInstance(type);
-
     object CreateInstance(Type type, FlareConfig config) => Activator.CreateInstance(type, config);
-}
-
-public class FlareApiInitException : Exception
-{
-    public FlareApiInitException()
-    {
-    }
-
-    protected FlareApiInitException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-    }
-
-    public FlareApiInitException(string? message) : base(message)
-    {
-    }
-
-    public FlareApiInitException(string? message, Exception? innerException) : base(message, innerException)
-    {
-    }
 }
