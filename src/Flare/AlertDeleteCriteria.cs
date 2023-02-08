@@ -1,6 +1,6 @@
 namespace Flare;
 
-public interface AlertDeleteQuery
+public interface AlertDeleteCriteria
 {
     // void Query(string query);
 

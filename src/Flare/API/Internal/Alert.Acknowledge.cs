@@ -5,21 +5,12 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result> Acknowledge(Guid identifier, Action<AlertAcknowledge> action, Action<AlertAcknowledgeQuery> query, CancellationToken cancellationToken = default)
+    public async Task<Result> Acknowledge(Guid identifier, Action<AlertAcknowledgeCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertAcknowledgeImpl();
-        action?.Invoke(impl);
+        var impl = new AlertAcknowledgeCriteriaImpl();
+        criteria?.Invoke(impl);
 
         var request = impl.Request;
-
-        return await Acknowledge(identifier, request, query, cancellationToken);
-    }
-
-    public async Task<Result> Acknowledge(Guid identifier, AcknowledgeAlertRequest request, Action<AlertAcknowledgeQuery> query,
-        CancellationToken cancellationToken = default)
-    {
-        var impl = new AlertAcknowledgeQueryImpl();
-        query?.Invoke(impl);
 
         string queryString = BuildQueryString(impl.QueryArguments);
         string url = string.IsNullOrWhiteSpace(queryString)
@@ -30,12 +21,14 @@ public partial class AlertImpl
     }
 
 
-    class AlertAcknowledgeImpl :
-        AlertAcknowledge
+    class AlertAcknowledgeCriteriaImpl :
+        AlertAcknowledgeCriteria
     {
         string _note;
         string _source;
         string _user;
+
+        public IDictionary<string, object> QueryArguments { get; }
 
         public AcknowledgeAlertRequest Request =>
             new()
@@ -44,6 +37,11 @@ public partial class AlertImpl
                 Source = _source,
                 User = _user
             };
+
+        public AlertAcknowledgeCriteriaImpl()
+        {
+            QueryArguments = new Dictionary<string, object>();
+        }
 
         public void User(string displayName)
         {
@@ -58,17 +56,6 @@ public partial class AlertImpl
         public void Note(string note)
         {
             _note = note;
-        }
-    }
-
-    class AlertAcknowledgeQueryImpl :
-        AlertAcknowledgeQuery
-    {
-        public IDictionary<string, object> QueryArguments { get; }
-
-        public AlertAcknowledgeQueryImpl()
-        {
-            QueryArguments = new Dictionary<string, object>();
         }
 
         public void SearchIdentifierType(AcknowledgeSearchIdentifierType type)

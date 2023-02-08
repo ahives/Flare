@@ -4,10 +4,10 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result<AlertCountData>> Count(Action<AlertCountQuery> query, CancellationToken cancellationToken = default)
+    public async Task<Result<AlertCountData>> Count(Action<AlertCountQueryCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertCountQueryImpl();
-        query?.Invoke(impl);
+        var impl = new AlertCountQueryCriteriaImpl();
+        criteria?.Invoke(impl);
 
         string queryString = BuildQueryString(impl.QueryArguments);
         string url = string.IsNullOrWhiteSpace(queryString)
@@ -18,12 +18,12 @@ public partial class AlertImpl
     }
 
     
-    class AlertCountQueryImpl :
-        AlertCountQuery
+    class AlertCountQueryCriteriaImpl :
+        AlertCountQueryCriteria
     {
         public IDictionary<string, object> QueryArguments { get; }
 
-        public AlertCountQueryImpl()
+        public AlertCountQueryCriteriaImpl()
         {
             QueryArguments = new Dictionary<string, object>();
         }

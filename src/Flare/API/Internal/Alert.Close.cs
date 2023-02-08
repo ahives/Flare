@@ -5,36 +5,33 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result> Close(Guid identifier, Action<AlertClosure> action, Action<AlertClosureQuery> query, CancellationToken cancellationToken = default)
+    public async Task<Result> Close(Guid identifier, Action<AlertClosureCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertClosureImpl();
-        action?.Invoke(impl);
-
-        var request = impl.Request;
-
-        return await Close(identifier, request, query, cancellationToken);
-    }
-
-    public async Task<Result> Close(Guid identifier, CloseAlertRequest request, Action<AlertClosureQuery> query, CancellationToken cancellationToken = default)
-    {
-        var impl = new AlertClosureQueryImpl();
-        query?.Invoke(impl);
+        var impl = new AlertClosureCriteriaImpl();
+        criteria?.Invoke(impl);
 
         string queryString = BuildQueryString(impl.QueryArguments);
         string url = string.IsNullOrWhiteSpace(queryString)
             ? $"https://api.opsgenie.com/v2/alerts/{identifier}/close"
             : $"https://api.opsgenie.com/v2/alerts/{identifier}/close?{queryString}";
         
-        return new SuccessfulResult {DebugInfo = new DebugInfo{URL = url, Request = request.ToJsonString()}};
+        return new SuccessfulResult {DebugInfo = new DebugInfo{URL = url, Request = impl.Request.ToJsonString()}};
     }
 
 
-    class AlertClosureImpl :
-        AlertClosure
+    class AlertClosureCriteriaImpl :
+        AlertClosureCriteria
     {
         string _note;
         string _source;
         string _user;
+
+        public IDictionary<string, object> QueryArguments { get; }
+
+        public AlertClosureCriteriaImpl()
+        {
+            QueryArguments = new Dictionary<string, object>();
+        }
 
         public CloseAlertRequest Request =>
             new()
@@ -57,17 +54,6 @@ public partial class AlertImpl
         public void Note(string note)
         {
             _note = note;
-        }
-    }
-
-    class AlertClosureQueryImpl :
-        AlertClosureQuery
-    {
-        public IDictionary<string, object> QueryArguments { get; }
-
-        public AlertClosureQueryImpl()
-        {
-            QueryArguments = new Dictionary<string, object>();
         }
 
         public void SearchIdentifierType(CloseSearchIdentifierType type)

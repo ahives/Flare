@@ -4,10 +4,10 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result<AlertData>> Get(Guid identifier, Action<AlertGetQuery> query, CancellationToken cancellationToken = default)
+    public async Task<Result<AlertData>> Get(Guid identifier, Action<AlertGetCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertGetQueryImpl();
-        query?.Invoke(impl);
+        var impl = new AlertGetCriteriaImpl();
+        criteria?.Invoke(impl);
 
         string queryString = BuildQueryString(impl.QueryArguments);
         string url = string.IsNullOrWhiteSpace(queryString)
@@ -18,12 +18,12 @@ public partial class AlertImpl
     }
 
     
-    class AlertGetQueryImpl :
-        AlertGetQuery
+    class AlertGetCriteriaImpl :
+        AlertGetCriteria
     {
         public IDictionary<string, object> QueryArguments { get; }
 
-        public AlertGetQueryImpl()
+        public AlertGetCriteriaImpl()
         {
             QueryArguments = new Dictionary<string, object>();
         }

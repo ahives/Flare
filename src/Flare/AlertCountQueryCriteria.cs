@@ -1,6 +1,6 @@
 namespace Flare;
 
-public interface AlertCountQuery
+public interface AlertCountQueryCriteria
 {
     // void Query(string query);
 

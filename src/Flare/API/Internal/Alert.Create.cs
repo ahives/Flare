@@ -13,26 +13,21 @@ public partial class AlertImpl :
     {
     }
 
-    public async Task<Result> Create(Action<AlertDefinition> action, CancellationToken cancellationToken = default)
+    public async Task<Result> Create(Action<AlertDefinitionCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertDefinitionImpl();
-        action?.Invoke(impl);
+        var impl = new AlertDefinitionCriteriaImpl();
+        criteria?.Invoke(impl);
 
         var request = impl.Request;
 
-        return await Create(request, cancellationToken);
-    }
-
-    public async Task<Result> Create(CreateAlertRequest request, CancellationToken cancellationToken = default)
-    {
         string url = "https://api.opsgenie.com/v2/alerts";
         
         return new SuccessfulResult {DebugInfo = new DebugInfo {URL = url, Request = request.ToJsonString()}};
     }
 
 
-    class AlertDefinitionImpl :
-        AlertDefinition
+    class AlertDefinitionCriteriaImpl :
+        AlertDefinitionCriteria
     {
         private string _description;
         private string _clientIdentifier;

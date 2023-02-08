@@ -26,15 +26,12 @@ public class CloseAlertTests
         var result = await new FlareClient(_config)
             .API<Alert>()
             .Close(NewId.NextGuid(), x =>
-                {
-                    x.User("Flare");
-                    x.Source("Flare");
-                    x.Note("");
-                },
-                q =>
-                {
-                    q.SearchIdentifierType(CloseSearchIdentifierType.Id);
-                });
+            {
+                x.User("Flare");
+                x.Source("Flare");
+                x.Note("");
+                x.SearchIdentifierType(CloseSearchIdentifierType.Id);
+            });
         
         Console.WriteLine(result.DebugInfo.URL);
         Console.WriteLine(result.DebugInfo.Request);

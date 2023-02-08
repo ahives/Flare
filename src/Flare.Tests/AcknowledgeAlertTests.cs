@@ -33,15 +33,12 @@ public class AcknowledgeAlertTests
         var result = await new FlareClient(_config)
             .API<Alert>()
             .Acknowledge(NewId.NextGuid(), x =>
-                {
-                    x.User("Flare");
-                    x.Source("Flare");
-                    x.Note("");
-                },
-                q =>
-                {
-                    q.SearchIdentifierType(AcknowledgeSearchIdentifierType.Id);
-                });
+            {
+                x.User("Flare");
+                x.Source("Flare");
+                x.Note("");
+                x.SearchIdentifierType(AcknowledgeSearchIdentifierType.Id);
+            });
         
         Console.WriteLine(result.DebugInfo.URL);
         Console.WriteLine(result.DebugInfo.Request);
@@ -53,15 +50,12 @@ public class AcknowledgeAlertTests
         var result = await new FlareClient(_config)
             .API<Alert>()
             .Acknowledge(NewId.NextGuid(), x =>
-                {
-                    x.User("Flare");
-                    x.Source("Flare");
-                    x.Note("");
-                },
-                q =>
-                {
-                    q.SearchIdentifierType(AcknowledgeSearchIdentifierType.Id);
-                });
+            {
+                x.User("Flare");
+                x.Source("Flare");
+                x.Note("");
+                x.SearchIdentifierType(AcknowledgeSearchIdentifierType.Id);
+            });
         
         Console.WriteLine(result.DebugInfo.URL);
         Console.WriteLine(result.DebugInfo.Request);

@@ -1,6 +1,6 @@
 namespace Flare;
 
-public interface AlertGetQuery
+public interface AlertGetCriteria
 {
     // void Query(string query);
 
