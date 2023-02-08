@@ -5,9 +5,9 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result> Acknowledge(Guid identifier, Action<AlertAcknowledgeCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Result> Acknowledge(Guid identifier, Action<AcknowledgeAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertAcknowledgeCriteriaImpl();
+        var impl = new AcknowledgeAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
         var request = impl.Request;
@@ -21,8 +21,8 @@ public partial class AlertImpl
     }
 
 
-    class AlertAcknowledgeCriteriaImpl :
-        AlertAcknowledgeCriteria
+    class AcknowledgeAlertCriteriaImpl :
+        AcknowledgeAlertCriteria
     {
         string _note;
         string _source;
@@ -38,7 +38,7 @@ public partial class AlertImpl
                 User = _user
             };
 
-        public AlertAcknowledgeCriteriaImpl()
+        public AcknowledgeAlertCriteriaImpl()
         {
             QueryArguments = new Dictionary<string, object>();
         }

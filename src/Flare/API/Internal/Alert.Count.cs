@@ -4,9 +4,9 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result<AlertCountData>> Count(Action<AlertCountQueryCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Result<AlertCountData>> Count(Action<CountAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertCountQueryCriteriaImpl();
+        var impl = new CountAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
         string queryString = BuildQueryString(impl.QueryArguments);
@@ -18,12 +18,12 @@ public partial class AlertImpl
     }
 
     
-    class AlertCountQueryCriteriaImpl :
-        AlertCountQueryCriteria
+    class CountAlertCriteriaImpl :
+        CountAlertCriteria
     {
         public IDictionary<string, object> QueryArguments { get; }
 
-        public AlertCountQueryCriteriaImpl()
+        public CountAlertCriteriaImpl()
         {
             QueryArguments = new Dictionary<string, object>();
         }

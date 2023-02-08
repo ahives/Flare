@@ -5,9 +5,9 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result<AbbreviatedAlertData>> List(Action<AlertListCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Result<AbbreviatedAlertData>> List(Action<ListAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertListCriteriaImpl();
+        var impl = new ListAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
         string queryString = BuildQueryString(impl.QueryArguments);
@@ -40,12 +40,12 @@ public partial class AlertImpl
     }
 
     
-    class AlertListCriteriaImpl :
-        AlertListCriteria
+    class ListAlertCriteriaImpl :
+        ListAlertCriteria
     {
         public IDictionary<string, object> QueryArguments { get; }
 
-        public AlertListCriteriaImpl()
+        public ListAlertCriteriaImpl()
         {
             QueryArguments = new Dictionary<string, object>();
         }

@@ -2,9 +2,9 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result> Delete(Guid identifier, Action<AlertDeleteCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Result> Delete(Guid identifier, Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertDeleteCriteriaImpl();
+        var impl = new DeleteAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
         string queryString = BuildQueryString(impl.QueryArguments);
@@ -16,12 +16,12 @@ public partial class AlertImpl
     }
 
     
-    class AlertDeleteCriteriaImpl :
-        AlertDeleteCriteria
+    class DeleteAlertCriteriaImpl :
+        DeleteAlertCriteria
     {
         public IDictionary<string, object> QueryArguments { get; }
 
-        public AlertDeleteCriteriaImpl()
+        public DeleteAlertCriteriaImpl()
         {
             QueryArguments = new Dictionary<string, object>();
         }

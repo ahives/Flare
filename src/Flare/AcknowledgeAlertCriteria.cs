@@ -1,6 +1,6 @@
 namespace Flare;
 
-public interface AlertClosureCriteria
+public interface AcknowledgeAlertCriteria
 {
     void User(string displayName);
 
@@ -8,5 +8,5 @@ public interface AlertClosureCriteria
 
     void Note(string note);
 
-    void SearchIdentifierType(CloseSearchIdentifierType type);
+    void SearchIdentifierType(AcknowledgeSearchIdentifierType type);
 }

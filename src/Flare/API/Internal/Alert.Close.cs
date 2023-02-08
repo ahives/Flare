@@ -5,9 +5,9 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result> Close(Guid identifier, Action<AlertClosureCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Result> Close(Guid identifier, Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertClosureCriteriaImpl();
+        var impl = new CloseAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
         string queryString = BuildQueryString(impl.QueryArguments);
@@ -19,8 +19,8 @@ public partial class AlertImpl
     }
 
 
-    class AlertClosureCriteriaImpl :
-        AlertClosureCriteria
+    class CloseAlertCriteriaImpl :
+        CloseAlertCriteria
     {
         string _note;
         string _source;
@@ -28,7 +28,7 @@ public partial class AlertImpl
 
         public IDictionary<string, object> QueryArguments { get; }
 
-        public AlertClosureCriteriaImpl()
+        public CloseAlertCriteriaImpl()
         {
             QueryArguments = new Dictionary<string, object>();
         }

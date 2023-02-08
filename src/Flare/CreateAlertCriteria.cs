@@ -2,7 +2,7 @@ using Flare.API.Model;
 
 namespace Flare;
 
-public interface AlertDefinitionCriteria
+public interface CreateAlertCriteria
 {
     void Description(string description);
 

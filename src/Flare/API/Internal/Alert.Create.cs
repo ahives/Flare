@@ -13,9 +13,9 @@ public partial class AlertImpl :
     {
     }
 
-    public async Task<Result> Create(Action<AlertDefinitionCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Result> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new AlertDefinitionCriteriaImpl();
+        var impl = new CreateAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
         var request = impl.Request;
@@ -26,8 +26,8 @@ public partial class AlertImpl :
     }
 
 
-    class AlertDefinitionCriteriaImpl :
-        AlertDefinitionCriteria
+    class CreateAlertCriteriaImpl :
+        CreateAlertCriteria
     {
         private string _description;
         private string _clientIdentifier;
