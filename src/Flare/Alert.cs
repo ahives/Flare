@@ -20,9 +20,7 @@ public interface Alert :
     Task<Result> Acknowledge(Guid identifier, Action<AcknowledgeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Result> Close(Guid identifier, Action<CloseAlertCriteria> criteria,
-        CancellationToken cancellationToken = default);
+    Task<Result> Close(Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Result> AddNote(Action<AddAlertNoteCriteria> criteria,
-        CancellationToken cancellationToken = default);
+    Task<Result> AddNote(Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default);
 }
