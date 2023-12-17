@@ -1,21 +1,34 @@
-using System.Collections.Concurrent;
-using Flare.Configuration;
-using Flare.Exceptions;
-using Flare.Extensions;
-
 namespace Flare;
+
+using System.Collections.Concurrent;
+using System.Net;
+using System.Net.Http.Headers;
+using Configuration;
+using Exceptions;
+using Extensions;
 
 public class FlareClient :
     IFlareClient
 {
-    readonly FlareConfig _config;
+    // readonly FlareConfig _config;
     readonly ConcurrentDictionary<string, object> _cache;
+    readonly HttpClient _client;
+
+    public FlareClient(HttpClient client)
+    {
+        _client = client ?? throw new ArgumentNullException(nameof(client));
+        _cache = new ConcurrentDictionary<string, object>();
+
+        if (!TryRegisterAll())
+            throw new FlareApiInitException("Could not register APIs.");
+    }
 
     public FlareClient(FlareConfig config)
     {
-        _config = config;
+        // _config = config;
         _cache = new ConcurrentDictionary<string, object>();
-            
+        _client = GetClient(config);
+
         if (!TryRegisterAll())
             throw new FlareApiInitException("Could not register APIs.");
     }
@@ -40,7 +53,7 @@ public class FlareClient :
         if (_cache.ContainsKey(type.FullName))
             return (T) _cache[type.FullName];
                 
-        bool registered = RegisterInstance(typeMap[type.FullName], type.FullName, _config);
+        bool registered = RegisterInstance(typeMap[type.FullName], type.FullName, _client);
 
         if (registered)
             return (T) _cache[type.FullName];
@@ -64,7 +77,7 @@ public class FlareClient :
             if (_cache.ContainsKey(type.Key))
                 continue;
                 
-            registered = RegisterInstance(type.Value, type.Key, _config) & registered;
+            registered = RegisterInstance(type.Value, type.Key, _client) & registered;
         }
 
         if (!registered)
@@ -73,11 +86,11 @@ public class FlareClient :
         return registered;
     }
 
-    bool RegisterInstance(Type type, string key, FlareConfig config)
+    bool RegisterInstance(Type type, string key, HttpClient client)
     {
         try
         {
-            var instance = CreateInstance(type, config);
+            var instance = CreateInstance(type, client);
 
             return instance is not null && _cache.TryAdd(key, instance);
         }
@@ -112,5 +125,22 @@ public class FlareClient :
         return typeMap;
     }
 
-    object CreateInstance(Type type, FlareConfig config) => Activator.CreateInstance(type, config);
+    object CreateInstance(Type type, HttpClient client) => Activator.CreateInstance(type, client);
+
+    HttpClient GetClient(FlareConfig config)
+    {
+        var uri = new Uri($"{config.Url}/");
+        var handler = new HttpClientHandler
+        {
+            Credentials = new NetworkCredential(config.Credentials.Username, config.Credentials.Password)
+        };
+            
+        var client = new HttpClient(handler){BaseAddress = uri};
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        if (config.Timeout != TimeSpan.Zero)
+            client.Timeout = config.Timeout;
+
+        return client;
+    }
 }

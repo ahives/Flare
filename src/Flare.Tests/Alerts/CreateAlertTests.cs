@@ -1,28 +1,18 @@
-namespace Flare.Tests;
+namespace Flare.Tests.Alerts;
 
-public class CreateAlertTests
+using Flare.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+
+[TestFixture]
+public class CreateAlertTests :
+    FlareApiTesting
 {
-    FlareConfig _config;
-
-    [SetUp]
-    public void Setup()
-    {
-        _config = new FlareConfigProvider()
-            .Configure(p =>
-            {
-                p.Client(c =>
-                {
-                    c.ConnectTo("");
-                    c.UsingApiKey("");
-                    c.UsingCredentials("guest", "guest");
-                });
-            });
-    }
-
     [Test]
     public async Task Test1()
     {
-        var result = await new FlareClient(_config)
+        var result = await GetContainerBuilder("TestData/CreateAlertResponse.json")
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()
             .API<Alert>()
             .Create(x =>
             {
@@ -57,12 +47,19 @@ public class CreateAlertTests
                 x.RelatedToDomain("Fake entity");
                 x.Priority(AlertPriority.P1);
             });
-        
-        Console.WriteLine(result.DebugInfo.Request);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasData, Is.True);
+            Assert.That(result.HasFaulted, Is.False);
+            Assert.That(result.Data.Result, Is.EqualTo("Request will be processed"));
+            Assert.That(result.Data.Took, Is.EqualTo(0.302f));
+            Assert.That(result.Data.RequestId, Is.EqualTo(Guid.Parse("43a29c5c-3dbf-4fa4-9c26-f4f71023e120")));
+            var request = result.DebugInfo.Request.ToObject<CreateAlertRequest>();
+        });
+        // request.Responders
+        // Console.WriteLine(result.DebugInfo.Request);
         // Console.WriteLine(result.DebugInfo.Request.ToJsonString(Deserializer.Options));
-        // var actual = expected.ToJsonString(Deserializer.Options).ToObject<CreateAlertRequest>();
-        
-        // Assert.That(actual, Is.EqualTo(expected));
     }
 
     // [Test]

@@ -11,8 +11,9 @@ public static class ValueExtensions
     {
         for (int i = 0; i < values.Count; i++)
         {
-            if (!string.IsNullOrWhiteSpace(values[i]))
-                return false;
+            if (string.IsNullOrWhiteSpace(values[i]))
+                continue;
+            return false;
         }
 
         return true;

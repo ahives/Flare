@@ -70,7 +70,7 @@ public class AlertData
 
     [JsonPropertyName("responders")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public object[] Responders { get; set; }
+    public List<object> Responders { get; set; }
 
     [JsonPropertyName("integration")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

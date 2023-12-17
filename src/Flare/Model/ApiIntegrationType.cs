@@ -2,5 +2,6 @@ namespace Flare.Model;
 
 public enum ApiIntegrationType
 {
-    API
+    API,
+    CloudWatch
 }

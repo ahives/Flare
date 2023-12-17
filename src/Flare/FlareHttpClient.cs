@@ -1,21 +1,20 @@
+namespace Flare;
+
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Flare.Configuration;
-using Flare.Extensions;
-using Flare.Serialization;
-
-namespace Flare;
+using Extensions;
+using Serialization;
 
 public abstract class FlareHttpClient
 {
     readonly HttpClient _client;
     readonly IDictionary<string, Error> _errors;
 
-    protected FlareHttpClient(FlareConfig config)
+    protected FlareHttpClient(HttpClient client)
     {
-        _client = GetClient(config) ?? throw new ArgumentNullException(nameof(config));
+        _client = client ?? throw new ArgumentNullException(nameof(client));
         _errors = new Dictionary<string, Error>
         {
             {nameof(MissingMethodException), new() {Reason = "Could not properly handle '.' and/or '/' characters in URL."}},
@@ -36,32 +35,29 @@ public abstract class FlareHttpClient
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error> {GetError(response.StatusCode)}}};
-
-            var data = rawResponse.ToObject<List<T>>();
-
-            return new SuccessfulResult<IReadOnlyList<T>> {Data = data.GetDataOrEmpty(), DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failures<T>(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(rawResponse.ToObject<List<T>>().GetDataOrEmpty(), Debug.WithoutErrors(url, rawResponse));
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
     }
 
@@ -75,32 +71,29 @@ public abstract class FlareHttpClient
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult<T>{DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error> { GetError(response.StatusCode) }}};
-
-            var data = rawResponse.ToObject<T>();
-                
-            return new SuccessfulResult<T>{Data = data, DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failed<T>(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(rawResponse.ToObject<T>().GetDataOrDefault(), Debug.WithoutErrors(url, rawResponse))!;
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
     }
 
@@ -114,30 +107,29 @@ public abstract class FlareHttpClient
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult{DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error> { GetError(response.StatusCode) }}};
-                
-            return new SuccessfulResult{DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failed(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(Debug.WithoutErrors(url, rawResponse));
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failed(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
     }
 
@@ -151,69 +143,104 @@ public abstract class FlareHttpClient
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult{DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error> { GetError(response.StatusCode) }}};
-
-            return new SuccessfulResult{DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failed(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(Debug.WithoutErrors(url, rawResponse));
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failed(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
+        }
+    }
+
+    protected async Task<Result<T>> DeleteRequest<T>(string url, CancellationToken cancellationToken = default)
+    {
+        string rawResponse = null!;
+
+        try
+        {
+            var response = await _client.DeleteAsync(url, cancellationToken).ConfigureAwait(false);
+
+            rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+
+            return !response.IsSuccessStatusCode
+                ? Response.Failed<T>(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(rawResponse.ToObject<T>().GetDataOrDefault(), Debug.WithoutErrors(url, rawResponse))!;
+        }
+        catch (MissingMethodException e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
+        }
+        catch (HttpRequestException e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
+        }
+        catch (JsonException e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
+        }
+        catch (TaskCanceledException e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
+        }
+        catch (Exception e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
     }
 
     protected async Task<Result> PutRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
+        string rawRequest = null!;
 
         try
         {
-            string requestContent = request.ToJsonString(Serializer.Options);
-            var content = GetRequestContent(requestContent);
+            rawRequest = request.ToJsonString(Serializer.Options);
+            var content = GetRequestContent(rawRequest);
             var response = await _client.PutAsync(url, content, cancellationToken).ConfigureAwait(false);
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult{DebugInfo = new() {URL = url, Request = requestContent, Response = rawResponse, Errors = new List<Error> { GetError(response.StatusCode) }}};
-
-            return new SuccessfulResult{DebugInfo = new() {URL = url, Request = requestContent, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failed(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(Debug.WithoutErrors(url, rawResponse));
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failed(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
     }
 
@@ -228,151 +255,146 @@ public abstract class FlareHttpClient
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult{DebugInfo = new() {URL = url, Request = request, Response = rawResponse, Errors = new List<Error> { GetError(response.StatusCode) }}};
-
-            return new SuccessfulResult{DebugInfo = new() {URL = url, Request = request, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failed(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(Debug.WithoutErrors(url, rawResponse));
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failed(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
     }
 
     protected async Task<Result<T>> PostRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
+        string rawRequest = null!;
 
         try
         {
-            string requestContent = request.ToJsonString(Serializer.Options);
-            var content = GetRequestContent(requestContent);
+            rawRequest = request.ToJsonString(Serializer.Options);
+            var content = GetRequestContent(rawRequest);
             var response = await _client.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult<T>{DebugInfo = new() {URL = url, Request = requestContent, Response = rawResponse, Errors = new List<Error> { GetError(response.StatusCode) }}};
-
-            var data = rawResponse.ToObject<T>();
-
-            return new SuccessfulResult<T>{Data = data.GetDataOrDefault(), DebugInfo = new() {URL = url, Request = requestContent, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(rawResponse.ToObject<T>().GetDataOrDefault(), Debug.WithoutErrors(url, rawRequest, rawResponse))!;
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult<T> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
     }
 
     protected async Task<Result> PostRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
+        string rawRequest = null!;
 
         try
         {
-            string requestContent = request.ToJsonString(Serializer.Options);
-            var content = GetRequestContent(requestContent);
+            rawRequest = request.ToJsonString(Serializer.Options);
+            var content = GetRequestContent(rawRequest);
             var response = await _client.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult{DebugInfo = new() {URL = url, Request = requestContent, Response = rawResponse, Errors = new List<Error> { GetError(response.StatusCode) }}};
-
-            return new SuccessfulResult{DebugInfo = new() {URL = url, Request = requestContent, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failed(Debug.WithErrors(url, rawRequest, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(Debug.WithoutErrors(url, rawRequest, rawResponse));
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult{DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failed(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult{DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult{DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult{DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult{DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
     }
 
     protected async Task<Result<IReadOnlyList<T>>> PostListRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
+        string rawRequest = null!;
 
         try
         {
-            string requestContent = request.ToJsonString(Serializer.Options);
-            var content = GetRequestContent(requestContent);
+            rawRequest = request.ToJsonString(Serializer.Options);
+            var content = GetRequestContent(rawRequest);
             var response = await _client.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Request = requestContent, Response = rawResponse, Errors = new List<Error> {GetError(response.StatusCode)}}};
-
-            var data = rawResponse.ToObject<List<T>>();
-
-            return new SuccessfulResult<IReadOnlyList<T>> {Data = data.GetDataOrEmpty(), DebugInfo = new() {URL = url, Request = requestContent, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failures<T>(Debug.WithErrors(url, rawRequest, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(rawResponse.ToObject<List<T>>().GetDataOrEmpty(), Debug.WithoutErrors(url, rawRequest, rawResponse));
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult<IReadOnlyList<T>> {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failures<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
     }
 
@@ -386,48 +408,30 @@ public abstract class FlareHttpClient
 
             rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-                return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error> { GetError(response.StatusCode) }}};
-
-            return new SuccessfulResult {DebugInfo = new() {URL = url, Response = rawResponse, Errors = new List<Error>()}};
+            return !response.IsSuccessStatusCode
+                ? Response.Failed(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(Debug.WithoutErrors(url, rawResponse));
         }
         catch (MissingMethodException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(MissingMethodException)]}}};
+            return Response.Failed(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
         }
         catch (HttpRequestException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(HttpRequestException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
         }
         catch (JsonException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(JsonException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
         }
         catch (TaskCanceledException e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(TaskCanceledException)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
         }
         catch (Exception e)
         {
-            return new FaultedResult {DebugInfo = new() {URL = url, Response = rawResponse, Exception = e.Message, StackTrace = e.StackTrace, Errors = new List<Error> {_errors[nameof(Exception)]}}};
+            return Response.Failed(Debug.WithErrors(url, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
         }
-    }
-
-    HttpClient GetClient(FlareConfig config)
-    {
-        var uri = new Uri($"{config.Url}/");
-        var handler = new HttpClientHandler
-        {
-            Credentials = new NetworkCredential(config.Credentials.Username, config.Credentials.Password)
-        };
-
-        var client = new HttpClient(handler){BaseAddress = uri};
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        if (config.Timeout != TimeSpan.Zero)
-            client.Timeout = config.Timeout;
-
-        return client;
     }
 
     HttpContent GetRequestContent(string request)

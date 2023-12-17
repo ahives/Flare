@@ -1,8 +1,10 @@
 namespace Flare.API.Internal;
 
+using Model;
+
 public partial class AlertImpl
 {
-    public async Task<Result> Delete(Guid identifier, Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Result<AlertResponse>> Delete(Guid identifier, Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         var impl = new DeleteAlertCriteriaImpl();
         criteria?.Invoke(impl);
@@ -11,8 +13,8 @@ public partial class AlertImpl
         string url = string.IsNullOrWhiteSpace(queryString)
             ? $"https://api.opsgenie.com/v2/alerts/{identifier}"
             : $"https://api.opsgenie.com/v2/alerts/{identifier}?{queryString}";
-        
-        return new SuccessfulResult {DebugInfo = new DebugInfo{URL = url}};
+
+        return await DeleteRequest<AlertResponse>(url, cancellationToken).ConfigureAwait(false);
     }
 
     
@@ -28,14 +30,14 @@ public partial class AlertImpl
 
         public void SearchIdentifierType(DeleteSearchIdentifierType type)
         {
-            string searchIdentifierType = type switch
+            string identifierType = type switch
             {
                 DeleteSearchIdentifierType.AlertId => "AlertID",
                 DeleteSearchIdentifierType.TinyId => "tinyID",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
             
-            QueryArguments.Add("identifierType", searchIdentifierType);
+            QueryArguments.Add("identifierType", identifierType);
         }
 
         public void User(string displayName)

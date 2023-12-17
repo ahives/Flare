@@ -1,6 +1,10 @@
 namespace Flare.API.Model;
 
-public record GetAlertResponse :
-    AlertResponse<AlertData>
+using System.Text.Json.Serialization;
+
+public record GetAlertResponse
 {
+    [JsonPropertyName("data")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public AlertData Data { get; set; }
 }

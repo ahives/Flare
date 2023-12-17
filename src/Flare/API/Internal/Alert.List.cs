@@ -1,11 +1,10 @@
-using System.Text;
-using Flare.API.Model;
-
 namespace Flare.API.Internal;
+
+using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Result<AbbreviatedAlertData>> List(Action<ListAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Result<ListAlertResponse>> List(Action<ListAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         var impl = new ListAlertCriteriaImpl();
         criteria?.Invoke(impl);
@@ -14,29 +13,8 @@ public partial class AlertImpl
         string url = string.IsNullOrWhiteSpace(queryString)
             ? "https://api.opsgenie.com/v2/alerts"
             : $"https://api.opsgenie.com/v2/alerts?{queryString}";
-        
-        return new SuccessfulResult<AbbreviatedAlertData> {DebugInfo = new DebugInfo{URL = url}};
-    }
 
-    string BuildQueryString(IDictionary<string, object> arguments)
-    {
-        StringBuilder builder = new StringBuilder();
-        var keys = arguments.Keys.ToList();
-        
-        for (int i = 0; i < arguments.Keys.Count; i++)
-        {
-            string key = keys[i];
-
-            if (i == 0)
-            {
-                builder.AppendFormat($"{key}={arguments[key]}");
-                continue;
-            }
-            
-            builder.AppendFormat($"&{key}={arguments[key]}");
-        }
-
-        return builder.ToString();
+        return await GetRequest<ListAlertResponse>(url, cancellationToken);
     }
 
     

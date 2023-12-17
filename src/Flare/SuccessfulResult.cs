@@ -15,7 +15,6 @@ public record SuccessfulResult<T> :
 {
     public SuccessfulResult()
     {
-        HasData = Data is not null;
         HasFaulted = false;
         Timestamp = DateTimeOffset.UtcNow;
     }

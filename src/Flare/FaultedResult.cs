@@ -16,7 +16,6 @@ public record FaultedResult<T> :
     public FaultedResult()
     {
         Data = default!;
-        HasData = false;
         HasFaulted = true;
         Timestamp = DateTimeOffset.UtcNow;
     }

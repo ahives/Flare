@@ -7,14 +7,13 @@ namespace Flare.Serialization.Converters;
 public class ApiIntegrationTypeConverter :
     JsonConverter<ApiIntegrationType>
 {
-    public override ApiIntegrationType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        return reader.GetString() switch
+    public override ApiIntegrationType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+        reader.GetString() switch
         {
             "API" => ApiIntegrationType.API,
+            "CloudWatch" => ApiIntegrationType.CloudWatch,
             _ => throw new JsonException()
         };
-    }
 
     public override void Write(Utf8JsonWriter writer, ApiIntegrationType value, JsonSerializerOptions options)
     {

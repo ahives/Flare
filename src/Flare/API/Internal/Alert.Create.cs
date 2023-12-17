@@ -1,19 +1,11 @@
-using Flare.API.Model;
-using Flare.Configuration;
-using Flare.Extensions;
-using Flare.Model;
-
 namespace Flare.API.Internal;
 
-public partial class AlertImpl :
-    FlareHttpClient,
-    Alert
-{
-    public AlertImpl(FlareConfig config) : base(config)
-    {
-    }
+using Model;
+using Flare.Model;
 
-    public async Task<Result> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default)
+public partial class AlertImpl
+{
+    public async Task<Result<AlertResponse>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         var impl = new CreateAlertCriteriaImpl();
         criteria?.Invoke(impl);
@@ -21,8 +13,8 @@ public partial class AlertImpl :
         var request = impl.Request;
 
         string url = "https://api.opsgenie.com/v2/alerts";
-        
-        return new SuccessfulResult {DebugInfo = new DebugInfo {URL = url, Request = request.ToJsonString()}};
+
+        return await PostRequest<AlertResponse, CreateAlertRequest>(url, request, cancellationToken).ConfigureAwait(false);
     }
 
 
@@ -63,7 +55,6 @@ public partial class AlertImpl :
         public void Responders(Action<Responder> action)
         {
             var impl = new ResponderImpl();
-            
             action?.Invoke(impl);
 
             _responderRecipients = impl.Recipients.ToArray();
@@ -72,7 +63,6 @@ public partial class AlertImpl :
         public void VisibleTo(Action<VisibleTo> action)
         {
             var impl = new VisibleToImpl();
-            
             action?.Invoke(impl);
 
             _visibility = impl.AlertVisibility.ToArray();
@@ -91,7 +81,6 @@ public partial class AlertImpl :
         public void CustomProperties(Action<AlertProperty> action)
         {
             var impl = new AlertPropertyImpl();
-            
             action?.Invoke(impl);
 
             _properties = impl.Properties;
@@ -103,8 +92,9 @@ public partial class AlertImpl :
 
             for (int i = 0; i < actions.Length; i++)
             {
-                if (!string.IsNullOrWhiteSpace(actions[i]))
-                    temp.Add(actions[i]);
+                if (string.IsNullOrWhiteSpace(actions[i]))
+                    continue;
+                temp.Add(actions[i]);
             }
 
             _actions = temp;
@@ -116,8 +106,9 @@ public partial class AlertImpl :
 
             for (int i = 0; i < tags.Length; i++)
             {
-                if (!string.IsNullOrWhiteSpace(tags[i]))
-                    temp.Add(tags[i]);
+                if (string.IsNullOrWhiteSpace(tags[i]))
+                    continue;
+                temp.Add(tags[i]);
             }
 
             _tags = temp;
@@ -163,7 +154,6 @@ public partial class AlertImpl :
             public void Team(Action<RespondToTeam> action)
             {
                 var impl = new RespondToTeamImpl();
-            
                 action?.Invoke(impl);
 
                 Recipients.Add(impl.Data);
@@ -172,7 +162,6 @@ public partial class AlertImpl :
             public void User(Action<RespondToUser> action)
             {
                 var impl = new RespondToUserImpl();
-            
                 action?.Invoke(impl);
 
                 Recipients.Add(impl.Data);
@@ -181,7 +170,6 @@ public partial class AlertImpl :
             public void Escalation(Action<RespondToEscalation> action)
             {
                 var impl = new RespondToEscalationImpl();
-            
                 action?.Invoke(impl);
 
                 Recipients.Add(impl.Data);
@@ -190,7 +178,6 @@ public partial class AlertImpl :
             public void Schedule(Action<RespondToSchedule> action)
             {
                 var impl = new RespondToScheduleImpl();
-            
                 action?.Invoke(impl);
 
                 Recipients.Add(impl.Data);
@@ -274,7 +261,6 @@ public partial class AlertImpl :
             public void Team(Action<VisibleToTeam> action)
             {
                 var impl = new VisibleToTeamImpl();
-            
                 action?.Invoke(impl);
 
                 AlertVisibility.Add(impl.Data);
@@ -283,7 +269,6 @@ public partial class AlertImpl :
             public void User(Action<VisibleToUser> action)
             {
                 var impl = new VisibleToUserImpl();
-            
                 action?.Invoke(impl);
 
                 AlertVisibility.Add(impl.Data);

@@ -4,7 +4,7 @@ namespace Flare.API.Internal;
 
 public partial class AlertImpl
 {
-    public async Task<Result<AlertData>> Get(Guid identifier, Action<GetAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Result<GetAlertResponse>> Get(string identifier, Action<GetAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         var impl = new GetAlertCriteriaImpl();
         criteria?.Invoke(impl);
@@ -13,8 +13,8 @@ public partial class AlertImpl
         string url = string.IsNullOrWhiteSpace(queryString)
             ? $"https://api.opsgenie.com/v2/alerts/{identifier}"
             : $"https://api.opsgenie.com/v2/alerts/{identifier}?{queryString}";
-        
-        return new SuccessfulResult<AlertData> {DebugInfo = new DebugInfo{URL = url}};
+
+        return await GetRequest<GetAlertResponse>(url, cancellationToken);
     }
 
     
