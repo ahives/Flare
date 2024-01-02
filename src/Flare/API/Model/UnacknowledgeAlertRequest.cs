@@ -1,8 +1,8 @@
-using System.Text.Json.Serialization;
-
 namespace Flare.API.Model;
 
-public sealed record CloseAlertRequest
+using System.Text.Json.Serialization;
+
+public sealed record UnacknowledgeAlertRequest
 {
     [JsonPropertyName("user")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

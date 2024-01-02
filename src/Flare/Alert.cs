@@ -21,6 +21,9 @@ public interface Alert :
     Task<Maybe<AcknowledgeInfo>> Acknowledge(Guid identifier, IdentifierType identifierType, Action<AcknowledgeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
+    Task<Maybe<UnacknowledgeInfo>> Unacknowledge(Guid identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
+        CancellationToken cancellationToken = default);
+
     Task<Maybe<AlertCloseInfo>> Close(Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
     Task<Maybe<AlertNoteInfo>> AddNote(Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default);
