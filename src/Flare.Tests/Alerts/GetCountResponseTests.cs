@@ -18,7 +18,7 @@ public class GetCountResponseTests :
                 x.SearchIdentifier(NewId.NextGuid());
                 x.SearchIdentifierType(IdentifierType.Id);
             });
-        
+
         Assert.Multiple(() =>
         {
             Assert.That(result.HasResult, Is.True);

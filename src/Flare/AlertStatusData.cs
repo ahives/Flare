@@ -1,20 +1,38 @@
 namespace Flare;
 
+using System.Text.Json.Serialization;
+
 public record AlertStatusData
 {
-    public Guid Id { get; set; }
+    [JsonPropertyName("alertId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public Guid Id { get; init; }
     
-    public Guid IntegrationId { get; set; }
+    [JsonPropertyName("integrationId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public Guid IntegrationId { get; init; }
     
-    public Guid Alias { get; set; }
+    [JsonPropertyName("alias")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public Guid Alias { get; init; }
     
-    public string Action { get; set; }
+    [JsonPropertyName("action")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public AlertAction Action { get; init; }
     
-    public DateTimeOffset ProcessedAt { get; set; }
+    [JsonPropertyName("processedAt")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTimeOffset ProcessedAt { get; init; }
     
-    public bool Success { get; set; }
+    [JsonPropertyName("success")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Success { get; init; }
     
-    public bool IsSuccess { get; set; }
+    [JsonPropertyName("isSuccess")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IsSuccess { get; init; }
     
-    public string Status { get; set; }
+    [JsonPropertyName("status")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string Status { get; init; }
 }

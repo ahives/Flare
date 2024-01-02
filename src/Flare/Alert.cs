@@ -10,7 +10,7 @@ public interface Alert :
     Task<Maybe<AlertResponse>> Delete(Guid identifier, IdentifierType identifierType,
         Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertStatusData>> GetStatus(Guid requestId, CancellationToken cancellationToken = default);
+    Task<Maybe<AlertStatusInfo>> Status(Guid requestId, CancellationToken cancellationToken = default);
 
     Task<Maybe<AlertInfo>> Get(string identifier, IdentifierType identifierType, CancellationToken cancellationToken = default);
 

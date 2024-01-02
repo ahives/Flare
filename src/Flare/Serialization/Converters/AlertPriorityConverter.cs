@@ -1,8 +1,8 @@
+namespace Flare.Serialization.Converters;
+
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Flare.API.Model;
-
-namespace Flare.Serialization.Converters;
 
 public class AlertPriorityConverter :
     JsonConverter<AlertPriority>

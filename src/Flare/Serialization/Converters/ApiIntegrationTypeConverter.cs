@@ -1,8 +1,8 @@
+namespace Flare.Serialization.Converters;
+
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Flare.Model;
-
-namespace Flare.Serialization.Converters;
+using Model;
 
 public class ApiIntegrationTypeConverter :
     JsonConverter<ApiIntegrationType>

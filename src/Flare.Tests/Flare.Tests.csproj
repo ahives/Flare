@@ -63,6 +63,10 @@
       <Content Include="TestData\AcknowledgeAlertResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="TestData\AlertStatusResponse.json" />
+      <Content Include="TestData\AlertStatusResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>
