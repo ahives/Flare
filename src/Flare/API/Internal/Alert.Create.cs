@@ -5,7 +5,7 @@ using Flare.Model;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertResponse>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<CreateAlertInfo>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -14,7 +14,7 @@ public partial class AlertImpl
 
         string url = "https://api.opsgenie.com/v2/alerts";
 
-        return await PostRequest<AlertResponse, CreateAlertRequest>(url, impl.Request, cancellationToken).ConfigureAwait(false);
+        return await PostRequest<CreateAlertInfo, CreateAlertRequest>(url, impl.Request, cancellationToken).ConfigureAwait(false);
     }
 
 

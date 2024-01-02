@@ -4,7 +4,7 @@ using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<UnacknowledgeInfo>> Unacknowledge(Guid identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
+    public async Task<Maybe<UnacknowledgeAlertInfo>> Unacknowledge(Guid identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -15,7 +15,7 @@ public partial class AlertImpl
         string url =
             $"https://api.opsgenie.com/v2/alerts/{identifier}/unacknowledge?identifierType={GetIdentifierType(identifierType)}";
 
-        return await PostRequest<UnacknowledgeInfo, UnacknowledgeAlertRequest>(url, impl.Request, cancellationToken);
+        return await PostRequest<UnacknowledgeAlertInfo, UnacknowledgeAlertRequest>(url, impl.Request, cancellationToken);
 
         string GetIdentifierType(IdentifierType type) =>
             type switch

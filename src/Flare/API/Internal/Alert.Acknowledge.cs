@@ -4,7 +4,7 @@ using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AcknowledgeInfo>> Acknowledge(Guid identifier, IdentifierType identifierType, Action<AcknowledgeAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<AcknowledgeAlertInfo>> Acknowledge(Guid identifier, IdentifierType identifierType, Action<AcknowledgeAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -14,7 +14,7 @@ public partial class AlertImpl
         string url =
             $"https://api.opsgenie.com/v2/alerts/{identifier}/acknowledge?identifierType={GetIdentifierType(identifierType)}";
 
-        return await PostRequest<AcknowledgeInfo, AcknowledgeAlertRequest>(url, impl.Request, cancellationToken);
+        return await PostRequest<AcknowledgeAlertInfo, AcknowledgeAlertRequest>(url, impl.Request, cancellationToken);
 
         string GetIdentifierType(IdentifierType type) =>
             type switch

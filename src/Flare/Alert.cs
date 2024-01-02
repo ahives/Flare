@@ -5,9 +5,9 @@ using Flare.API.Model;
 public interface Alert :
     FlareAPI
 {
-    Task<Maybe<AlertResponse>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<CreateAlertInfo>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertResponse>> Delete(Guid identifier, IdentifierType identifierType,
+    Task<Maybe<DeleteAlertInfo>> Delete(Guid identifier, IdentifierType identifierType,
         Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
     Task<Maybe<AlertStatusInfo>> Status(Guid requestId, CancellationToken cancellationToken = default);
@@ -18,10 +18,13 @@ public interface Alert :
 
     Task<Maybe<AlertCountInfo>> Count(Action<CountAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AcknowledgeInfo>> Acknowledge(Guid identifier, IdentifierType identifierType, Action<AcknowledgeAlertCriteria> criteria,
+    Task<Maybe<AcknowledgeAlertInfo>> Acknowledge(Guid identifier, IdentifierType identifierType, Action<AcknowledgeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Maybe<UnacknowledgeInfo>> Unacknowledge(Guid identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
+    Task<Maybe<UnacknowledgeAlertInfo>> Unacknowledge(Guid identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
+        CancellationToken cancellationToken = default);
+
+    Task<Maybe<SnoozeAlertInfo>> Snooze(Guid identifier, IdentifierType identifierType, Action<SnoozeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
     Task<Maybe<AlertCloseInfo>> Close(Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default);

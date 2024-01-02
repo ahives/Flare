@@ -3,13 +3,13 @@ namespace Flare.Tests.Alerts;
 using Microsoft.Extensions.DependencyInjection;
 
 [TestFixture]
-public class GetCountResponseTests :
+public class CountResponseTests :
     FlareApiTesting
 {
     [Test]
     public async Task Test1()
     {
-        var result = await GetContainerBuilder("TestData/GetCountResponse.json")
+        var result = await GetContainerBuilder("TestData/AlertCountResponse.json")
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()

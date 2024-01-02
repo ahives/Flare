@@ -48,7 +48,7 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="TestData\GetCountResponse.json" />
-      <Content Include="TestData\GetCountResponse.json">
+      <Content Include="TestData\AlertCountResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="TestData\CloseAlertResponse.json" />
@@ -69,6 +69,10 @@
       </Content>
       <None Remove="TestData\UnacknowledgeAlertResponse.json" />
       <Content Include="TestData\UnacknowledgeAlertResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="TestData\SnoozeAlertResponse.json" />
+      <Content Include="TestData\SnoozeAlertResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

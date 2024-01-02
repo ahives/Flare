@@ -4,7 +4,7 @@ using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertResponse>> Delete(Guid identifier, IdentifierType identifierType, Action<DeleteAlertCriteria> criteria,
+    public async Task<Maybe<DeleteAlertInfo>> Delete(Guid identifier, IdentifierType identifierType, Action<DeleteAlertCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -19,7 +19,7 @@ public partial class AlertImpl
             ? $"https://api.opsgenie.com/v2/alerts/{identifier}"
             : $"https://api.opsgenie.com/v2/alerts/{identifier}?{queryString}";
 
-        return await DeleteRequest<AlertResponse>(url, cancellationToken).ConfigureAwait(false);
+        return await DeleteRequest<DeleteAlertInfo>(url, cancellationToken).ConfigureAwait(false);
 
         string GetIdentifierType(IdentifierType type) =>
             type switch

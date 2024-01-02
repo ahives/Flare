@@ -2,8 +2,12 @@ namespace Flare.API.Model;
 
 using System.Text.Json.Serialization;
 
-public sealed record UnacknowledgeAlertRequest
+public sealed record SnoozeAlertRequest
 {
+    [JsonPropertyName("endTime")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTimeOffset? EndTime { get; init; }
+
     [JsonPropertyName("user")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string User { get; init; }
