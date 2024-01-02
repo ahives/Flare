@@ -7,6 +7,4 @@ public interface AcknowledgeAlertCriteria
     void Source(string displayName);
 
     void Note(string note);
-
-    void SearchIdentifierType(AcknowledgeSearchIdentifierType type);
 }

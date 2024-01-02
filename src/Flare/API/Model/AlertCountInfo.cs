@@ -2,11 +2,11 @@ namespace Flare.API.Model;
 
 using System.Text.Json.Serialization;
 
-public sealed record AlertResponse
+public sealed record AlertCountInfo
 {
-    [JsonPropertyName("result")]
+    [JsonPropertyName("data")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Result { get; init; }
+    public AlertCountData Data { get; init; }
 
     [JsonPropertyName("took")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

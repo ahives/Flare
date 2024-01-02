@@ -43,7 +43,24 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="TestData\ListAlertResponse.json" />
-      <Content Include="TestData\ListAlertResponse.json">
+      <None Remove="TestData\GetAllAlertResponse.json" />
+      <Content Include="TestData\GetAllAlertResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="TestData\GetCountResponse.json" />
+      <Content Include="TestData\GetCountResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="TestData\CloseAlertResponse.json" />
+      <Content Include="TestData\CloseAlertResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="TestData\AddAlertNoteResponse.json" />
+      <Content Include="TestData\AddAlertNoteResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="TestData\AcknowledgeAlertResponse.json" />
+      <Content Include="TestData\AcknowledgeAlertResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

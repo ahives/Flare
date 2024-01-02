@@ -5,16 +5,16 @@ using Flare.Model;
 
 public partial class AlertImpl
 {
-    public async Task<Result<AlertResponse>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<AlertResponse>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var impl = new CreateAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
-        var request = impl.Request;
-
         string url = "https://api.opsgenie.com/v2/alerts";
 
-        return await PostRequest<AlertResponse, CreateAlertRequest>(url, request, cancellationToken).ConfigureAwait(false);
+        return await PostRequest<AlertResponse, CreateAlertRequest>(url, impl.Request, cancellationToken).ConfigureAwait(false);
     }
 
 
@@ -140,7 +140,8 @@ public partial class AlertImpl
                 Properties.Add(name, value);
             }
         }
-        
+
+
         class ResponderImpl :
             Responder
         {
@@ -199,6 +200,7 @@ public partial class AlertImpl
                 }
             }
 
+
             class RespondToScheduleImpl :
                 RespondToSchedule
             {
@@ -214,6 +216,7 @@ public partial class AlertImpl
                     Data = TeamRecipient.Add(name, RecipientType.Schedule);
                 }
             }
+
 
             class RespondToUserImpl :
                 RespondToUser
@@ -231,6 +234,7 @@ public partial class AlertImpl
                 }
             }
 
+
             class RespondToTeamImpl :
                 RespondToTeam
             {
@@ -247,6 +251,7 @@ public partial class AlertImpl
                 }
             }
         }
+
 
         class VisibleToImpl :
             VisibleTo
@@ -290,6 +295,7 @@ public partial class AlertImpl
                     Data = TeamRecipient.Add(name, RecipientType.Team);
                 }
             }
+
 
             class VisibleToUserImpl :
                 VisibleToUser

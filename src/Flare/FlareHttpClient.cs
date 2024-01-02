@@ -25,7 +25,7 @@ public abstract class FlareHttpClient
         };
     }
 
-    protected async Task<Result<IReadOnlyList<T>>> GetAllRequest<T>(string url, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<IReadOnlyList<T>>> GetAllRequest<T>(string url, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 
@@ -61,7 +61,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result<T>> GetRequest<T>(string url, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<T>> GetRequest<T>(string url, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 
@@ -97,7 +97,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result> GetRequest(string url, CancellationToken cancellationToken = default)
+    protected async Task<Maybe> GetRequest(string url, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 
@@ -133,7 +133,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result> DeleteRequest(string url, CancellationToken cancellationToken = default)
+    protected async Task<Maybe> DeleteRequest(string url, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 
@@ -169,7 +169,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result<T>> DeleteRequest<T>(string url, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<T>> DeleteRequest<T>(string url, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 
@@ -205,7 +205,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result> PutRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
+    protected async Task<Maybe> PutRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
         string rawRequest = null!;
@@ -244,7 +244,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result> PutRequest(string url, string request, CancellationToken cancellationToken = default)
+    protected async Task<Maybe> PutRequest(string url, string request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 
@@ -281,7 +281,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result<T>> PostRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<T>> PostRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
         string rawRequest = null!;
@@ -320,7 +320,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result> PostRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
+    protected async Task<Maybe> PostRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
         string rawRequest = null!;
@@ -359,7 +359,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result<IReadOnlyList<T>>> PostListRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<IReadOnlyList<T>>> PostListRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
         string rawRequest = null!;
@@ -398,7 +398,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Result> PostEmptyRequest(string url, CancellationToken cancellationToken = default)
+    protected async Task<Maybe> PostEmptyRequest(string url, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 

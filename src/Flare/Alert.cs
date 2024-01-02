@@ -1,26 +1,27 @@
-using Flare.API.Model;
-
 namespace Flare;
+
+using Flare.API.Model;
 
 public interface Alert :
     FlareAPI
 {
-    Task<Result<AlertResponse>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<AlertResponse>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Result<AlertResponse>> Delete(Guid identifier, Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<AlertResponse>> Delete(Guid identifier, IdentifierType identifierType,
+        Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Result<AlertStatusData>> GetStatus(Guid requestId, CancellationToken cancellationToken = default);
+    Task<Maybe<AlertStatusData>> GetStatus(Guid requestId, CancellationToken cancellationToken = default);
 
-    Task<Result<GetAlertResponse>> Get(string identifier, Action<GetAlertCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<AlertInfo>> Get(string identifier, IdentifierType identifierType, CancellationToken cancellationToken = default);
 
-    Task<Result<ListAlertResponse>> List(Action<ListAlertCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<AlertAllInfo>> GetAll(Action<QueryAllAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Result<AlertCountData>> Count(Action<CountAlertCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<AlertCountInfo>> Count(Action<CountAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Result> Acknowledge(Guid identifier, Action<AcknowledgeAlertCriteria> criteria,
+    Task<Maybe<AcknowledgeInfo>> Acknowledge(Guid identifier, IdentifierType identifierType, Action<AcknowledgeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Result> Close(Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<AlertCloseInfo>> Close(Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Result> AddNote(Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<AlertNoteInfo>> AddNote(Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default);
 }

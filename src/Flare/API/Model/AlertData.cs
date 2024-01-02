@@ -1,98 +1,98 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace Flare.API.Model;
+
+using System.Text.Json.Serialization;
 using Flare.Model;
 
-namespace Flare.API.Model;
-
-public class AlertData
+public sealed record AlertData
 {
     [JsonPropertyName("id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public Guid Id { get; set; }
-    
+    public Guid Id { get; init; }
+
     [JsonPropertyName("tinyId")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string TinyId { get; set; }
+    public string TinyId { get; init; }
 
     [JsonPropertyName("alias")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Alias { get; set; }
-    
+    public string Alias { get; init; }
+
     [JsonPropertyName("message")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Message { get; set; }
-    
+    public string Message { get; init; }
+
     [JsonPropertyName("status")]
-    public AlertStatus Status { get; set; }
-    
+    public AlertStatus Status { get; init; }
+
     [JsonPropertyName("acknowledged")]
-    public bool Acknowledged { get; set; }
+    public bool Acknowledged { get; init; }
 
     [JsonPropertyName("isSeen")]
-    public bool IsSeen { get; set; }
+    public bool IsSeen { get; init; }
 
     [JsonPropertyName("tags")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<string> Tags { get; set; }
+    public List<string> Tags { get; init; }
 
     [JsonPropertyName("snoozed")]
-    public bool Snoozed { get; set; }
+    public bool Snoozed { get; init; }
 
     [JsonPropertyName("snoozedUntil")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTimeOffset SnoozedUntil { get; set; }
+    public DateTimeOffset SnoozedUntil { get; init; }
 
     [JsonPropertyName("count")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public long Count { get; set; }
+    public long Count { get; init; }
 
     [JsonPropertyName("lastOccurredAt")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTimeOffset LastOccurredAt { get; set; }
+    public DateTimeOffset LastOccurredAt { get; init; }
 
     [JsonPropertyName("createdAt")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; init; }
 
     [JsonPropertyName("updatedAt")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTimeOffset UpdatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; init; }
 
     [JsonPropertyName("source")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Source { get; set; }
+    public string Source { get; init; }
 
     [JsonPropertyName("owner")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Owner { get; set; }
+    public string Owner { get; init; }
 
     [JsonPropertyName("priority")]
-    public AlertPriority Priority { get; set; }
+    public AlertPriority Priority { get; init; }
 
     [JsonPropertyName("responders")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<object> Responders { get; set; }
+    public List<object> Responders { get; init; }
 
     [JsonPropertyName("integration")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public ApiIntegration Integration { get; set; }
+    public ApiIntegration Integration { get; init; }
 
     [JsonPropertyName("report")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public AlertReport Report { get; set; }
+    public AlertReport Report { get; init; }
 
     [JsonPropertyName("actions")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<string> Actions { get; set; }
+    public List<string> Actions { get; init; }
 
     [JsonPropertyName("entity")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Entity { get; set; }
+    public string Entity { get; init; }
 
     [JsonPropertyName("description")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Description { get; set; }
+    public string Description { get; init; }
 
     [JsonPropertyName("details")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public AlertDetails Details { get; set; }
+    public AlertDetails Details { get; init; }
 }

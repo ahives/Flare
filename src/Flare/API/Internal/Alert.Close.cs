@@ -1,12 +1,13 @@
-using Flare.API.Model;
-using Flare.Extensions;
-
 namespace Flare.API.Internal;
+
+using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Result> Close(Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<AlertCloseInfo>> Close(Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var impl = new CloseAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
@@ -14,8 +15,11 @@ public partial class AlertImpl
         string url = string.IsNullOrWhiteSpace(queryString)
             ? $"https://api.opsgenie.com/v2/alerts/{impl.Identifier}/close"
             : $"https://api.opsgenie.com/v2/alerts/{impl.Identifier}/close?{queryString}";
-        
-        return new SuccessfulResult {DebugInfo = new DebugInfo{URL = url, Request = impl.Request.ToJsonString()}};
+
+        if (impl.Errors.Any())
+            return Response.Failed<AlertCloseInfo>(Debug.WithErrors(url, impl.Errors));
+
+        return await PostRequest<AlertCloseInfo, CloseAlertRequest>(url, impl.Request, cancellationToken);
     }
 
 
@@ -25,6 +29,7 @@ public partial class AlertImpl
         public Guid Identifier { get; private set; }
         public IDictionary<string, object> QueryArguments { get; private set; }
         public CloseAlertRequest Request { get; private set; }
+        public List<Error> Errors { get; private set; }
 
         public void Definition(Action<CloseAlertDefinition> definition)
         {
@@ -41,6 +46,7 @@ public partial class AlertImpl
 
             Identifier = impl.QueryIdentifier;
             QueryArguments = impl.QueryArguments;
+            Errors = impl.Errors;
         }
 
 
@@ -75,32 +81,38 @@ public partial class AlertImpl
             }
         }
 
+
         class CloseAlertQueryImpl :
             CloseAlertQuery
         {
             public Guid QueryIdentifier { get; private set; }
             public IDictionary<string, object> QueryArguments { get; }
+            public List<Error> Errors { get; private set; }
 
             public CloseAlertQueryImpl()
             {
                 QueryArguments = new Dictionary<string, object>();
+                Errors = new List<Error>();
             }
 
-            public void Identifier(Guid identifier)
+            public void SearchIdentifier(Guid identifier)
             {
                 QueryIdentifier = identifier;
             }
 
-            public void IdentifierType(CloseSearchIdentifierType type)
+            public void SearchIdentifierType(IdentifierType type)
             {
                 string searchIdentifierType = type switch
                 {
-                    CloseSearchIdentifierType.Id => "id",
-                    CloseSearchIdentifierType.Tiny => "tiny",
-                    CloseSearchIdentifierType.Alias => "alias",
-                    _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                    IdentifierType.Id => "id",
+                    IdentifierType.Tiny => "tiny",
+                    IdentifierType.Alias => "alias",
+                    _ => string.Empty
                 };
-            
+
+                if (string.IsNullOrWhiteSpace(searchIdentifierType))
+                    Errors.Add(new Error{Reason = $"{type.ToString()} is not valid in the current context.", Timestamp = DateTimeOffset.UtcNow});
+
                 QueryArguments.Add("identifierType", searchIdentifierType);
             }
         }

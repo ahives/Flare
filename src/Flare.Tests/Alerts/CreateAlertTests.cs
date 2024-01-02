@@ -1,6 +1,6 @@
 namespace Flare.Tests.Alerts;
 
-using Flare.Extensions;
+using Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 [TestFixture]
@@ -12,7 +12,7 @@ public class CreateAlertTests :
     {
         var result = await GetContainerBuilder("TestData/CreateAlertResponse.json")
             .BuildServiceProvider()
-            .GetService<IFlareClient>()
+            .GetService<IFlareClient>()!
             .API<Alert>()
             .Create(x =>
             {
@@ -50,11 +50,11 @@ public class CreateAlertTests :
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.HasData, Is.True);
+            Assert.That(result.HasResult, Is.True);
             Assert.That(result.HasFaulted, Is.False);
-            Assert.That(result.Data.Result, Is.EqualTo("Request will be processed"));
-            Assert.That(result.Data.Took, Is.EqualTo(0.302f));
-            Assert.That(result.Data.RequestId, Is.EqualTo(Guid.Parse("43a29c5c-3dbf-4fa4-9c26-f4f71023e120")));
+            Assert.That(result.Result.Result, Is.EqualTo("Request will be processed"));
+            Assert.That(result.Result.Took, Is.EqualTo(0.302f));
+            Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("43a29c5c-3dbf-4fa4-9c26-f4f71023e120")));
             var request = result.DebugInfo.Request.ToObject<CreateAlertRequest>();
         });
         // request.Responders

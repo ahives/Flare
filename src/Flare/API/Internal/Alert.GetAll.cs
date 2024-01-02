@@ -4,9 +4,11 @@ using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Result<ListAlertResponse>> List(Action<ListAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<AlertAllInfo>> GetAll(Action<QueryAllAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
-        var impl = new ListAlertCriteriaImpl();
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var impl = new QueryAllAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
         string queryString = BuildQueryString(impl.QueryArguments);
@@ -14,34 +16,36 @@ public partial class AlertImpl
             ? "https://api.opsgenie.com/v2/alerts"
             : $"https://api.opsgenie.com/v2/alerts?{queryString}";
 
-        return await GetRequest<ListAlertResponse>(url, cancellationToken);
+        if (impl.Errors.Any())
+            return Response.Failed<AlertAllInfo>(Debug.WithErrors(url, impl.Errors));
+
+        return await GetRequest<AlertAllInfo>(url, cancellationToken);
     }
 
     
-    class ListAlertCriteriaImpl :
-        ListAlertCriteria
+    class QueryAllAlertCriteriaImpl :
+        QueryAllAlertCriteria
     {
-        public IDictionary<string, object> QueryArguments { get; }
+        public IDictionary<string, object> QueryArguments { get; } = new Dictionary<string, object>();
+        public List<Error> Errors = new();
 
-        public ListAlertCriteriaImpl()
+        public void SearchIdentifier(Guid identifier)
         {
-            QueryArguments = new Dictionary<string, object>();
+            QueryArguments.Add("searchIdentifier", identifier);
         }
 
-        public void SearchIdentifier(Guid searchIdentifier)
-        {
-            QueryArguments.Add("searchIdentifier", searchIdentifier);
-        }
-
-        public void SearchIdentifierType(QuerySearchIdentifierType type)
+        public void SearchIdentifierType(IdentifierType type)
         {
             string searchIdentifierType = type switch
             {
-                QuerySearchIdentifierType.Id => "id",
-                QuerySearchIdentifierType.Name => "name",
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                IdentifierType.Id => "id",
+                IdentifierType.Name => "name",
+                _ => string.Empty
             };
-            
+
+            if (string.IsNullOrWhiteSpace(searchIdentifierType))
+                Errors.Add(new Error{Reason = $"{type.ToString()} is not valid in the current context.", Timestamp = DateTimeOffset.UtcNow});
+
             QueryArguments.Add("searchIdentifierType", searchIdentifierType);
         }
 
@@ -79,9 +83,12 @@ public partial class AlertImpl
                 SortableFields.ReportAckTime => "report.ackTime",
                 SortableFields.IntegrationType => "integration.type",
                 SortableFields.IntegrationName => "integration.name",
-                _ => throw new ArgumentOutOfRangeException(nameof(field), field, null)
+                _ => string.Empty
             };
-            
+
+            if (string.IsNullOrWhiteSpace(sortField))
+                Errors.Add(new Error{Reason = "is not valid in the current context.", Timestamp = DateTimeOffset.UtcNow});
+
             QueryArguments.Add("sort", sortField);
         }
 
@@ -91,9 +98,12 @@ public partial class AlertImpl
             {
                 OrderType.Desc => "desc",
                 OrderType.Asc => "asc",
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                _ => string.Empty
             };
-            
+
+            if (string.IsNullOrWhiteSpace(orderType))
+                Errors.Add(new Error{Reason = "is not valid in the current context.", Timestamp = DateTimeOffset.UtcNow});
+
             QueryArguments.Add("order", orderType);
         }
     }

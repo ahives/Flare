@@ -2,7 +2,7 @@ namespace Flare;
 
 public interface CloseAlertQuery
 {
-    void Identifier(Guid identifier);
+    void SearchIdentifier(Guid identifier);
     
-    void IdentifierType(CloseSearchIdentifierType type);
+    void SearchIdentifierType(IdentifierType type);
 }

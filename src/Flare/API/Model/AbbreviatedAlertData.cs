@@ -8,7 +8,7 @@ public record AbbreviatedAlertData
     [JsonPropertyName("id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public Guid Id { get; init; }
-    
+
     [JsonPropertyName("tinyId")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string TinyId { get; init; }
@@ -16,14 +16,14 @@ public record AbbreviatedAlertData
     [JsonPropertyName("alias")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string Alias { get; init; }
-    
+
     [JsonPropertyName("message")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string Message { get; init; }
-    
+
     [JsonPropertyName("status")]
     public AlertStatus Status { get; init; }
-    
+
     [JsonPropertyName("acknowledged")]
     public bool Acknowledged { get; init; }
 

@@ -10,7 +10,6 @@ using Extensions;
 public class FlareClient :
     IFlareClient
 {
-    // readonly FlareConfig _config;
     readonly ConcurrentDictionary<string, object> _cache;
     readonly HttpClient _client;
 
@@ -25,9 +24,8 @@ public class FlareClient :
 
     public FlareClient(FlareConfig config)
     {
-        // _config = config;
-        _cache = new ConcurrentDictionary<string, object>();
         _client = GetClient(config);
+        _cache = new ConcurrentDictionary<string, object>();
 
         if (!TryRegisterAll())
             throw new FlareApiInitException("Could not register APIs.");
@@ -36,6 +34,11 @@ public class FlareClient :
     public FlareClient(IFlareConfigProvider configProvider, string file) : this(configProvider.Configure(file))
     {
     }
+
+    // public FlareClient(Action<FlareConfigurator> configurator) : this(configurator)
+    // {
+    //     configurator();
+    // }
 
     public T API<T>()
         where T : FlareAPI

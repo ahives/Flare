@@ -1,12 +1,13 @@
-using Flare.API.Model;
-using Flare.Extensions;
-
 namespace Flare.API.Internal;
+
+using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Result> AddNote(Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<AlertNoteInfo>> AddNote(Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var impl = new AddAlertNoteCriteriaImpl();
         criteria?.Invoke(impl);
 
@@ -14,8 +15,11 @@ public partial class AlertImpl
         string url = string.IsNullOrWhiteSpace(queryString)
             ? $"https://api.opsgenie.com/v2/alerts/{impl.Identifier}/notes"
             : $"https://api.opsgenie.com/v2/alerts/{impl.Identifier}/notes?{queryString}";
-        
-        return new SuccessfulResult {DebugInfo = new DebugInfo{URL = url, Request = impl.Request.ToJsonString()}};
+
+        if (impl.Errors.Any())
+            return Response.Failed<AlertNoteInfo>(Debug.WithErrors(url, impl.Errors));
+
+        return await PostRequest<AlertNoteInfo, AddAlertNoteRequest>(url, impl.Request, cancellationToken);
     }
 
 
@@ -25,6 +29,7 @@ public partial class AlertImpl
         public Guid Identifier { get; private set; }
         public IDictionary<string, object> QueryArguments { get; private set; }
         public AddAlertNoteRequest Request { get; private set; }
+        public List<Error> Errors { get; private set; }
 
         public void Definition(Action<AlertNoteDefinition> definition)
         {
@@ -41,6 +46,7 @@ public partial class AlertImpl
 
             Identifier = impl.QueryIdentifier;
             QueryArguments = impl.QueryArguments;
+            Errors = impl.Errors;
         }
 
 
@@ -75,31 +81,36 @@ public partial class AlertImpl
             }
         }
 
+
         class AddAlertNoteQueryImpl :
             AddAlertNoteQuery
         {
             public Guid QueryIdentifier { get; private set; }
             public IDictionary<string, object> QueryArguments { get; }
+            public List<Error> Errors = new();
 
             public AddAlertNoteQueryImpl()
             {
                 QueryArguments = new Dictionary<string, object>();
             }
 
-            public void Identifier(Guid identifier)
+            public void SearchIdentifier(Guid identifier)
             {
                 QueryIdentifier = identifier;
             }
 
-            public void IdentifierType(AddAlertNoteIdentifierType type)
+            public void SearchIdentifierType(IdentifierType type)
             {
                 string searchIdentifierType = type switch
                 {
-                    AddAlertNoteIdentifierType.Id => "id",
-                    AddAlertNoteIdentifierType.Tiny => "tiny",
-                    AddAlertNoteIdentifierType.Alias => "alias",
-                    _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                    IdentifierType.Id => "id",
+                    IdentifierType.Tiny => "tiny",
+                    IdentifierType.Alias => "alias",
+                    _ => string.Empty
                 };
+
+                if (string.IsNullOrWhiteSpace(searchIdentifierType))
+                    Errors.Add(new Error{Reason = $"{type.ToString()} is not valid in the current context.", Timestamp = DateTimeOffset.UtcNow});
             
                 QueryArguments.Add("identifierType", searchIdentifierType);
             }

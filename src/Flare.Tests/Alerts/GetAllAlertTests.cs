@@ -1,20 +1,20 @@
-namespace Flare.Tests;
+namespace Flare.Tests.Alerts;
 
-using Microsoft.Extensions.DependencyInjection;
 using Model;
+using Microsoft.Extensions.DependencyInjection;
 
 [TestFixture]
-public class ListAlertTests :
+public class GetAllAlertTests :
     FlareApiTesting
 {
     [Test]
     public async Task Test1()
     {
-        var result = await GetContainerBuilder("TestData/ListAlertResponse.json")
+        var result = await GetContainerBuilder("TestData/GetAllAlertResponse.json")
             .BuildServiceProvider()
-            .GetService<IFlareClient>()
+            .GetService<IFlareClient>()!
             .API<Alert>()
-            .List(x =>
+            .GetAll(x =>
             {
                 x.Offset(5);
                 x.Limit(100);
@@ -83,16 +83,16 @@ public class ListAlertTests :
                 Type = ApiIntegrationType.CloudWatch
             }
         };
-            
+
         Assert.Multiple(() =>
         {
-            Assert.That(result.HasData, Is.True);
-            Assert.That(result.Data, Is.Not.Null);
-            Assert.That(result.Data.Paging.Last, Is.EqualTo("https://api.opsgenie.com/v2/alerts?query=status%3Aopen&offset=100&limit=10&sort=createdAt&order=desc"));
-            Assert.That(result.Data.Paging.First, Is.EqualTo("https://api.opsgenie.com/v2/alerts?query=status%3Aopen&offset=0&limit=10&sort=createdAt&order=desc"));
-            Assert.That(result.Data.Paging.Next, Is.EqualTo("https://api.opsgenie.com/v2/alerts?query=status%3Aopen&offset=20&limit=10&sort=createdAt&order=desc"));
-            AssertData(result.Data.Data[0], expected1);
-            AssertData(result.Data.Data[1], expected2);
+            Assert.That(result.HasResult, Is.True);
+            Assert.That(result.Result, Is.Not.Null);
+            Assert.That(result.Result.Paging.Last, Is.EqualTo("https://api.opsgenie.com/v2/alerts?query=status%3Aopen&offset=100&limit=10&sort=createdAt&order=desc"));
+            Assert.That(result.Result.Paging.First, Is.EqualTo("https://api.opsgenie.com/v2/alerts?query=status%3Aopen&offset=0&limit=10&sort=createdAt&order=desc"));
+            Assert.That(result.Result.Paging.Next, Is.EqualTo("https://api.opsgenie.com/v2/alerts?query=status%3Aopen&offset=20&limit=10&sort=createdAt&order=desc"));
+            AssertData(result.Result.Data[0], expected1);
+            AssertData(result.Result.Data[1], expected2);
 
             // Assert.That(result.Data.Data, Is.EqualTo(""));
             // Assert.That(result.Data.Data, Is.EqualTo(""));

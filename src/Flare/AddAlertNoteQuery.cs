@@ -2,7 +2,7 @@ namespace Flare;
 
 public interface AddAlertNoteQuery
 {
-    void Identifier(Guid identifier);
+    void SearchIdentifier(Guid identifier);
     
-    void IdentifierType(AddAlertNoteIdentifierType type);
+    void SearchIdentifierType(IdentifierType type);
 }

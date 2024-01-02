@@ -4,10 +4,15 @@ using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Result<AlertResponse>> Delete(Guid identifier, Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<AlertResponse>> Delete(Guid identifier, IdentifierType identifierType, Action<DeleteAlertCriteria> criteria,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var impl = new DeleteAlertCriteriaImpl();
         criteria?.Invoke(impl);
+
+        impl.QueryArguments.Add("identifierType", GetIdentifierType(identifierType));
 
         string queryString = BuildQueryString(impl.QueryArguments);
         string url = string.IsNullOrWhiteSpace(queryString)
@@ -15,6 +20,14 @@ public partial class AlertImpl
             : $"https://api.opsgenie.com/v2/alerts/{identifier}?{queryString}";
 
         return await DeleteRequest<AlertResponse>(url, cancellationToken).ConfigureAwait(false);
+
+        string GetIdentifierType(IdentifierType type) =>
+            type switch
+            {
+                IdentifierType.AlertId => "AlertID",
+                IdentifierType.TinyId => "tinyID",
+                _ => string.Empty
+            };
     }
 
     
@@ -26,18 +39,6 @@ public partial class AlertImpl
         public DeleteAlertCriteriaImpl()
         {
             QueryArguments = new Dictionary<string, object>();
-        }
-
-        public void SearchIdentifierType(DeleteSearchIdentifierType type)
-        {
-            string identifierType = type switch
-            {
-                DeleteSearchIdentifierType.AlertId => "AlertID",
-                DeleteSearchIdentifierType.TinyId => "tinyID",
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-            
-            QueryArguments.Add("identifierType", identifierType);
         }
 
         public void User(string displayName)

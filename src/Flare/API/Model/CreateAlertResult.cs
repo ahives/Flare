@@ -2,7 +2,7 @@ namespace Flare.API.Model;
 
 using System.Text.Json.Serialization;
 
-public sealed record AlertResponse
+public record CreateAlertResult
 {
     [JsonPropertyName("result")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -11,8 +11,4 @@ public sealed record AlertResponse
     [JsonPropertyName("took")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public float Took { get; init; }
-
-    [JsonPropertyName("requestId")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public Guid RequestId { get; init; }
 }

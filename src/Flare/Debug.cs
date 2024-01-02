@@ -72,4 +72,11 @@ internal static class Debug
             StackTrace = exception.StackTrace,
             Errors = errors
         };
+
+    public static DebugInfo WithErrors(string url, List<Error> errors) =>
+        new()
+        {
+            URL = url,
+            Errors = errors
+        };
 }

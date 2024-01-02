@@ -1,8 +1,6 @@
 namespace Flare;
 
-using Extensions;
-
-public record Result
+public record Maybe
 {
     public DateTimeOffset Timestamp { get; init; }
 
@@ -11,10 +9,10 @@ public record Result
     public bool HasFaulted { get; init; }
 }
 
-public record Result<T> :
-    Result
+public record Maybe<T> :
+    Maybe
 {
-    public T? Data { get; init; }
+    public T? Result { get; init; }
 
-    public bool HasData => Data is not null;
+    public bool HasResult => Result is not null;
 }
