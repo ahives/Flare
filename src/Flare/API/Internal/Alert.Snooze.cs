@@ -11,14 +11,15 @@ public partial class AlertImpl
 
         var impl = new SnoozeAlertCriteriaImpl();
         criteria?.Invoke(impl);
+
         var errors = new List<Error>();
 
         if (impl.Request.EndTime is null)
-            errors.Add(new Error{Reason = "endTime is a required", Timestamp = DateTimeOffset.UtcNow});
+            errors.Add(new Error{Type = ErrorType.EndTime, Reason = "endTime is a required", Timestamp = DateTimeOffset.UtcNow});
 
         string idType = GetIdentifierType(identifierType);
         if (string.IsNullOrWhiteSpace(idType))
-            errors.Add(new Error{Reason = "identifierType is missing.", Timestamp = DateTimeOffset.UtcNow});
+            errors.Add(new Error{Type = ErrorType.IdentifierType, Reason = "identifierType is required.", Timestamp = DateTimeOffset.UtcNow});
 
         string url =
             $"https://api.opsgenie.com/v2/alerts/{identifier}/snooze?identifierType={idType}";

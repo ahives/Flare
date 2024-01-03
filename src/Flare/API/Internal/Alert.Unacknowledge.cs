@@ -12,8 +12,17 @@ public partial class AlertImpl
         var impl = new UnacknowledgeAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
+        var errors = new List<Error>();
+
+        string idType = GetIdentifierType(identifierType);
+        if (string.IsNullOrWhiteSpace(idType))
+            errors.Add(new Error{Reason = "identifierType is required.", Timestamp = DateTimeOffset.UtcNow});
+
         string url =
             $"https://api.opsgenie.com/v2/alerts/{identifier}/unacknowledge?identifierType={GetIdentifierType(identifierType)}";
+
+        if (errors.Count != 0)
+            return Response.Failed<UnacknowledgeAlertInfo>(Debug.WithErrors(url, errors));
 
         return await PostRequest<UnacknowledgeAlertInfo, UnacknowledgeAlertRequest>(url, impl.Request, cancellationToken);
 
