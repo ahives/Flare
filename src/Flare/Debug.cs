@@ -73,7 +73,7 @@ internal static class Debug
             Errors = errors
         };
 
-    public static DebugInfo WithErrors(string url, List<Error> errors) =>
+    public static DebugInfo WithErrors(string url, IReadOnlyList<Error> errors) =>
         new()
         {
             URL = url,

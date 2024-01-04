@@ -1,8 +1,11 @@
 namespace Flare;
 
-public interface CountAlertCriteria
+public interface CountAlertCriteria :
+    IQueryCriteria
 {
-    void SearchIdentifier(Guid identifier);
+    void Query(Action<SearchQueryCriteria> criteria);
+
+    void SearchIdentifier(string identifier);
 
     void SearchIdentifierType(IdentifierType type);
 }

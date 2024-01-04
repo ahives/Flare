@@ -1,8 +1,8 @@
+namespace Flare.Extensions;
+
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
-namespace Flare.Extensions;
 
 public static class TypeExtensions
 {
