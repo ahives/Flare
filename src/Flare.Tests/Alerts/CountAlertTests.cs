@@ -3,7 +3,7 @@ namespace Flare.Tests.Alerts;
 using Microsoft.Extensions.DependencyInjection;
 
 [TestFixture]
-public class CountResponseTests :
+public class CountAlertTests :
     FlareApiTesting
 {
     [Test]
@@ -35,7 +35,7 @@ public class CountResponseTests :
             Assert.That(result.Result.Data.Count, Is.EqualTo(7));
             Assert.That(result.Result.Took, Is.EqualTo(0.051f));
             Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("9ae63dd7-ed00-4c81-86f0-c4ffd33142c9")));
-            Assert.That(result.DebugInfo.URL, Is.EqualTo($"https://api.opsgenie.com/v2/alerts/count?searchIdentifier={identifier}&searchIdentifierType={searchIdentifierType}"));
+            Assert.That(result.DebugInfo.URL, Is.EqualTo($"alerts/count?searchIdentifier={identifier}&searchIdentifierType={searchIdentifierType}"));
         });
     }
 
@@ -68,7 +68,7 @@ public class CountResponseTests :
             Assert.That(result.Result.Data.Count, Is.EqualTo(7));
             Assert.That(result.Result.Took, Is.EqualTo(0.051f));
             Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("9ae63dd7-ed00-4c81-86f0-c4ffd33142c9")));
-            Assert.That(result.DebugInfo.URL, Is.EqualTo($"https://api.opsgenie.com/v2/alerts/count?searchIdentifier={identifier}&searchIdentifierType={searchIdentifierType}"));
+            Assert.That(result.DebugInfo.URL, Is.EqualTo($"alerts/count?searchIdentifier={identifier}&searchIdentifierType={searchIdentifierType}"));
         });
     }
 
@@ -129,7 +129,7 @@ public class CountResponseTests :
             Assert.That(result.Result.Data.Count, Is.EqualTo(7));
             Assert.That(result.Result.Took, Is.EqualTo(0.051f));
             Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("9ae63dd7-ed00-4c81-86f0-c4ffd33142c9")));
-            Assert.That(result.DebugInfo.URL, Is.EqualTo($"https://api.opsgenie.com/v2/alerts/count?query=status:{alertStatus}"));
+            Assert.That(result.DebugInfo.URL, Is.EqualTo($"alerts/count?query=status:{alertStatus}"));
         });
     }
 }

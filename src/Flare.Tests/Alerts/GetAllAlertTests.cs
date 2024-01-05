@@ -10,17 +10,24 @@ public class GetAllAlertTests :
     [Test]
     public async Task Test1()
     {
+        int offset = 5;
+        int limit = 100;
+        var orderType = OrderType.Asc;
+        var sortField = SortableFields.Status;
+        string identifier = NewId.NextGuid().ToString();
+        var identifierType = IdentifierType.Id;
         var result = await GetContainerBuilder("TestData/GetAllAlertResponse.json")
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
             .GetAll(x =>
             {
-                x.Offset(5);
-                x.Limit(100);
-                x.Order(OrderType.Asc);
-                x.Sort(SortableFields.Status);
-                x.SearchIdentifier(NewId.NextGuid());
+                x.PaginationOffset(offset);
+                x.PaginationLimit(limit);
+                x.OrderBy(orderType);
+                x.SortBy(sortField);
+                x.SearchIdentifier(identifier);
+                x.SearchIdentifierType(identifierType);
             });
 
         var expected1 = new AbbreviatedAlertData
@@ -84,13 +91,54 @@ public class GetAllAlertTests :
             }
         };
 
+        string searchIdentifierType = identifierType switch
+        {
+            IdentifierType.Id => "id",
+            IdentifierType.Name => "name",
+            _ => string.Empty
+        };
+
+        string sortFieldString = sortField switch
+        {
+            SortableFields.CreatedAt => "createdAt",
+            SortableFields.UpdatedAt => "updatedAt",
+            SortableFields.TinyId => "tinyId",
+            SortableFields.Alias => "alias",
+            SortableFields.Message => "message",
+            SortableFields.Status => "status",
+            SortableFields.Acknowledged => "acknowledged",
+            SortableFields.IsSeen => "isSeen",
+            SortableFields.Snoozed => "snoozed",
+            SortableFields.SnoozedUntil => "snoozedUntil",
+            SortableFields.Count => "count",
+            SortableFields.LastOccurredAt => "lastOccurredAt",
+            SortableFields.Source => "source",
+            SortableFields.Owner => "owner",
+            SortableFields.ReportClosedBy => "report.closedBy",
+            SortableFields.ReportAcknowledgedBy => "report.acknowledgedBy",
+            SortableFields.ReportCloseTime => "report.closeTime",
+            SortableFields.ReportAckTime => "report.ackTime",
+            SortableFields.IntegrationType => "integration.type",
+            SortableFields.IntegrationName => "integration.name",
+            _ => string.Empty
+        };
+
+        string orderTypeString = orderType switch
+        {
+            OrderType.Desc => "desc",
+            OrderType.Asc => "asc",
+            _ => string.Empty
+        };
+
         Assert.Multiple(() =>
         {
             Assert.That(result.HasResult, Is.True);
             Assert.That(result.Result, Is.Not.Null);
+            Assert.That(result.DebugInfo.URL, Is.EqualTo($"alerts?searchIdentifier={identifier}&searchIdentifierType={searchIdentifierType}&offset={offset}&limit={limit}&sort={sortFieldString}&order={orderTypeString}"));
             Assert.That(result.Result.Paging.Last, Is.EqualTo("https://api.opsgenie.com/v2/alerts?query=status%3Aopen&offset=100&limit=10&sort=createdAt&order=desc"));
             Assert.That(result.Result.Paging.First, Is.EqualTo("https://api.opsgenie.com/v2/alerts?query=status%3Aopen&offset=0&limit=10&sort=createdAt&order=desc"));
             Assert.That(result.Result.Paging.Next, Is.EqualTo("https://api.opsgenie.com/v2/alerts?query=status%3Aopen&offset=20&limit=10&sort=createdAt&order=desc"));
+
             AssertData(result.Result.Data[0], expected1);
             AssertData(result.Result.Data[1], expected2);
 
@@ -99,6 +147,127 @@ public class GetAllAlertTests :
             // Assert.That(result.Data.Data, Is.EqualTo(""));
             // Assert.That(result.Data.Data, Is.EqualTo(""));
             // Assert.That(result.Data.Data, Is.EqualTo(""));
+        });
+    }
+
+    [Test]
+    public async Task Test2()
+    {
+        int offset = 5;
+        int limit = 100;
+        var orderType = OrderType.Asc;
+        var sortField = SortableFields.Status;
+        var status = AlertStatus.Open;
+        var result = await GetContainerBuilder("TestData/GetAllAlertResponse.json")
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .GetAll(x =>
+            {
+                x.Query(c =>
+                {
+                    c.Status(status);
+                });
+                x.PaginationOffset(offset);
+                x.PaginationLimit(limit);
+                x.OrderBy(orderType);
+                x.SortBy(sortField);
+            });
+
+        string sortFieldString = sortField switch
+        {
+            SortableFields.CreatedAt => "createdAt",
+            SortableFields.UpdatedAt => "updatedAt",
+            SortableFields.TinyId => "tinyId",
+            SortableFields.Alias => "alias",
+            SortableFields.Message => "message",
+            SortableFields.Status => "status",
+            SortableFields.Acknowledged => "acknowledged",
+            SortableFields.IsSeen => "isSeen",
+            SortableFields.Snoozed => "snoozed",
+            SortableFields.SnoozedUntil => "snoozedUntil",
+            SortableFields.Count => "count",
+            SortableFields.LastOccurredAt => "lastOccurredAt",
+            SortableFields.Source => "source",
+            SortableFields.Owner => "owner",
+            SortableFields.ReportClosedBy => "report.closedBy",
+            SortableFields.ReportAcknowledgedBy => "report.acknowledgedBy",
+            SortableFields.ReportCloseTime => "report.closeTime",
+            SortableFields.ReportAckTime => "report.ackTime",
+            SortableFields.IntegrationType => "integration.type",
+            SortableFields.IntegrationName => "integration.name",
+            _ => string.Empty
+        };
+
+        string orderTypeString = orderType switch
+        {
+            OrderType.Desc => "desc",
+            OrderType.Asc => "asc",
+            _ => string.Empty
+        };
+
+        string alertStatus = status switch
+        {
+            AlertStatus.Open => "open",
+            AlertStatus.Closed => "close",
+            _ => string.Empty
+        };
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.True);
+            Assert.That(result.Result, Is.Not.Null);
+            Assert.That(result.DebugInfo.URL, Is.EqualTo($"alerts?query=status:{alertStatus}&offset={offset}&limit={limit}&sort={sortFieldString}&order={orderTypeString}"));
+        });
+    }
+
+    [Test]
+    public async Task Test3()
+    {
+        var result = await GetContainerBuilder("TestData/GetAllAlertResponse.json")
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .GetAll(x =>
+            {
+                x.PaginationOffset(5);
+                x.PaginationLimit(100);
+                x.OrderBy(OrderType.Asc);
+                x.SortBy(SortableFields.Status);
+                x.SearchIdentifier(NewId.NextGuid().ToString());
+                x.SearchIdentifierType(IdentifierType.Name);
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.Result, Is.Null);
+            Assert.That(result.HasFaulted, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task Test4()
+    {
+        var result = await GetContainerBuilder("TestData/GetAllAlertResponse.json")
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .GetAll(x =>
+            {
+                x.PaginationOffset(-1);
+                x.PaginationLimit(100);
+                x.OrderBy(OrderType.Asc);
+                x.SortBy(SortableFields.Status);
+                x.SearchIdentifier(NewId.NextGuid().ToString());
+                x.SearchIdentifierType(IdentifierType.Id);
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.Result, Is.Null);
+            Assert.That(result.HasFaulted, Is.True);
         });
     }
 

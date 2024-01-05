@@ -4,7 +4,7 @@ using System.Text;
 
 internal static class QueryExtensions
 {
-    public static string BuildQueryString(this IDictionary<string, object> arguments)
+    public static string BuildQueryString(this IDictionary<string, QueryArg> arguments)
     {
         StringBuilder builder = new StringBuilder();
         var keys = arguments.Keys.ToList();
@@ -12,35 +12,15 @@ internal static class QueryExtensions
         for (int i = 0; i < arguments.Keys.Count; i++)
         {
             string key = keys[i];
+            string arg = arguments[key].IsSearchQuery ? $"{key}:{arguments[key].Value}" : $"{key}={arguments[key].Value}";
 
             if (i == 0)
             {
-                builder.AppendFormat($"{key}={arguments[key]}");
+                builder.AppendFormat(arg);
                 continue;
             }
             
-            builder.AppendFormat($"&{key}={arguments[key]}");
-        }
-
-        return builder.ToString();
-    }
-
-    public static string BuildSubQueryString(this IDictionary<string, object> arguments)
-    {
-        StringBuilder builder = new StringBuilder();
-        var keys = arguments.Keys.ToList();
-        
-        for (int i = 0; i < arguments.Keys.Count; i++)
-        {
-            string key = keys[i];
-
-            if (i == 0)
-            {
-                builder.AppendFormat($"{key}:{arguments[key]}");
-                continue;
-            }
-            
-            builder.AppendFormat($"&{key}:{arguments[key]}");
+            builder.AppendFormat($"&{arg}");
         }
 
         return builder.ToString();

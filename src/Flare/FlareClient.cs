@@ -128,7 +128,8 @@ public class FlareClient :
         return typeMap;
     }
 
-    object CreateInstance(Type type, HttpClient client) => Activator.CreateInstance(type, client);
+    object CreateInstance(Type type, HttpClient client) =>
+        Activator.CreateInstance(type, client);
 
     HttpClient GetClient(FlareConfig config)
     {

@@ -2,8 +2,7 @@ namespace Flare;
 
 using API.Model;
 
-public interface SearchQueryCriteria :
-    IQueryCriteria
+public interface SearchQueryCriteria
 {
     void Status(AlertStatus status);
 }

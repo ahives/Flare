@@ -4,5 +4,7 @@ public enum ErrorType
 {
     IdentifierType,
     EndTime,
-    AlertStatus
+    AlertStatus,
+    SortField,
+    PaginationOffset
 }

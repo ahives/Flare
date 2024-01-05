@@ -13,35 +13,33 @@ public partial class AlertImpl
         criteria?.Invoke(impl);
 
         var qc = impl as IQueryCriteria;
-        string baseUrl = "https://api.opsgenie.com/v2/alerts/count";
+        string baseUrl = "alerts/count";
         var errors = qc.Validate();
         if (errors.Count != 0)
             return Response.Failed<AlertCountInfo>(Debug.WithErrors(baseUrl, errors));
 
-        string url = qc.IsQuery()
-            ? $"{baseUrl}?query={qc.GetQueryArguments().BuildSubQueryString()}"
+        string url = qc.IsSearchQuery()
+            ? $"{baseUrl}?query={qc.GetQueryArguments().BuildQueryString()}"
             : $"{baseUrl}?{qc.GetQueryArguments().BuildQueryString()}";
 
-        //https://api.opsgenie.com/v2/alerts/count?searchIdentifier=70413a06-38d6-4c85-92b8-5ebc900d42e2&searchIdentifierType=id
-        //https://api.opsgenie.com/v2/alerts/count?query=status%3Aopen
-        //https://api.opsgenie.com/v2/alerts/count?searchIdentifier=openAlerts&searchIdentifierType=name
         return await GetRequest<AlertCountInfo>(url, cancellationToken);
     }
 
     
     class CountAlertQueryCriteriaImpl :
-        CountAlertCriteria
+        CountAlertCriteria,
+        IQueryCriteria
     {
         IdentifierType _identifierType;
         string _identifier;
-        IQueryCriteria _qc;
+        IQueryCriteria _criteria;
 
         public void Query(Action<SearchQueryCriteria> criteria)
         {
             var impl = new SearchQueryCriteriaImpl();
             criteria?.Invoke(impl);
 
-            _qc = impl;
+            _criteria = impl;
         }
 
         public void SearchIdentifier(string identifier)
@@ -54,16 +52,12 @@ public partial class AlertImpl
             _identifierType = type;
         }
 
-        public bool IsQuery() => _qc != null && _qc.IsQuery();
+        public bool IsSearchQuery() => _criteria != null && _criteria.IsSearchQuery();
 
         public IReadOnlyList<Error> Validate()
         {
-            if (IsQuery())
-            {
-                var queryErrors = _qc.Validate();
-                if (queryErrors.Count != 0)
-                    return queryErrors;
-            }
+            if (IsSearchQuery())
+                return _criteria.Validate();
 
             var errors = new List<Error>();
             bool isIdentifierTypeMissing = _identifierType switch
@@ -74,29 +68,28 @@ public partial class AlertImpl
             };
 
             if (isIdentifierTypeMissing)
-                errors.Add(Errors.Create(ErrorType.IdentifierType, $"{_identifierType.ToString()} is not a valid identifier type in the current context."));
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    $"{_identifierType.ToString()} is not a valid identifier type in the current context."));
 
             bool isGuid = Guid.TryParse(_identifier, out var identifier);
 
             if (!isGuid && _identifierType != IdentifierType.Name)
-                errors.Add(Errors.Create(ErrorType.IdentifierType, $"Identifier type is not compatible with identifier."));
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    $"Identifier type is not compatible with identifier."));
 
-            if (isGuid && identifier != default && isIdentifierTypeMissing || (string.IsNullOrWhiteSpace(_identifier) && isIdentifierTypeMissing))
+            if (isGuid && identifier != default && isIdentifierTypeMissing ||
+                (string.IsNullOrWhiteSpace(_identifier) && isIdentifierTypeMissing))
                 errors.Add(Errors.Create(ErrorType.IdentifierType, $"Identifier type is missing."));
 
             return errors;
         }
 
-        public IDictionary<string, object> GetQueryArguments()
+        public Dictionary<string, QueryArg> GetQueryArguments()
         {
-            if (IsQuery())
-            {
-                var args = _qc.GetQueryArguments();
-                if (args.Count != 0)
-                    return args;
-            }
+            if (IsSearchQuery())
+                return _criteria.GetQueryArguments();
 
-            var arguments = new Dictionary<string, object>();
+            var arguments = new Dictionary<string, QueryArg>();
             string searchIdentifierType = _identifierType switch
             {
                 IdentifierType.Id => "id",
@@ -104,15 +97,16 @@ public partial class AlertImpl
                 _ => string.Empty
             };
             
-            arguments.Add("searchIdentifier", _identifier);
-            arguments.Add("searchIdentifierType", searchIdentifierType);
+            arguments.Add("searchIdentifier", new QueryArg{Value = _identifier});
+            arguments.Add("searchIdentifierType", new QueryArg{Value = searchIdentifierType});
 
             return arguments;
         }
 
 
         class SearchQueryCriteriaImpl :
-            SearchQueryCriteria
+            SearchQueryCriteria,
+            IQueryCriteria
         {
             AlertStatus _status;
 
@@ -137,21 +131,22 @@ public partial class AlertImpl
                 return errors;
             }
 
-            public IDictionary<string, object> GetQueryArguments()
+            public Dictionary<string, QueryArg> GetQueryArguments()
             {
-                var arguments = new Dictionary<string, object>();
-
-                arguments.Add("status", _status switch
+                var arguments = new Dictionary<string, QueryArg>();
+                string status = _status switch
                 {
                     AlertStatus.Open => "open",
                     AlertStatus.Closed => "close",
                     _ => string.Empty
-                });
+                };
+
+                arguments.Add("status", new QueryArg{IsSearchQuery = true, Value = status});
 
                 return arguments;
             }
 
-            public bool IsQuery() => true;
+            public bool IsSearchQuery() => true;
         }
     }
 }

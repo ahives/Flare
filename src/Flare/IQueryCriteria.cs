@@ -2,9 +2,9 @@ namespace Flare;
 
 public interface IQueryCriteria
 {
-    bool IsQuery();
+    bool IsSearchQuery();
 
     IReadOnlyList<Error> Validate();
 
-    IDictionary<string, object> GetQueryArguments();
+    Dictionary<string, QueryArg> GetQueryArguments();
 }

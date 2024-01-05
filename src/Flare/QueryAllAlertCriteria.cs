@@ -2,15 +2,17 @@ namespace Flare;
 
 public interface QueryAllAlertCriteria
 {
-    void SearchIdentifier(Guid identifier);
+    void Query(Action<SearchQueryCriteria> criteria);
+
+    void SearchIdentifier(string identifier);
 
     void SearchIdentifierType(IdentifierType type);
 
-    void Offset(int offset);
+    void PaginationOffset(int offset);
 
-    void Limit(int limit);
+    void PaginationLimit(int limit);
 
-    void Sort(SortableFields field);
+    void SortBy(SortableFields field);
 
-    void Order(OrderType type);
+    void OrderBy(OrderType type);
 }

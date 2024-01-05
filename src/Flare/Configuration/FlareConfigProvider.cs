@@ -48,6 +48,7 @@ public class FlareConfigProvider :
             string _username;
             string _password;
             string _apiKey;
+            private ApiVersion _version;
 
             public Lazy<FlareConfig> Settings { get; }
 
@@ -57,6 +58,7 @@ public class FlareConfigProvider :
                     () => new ()
                     {
                         Url = _url,
+                        ApiVersion = _version,
                         Timeout = _timeout,
                         ApiKey = _apiKey,
                         Credentials = !string.IsNullOrWhiteSpace(_username) && !string.IsNullOrWhiteSpace(_password)
@@ -76,6 +78,8 @@ public class FlareConfigProvider :
             }
 
             public void UsingApiKey(string apiKey) => _apiKey = apiKey;
+
+            public void UsingApiVersion(ApiVersion version) => _version = version;
         }
     }
 }

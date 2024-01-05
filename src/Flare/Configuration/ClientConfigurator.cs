@@ -26,4 +26,11 @@ public interface ClientConfigurator
     /// </summary>
     /// <param name="apiKey"></param>
     void UsingApiKey(string apiKey);
+
+    void UsingApiVersion(ApiVersion version);
+}
+
+public enum ApiVersion
+{
+    V2
 }

@@ -1,7 +1,6 @@
 namespace Flare;
 
-public interface CountAlertCriteria :
-    IQueryCriteria
+public interface CountAlertCriteria
 {
     void Query(Action<SearchQueryCriteria> criteria);
 
