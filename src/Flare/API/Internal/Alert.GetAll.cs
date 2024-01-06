@@ -27,7 +27,8 @@ public partial class AlertImpl
 
     
     class QueryAllAlertCriteriaImpl :
-        QueryAllAlertCriteria, IQueryCriteria
+        QueryAllAlertCriteria,
+        IQueryCriteria
     {
         IdentifierType _identifierType;
         string _identifier;

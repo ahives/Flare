@@ -14,9 +14,9 @@ public partial class AlertImpl
 
         var errors = Validate();
         if (errors.Count != 0)
-            return Response.Failed<AlertNoteInfo>(Debug.WithErrors("alerts/{identifier}/notes?identifierType={idType}", errors));
+            return Response.Failed<AlertNoteInfo>(Debug.WithErrors("alerts/{identifier}/notes?identifierType={identifierType}", errors));
 
-        string url = $"alerts/{identifier}/notes?{GetIdentifierType()}";
+        string url = $"alerts/{identifier}/notes?identifierType={GetIdentifierType()}";
 
         return await PostRequest<AlertNoteInfo, AddAlertNoteRequest>(url, impl.Request, cancellationToken);
 

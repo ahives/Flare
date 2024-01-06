@@ -13,7 +13,7 @@ public class SnoozeAlertTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .Snooze(NewId.NextGuid(), IdentifierType.Id, x =>
+            .Snooze(NewId.NextGuid().ToString(), IdentifierType.Id, x =>
             {
                 x.EndTime(DateTimeOffset.Parse("2017-04-03T20:05:50.894Z"));
                 x.User("Flare");
@@ -38,7 +38,7 @@ public class SnoozeAlertTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .Snooze(NewId.NextGuid(), IdentifierType.Name, x =>
+            .Snooze(NewId.NextGuid().ToString(), IdentifierType.Name, x =>
             {
                 x.EndTime(DateTimeOffset.Parse("2017-04-03T20:05:50.894Z"));
                 x.User("Flare");
@@ -62,7 +62,7 @@ public class SnoozeAlertTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .Snooze(NewId.NextGuid(), IdentifierType.Id, x =>
+            .Snooze(NewId.NextGuid().ToString(), IdentifierType.Id, x =>
             {
                 x.User("Flare");
                 x.Source("Flare");

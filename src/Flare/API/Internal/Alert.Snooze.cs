@@ -1,10 +1,11 @@
 namespace Flare.API.Internal;
 
+using System.Collections.Immutable;
 using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<SnoozeAlertInfo>> Snooze(Guid identifier, IdentifierType identifierType, Action<SnoozeAlertCriteria> criteria,
+    public async Task<Maybe<SnoozeAlertInfo>> Snooze(string identifier, IdentifierType identifierType, Action<SnoozeAlertCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -12,36 +13,63 @@ public partial class AlertImpl
         var impl = new SnoozeAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
+        var qc = impl as IQueryCriteria;
+
         var errors = new List<Error>();
-
-        if (impl.Request.EndTime is null)
-            errors.Add(new Error{Type = ErrorType.EndTime, Reason = "endTime is a required", Timestamp = DateTimeOffset.UtcNow});
-
-        string idType = GetIdentifierType(identifierType);
-        if (string.IsNullOrWhiteSpace(idType))
-            errors.Add(new Error{Type = ErrorType.IdentifierType, Reason = "identifierType is required.", Timestamp = DateTimeOffset.UtcNow});
-
-        string url =
-            $"https://api.opsgenie.com/v2/alerts/{identifier}/snooze?identifierType={idType}";
+        errors.AddRange(Validate());
+        errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<SnoozeAlertInfo>(Debug.WithErrors(url, errors));
+            return Response.Failed<SnoozeAlertInfo>(Debug.WithErrors("alerts/{identifier}/snooze?identifierType={identifierType}", errors));
+
+        string url =
+            $"alerts/{identifier}/snooze?identifierType={GetIdentifierType()}";
 
         return await PostRequest<SnoozeAlertInfo, SnoozeAlertRequest>(url, impl.Request, cancellationToken);
 
-        string GetIdentifierType(IdentifierType type) =>
-            type switch
+        string GetIdentifierType() =>
+            identifierType switch
             {
                 IdentifierType.Id => "id",
                 IdentifierType.Tiny => "tiny",
                 IdentifierType.Alias => "alias",
                 _ => string.Empty
             };
+
+        IReadOnlyList<Error> Validate()
+        {
+            bool isIdentifierTypeMissing = identifierType switch
+            {
+                IdentifierType.Id => false,
+                IdentifierType.Tiny => false,
+                IdentifierType.Alias => false,
+                _ => true
+            };
+
+            var errors = new List<Error>();
+
+            if (isIdentifierTypeMissing)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    $"{identifierType.ToString()} is not a valid identifier type in the current context."));
+
+            bool isGuid = Guid.TryParse(identifier, out _);
+
+            if (isGuid && identifierType != IdentifierType.Id)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    "Identifier type is not compatible with identifier."));
+
+            if (isGuid && identifier != default && isIdentifierTypeMissing ||
+                (string.IsNullOrWhiteSpace(identifier) && isIdentifierTypeMissing))
+                errors.Add(Errors.Create(ErrorType.IdentifierType, "Identifier type is missing."));
+
+            return errors;
+        }
     }
 
 
     class SnoozeAlertCriteriaImpl :
-        SnoozeAlertCriteria
+        SnoozeAlertCriteria,
+        IQueryCriteria
     {
         string _note;
         string _source;
@@ -76,5 +104,18 @@ public partial class AlertImpl
         {
             _note = note;
         }
+
+        public bool IsSearchQuery() => false;
+
+        public IReadOnlyList<Error> Validate()
+        {
+            var errors = new List<Error>();
+            if (!_endTime.HasValue)
+                errors.Add(Errors.Create(ErrorType.EndTime, "EndTime is required."));
+
+            return errors;
+        }
+
+        public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
     }
 }

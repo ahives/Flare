@@ -30,7 +30,7 @@ public interface Alert :
         Action<UnacknowledgeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Maybe<SnoozeAlertInfo>> Snooze(Guid identifier, IdentifierType identifierType,
+    Task<Maybe<SnoozeAlertInfo>> Snooze(string identifier, IdentifierType identifierType,
         Action<SnoozeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
