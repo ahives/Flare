@@ -18,10 +18,10 @@ public interface Alert :
 
     Task<Maybe<AlertCountInfo>> Count(Action<CountAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AcknowledgeAlertInfo>> Acknowledge(Guid identifier, IdentifierType identifierType, Action<AcknowledgeAlertCriteria> criteria,
+    Task<Maybe<AcknowledgeAlertInfo>> Acknowledge(string identifier, IdentifierType identifierType, Action<AcknowledgeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Maybe<UnacknowledgeAlertInfo>> Unacknowledge(Guid identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
+    Task<Maybe<UnacknowledgeAlertInfo>> Unacknowledge(string identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
     Task<Maybe<SnoozeAlertInfo>> Snooze(Guid identifier, IdentifierType identifierType, Action<SnoozeAlertCriteria> criteria,

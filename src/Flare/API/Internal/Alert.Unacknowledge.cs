@@ -4,7 +4,7 @@ using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<UnacknowledgeAlertInfo>> Unacknowledge(Guid identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
+    public async Task<Maybe<UnacknowledgeAlertInfo>> Unacknowledge(string identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -12,28 +12,52 @@ public partial class AlertImpl
         var impl = new UnacknowledgeAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
-        var errors = new List<Error>();
-
-        string idType = GetIdentifierType(identifierType);
-        if (string.IsNullOrWhiteSpace(idType))
-            errors.Add(new Error{Reason = "identifierType is required.", Timestamp = DateTimeOffset.UtcNow});
+        var errors = Validate();
+        if (errors.Count != 0)
+            return Response.Failed<UnacknowledgeAlertInfo>(Debug.WithErrors("alerts/{identifier}/unacknowledge?identifierType={idType}", errors));
 
         string url =
-            $"https://api.opsgenie.com/v2/alerts/{identifier}/unacknowledge?identifierType={GetIdentifierType(identifierType)}";
-
-        if (errors.Count != 0)
-            return Response.Failed<UnacknowledgeAlertInfo>(Debug.WithErrors(url, errors));
+            $"alerts/{identifier}/unacknowledge?identifierType={GetIdentifierType()}";
 
         return await PostRequest<UnacknowledgeAlertInfo, UnacknowledgeAlertRequest>(url, impl.Request, cancellationToken);
 
-        string GetIdentifierType(IdentifierType type) =>
-            type switch
+        string GetIdentifierType() =>
+            identifierType switch
             {
                 IdentifierType.Id => "id",
                 IdentifierType.Tiny => "tiny",
                 IdentifierType.Alias => "alias",
                 _ => string.Empty
             };
+
+        IReadOnlyList<Error> Validate()
+        {
+            bool isIdentifierTypeMissing = identifierType switch
+            {
+                IdentifierType.Id => false,
+                IdentifierType.Tiny => false,
+                IdentifierType.Alias => false,
+                _ => true
+            };
+
+            var errors = new List<Error>();
+
+            if (isIdentifierTypeMissing)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    $"{identifierType.ToString()} is not a valid identifier type in the current context."));
+
+            bool isGuid = Guid.TryParse(identifier, out _);
+
+            if (isGuid && identifierType != IdentifierType.Id)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    "Identifier type is not compatible with identifier."));
+
+            if (isGuid && identifier != default && isIdentifierTypeMissing ||
+                (string.IsNullOrWhiteSpace(identifier) && isIdentifierTypeMissing))
+                errors.Add(Errors.Create(ErrorType.IdentifierType, "Identifier type is missing."));
+
+            return errors;
+        }
     }
 
 

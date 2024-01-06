@@ -13,7 +13,7 @@ public class UnacknowledgeAlertTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .Unacknowledge(NewId.NextGuid(), IdentifierType.Id, x =>
+            .Unacknowledge(NewId.NextGuid().ToString(), IdentifierType.Id, x =>
             {
                 x.User("Flare");
                 x.Source("Flare");
@@ -27,6 +27,28 @@ public class UnacknowledgeAlertTests :
             Assert.That(result.Result.Result, Is.EqualTo("Request will be processed"));
             Assert.That(result.Result.Took, Is.EqualTo(0.202f));
             Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("43a29c5c-3dbf-4fa4-9c26-f4f71023e120")));
+        });
+    }
+
+    [Test]
+    public async Task Test2()
+    {
+        var result = await GetContainerBuilder("TestData/UnacknowledgeAlertResponse.json")
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .Unacknowledge(NewId.NextGuid().ToString(), IdentifierType.Name, x =>
+            {
+                x.User("Flare");
+                x.Source("Flare");
+                x.Note("");
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.Result, Is.Null);
+            Assert.That(result.HasFaulted, Is.True);
         });
     }
 }
