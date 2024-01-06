@@ -4,116 +4,90 @@ using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertNoteInfo>> AddNote(Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<AlertNoteInfo>> AddNote(string identifier, IdentifierType identifierType,
+        Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         var impl = new AddAlertNoteCriteriaImpl();
         criteria?.Invoke(impl);
 
-        string queryString = BuildQueryString(impl.QueryArguments);
-        string url = string.IsNullOrWhiteSpace(queryString)
-            ? $"https://api.opsgenie.com/v2/alerts/{impl.Identifier}/notes"
-            : $"https://api.opsgenie.com/v2/alerts/{impl.Identifier}/notes?{queryString}";
+        var errors = Validate();
+        if (errors.Count != 0)
+            return Response.Failed<AlertNoteInfo>(Debug.WithErrors("alerts/{identifier}/notes?identifierType={idType}", errors));
 
-        if (impl.Errors.Any())
-            return Response.Failed<AlertNoteInfo>(Debug.WithErrors(url, impl.Errors));
+        string url = $"alerts/{identifier}/notes?{GetIdentifierType()}";
 
         return await PostRequest<AlertNoteInfo, AddAlertNoteRequest>(url, impl.Request, cancellationToken);
+
+        string GetIdentifierType() =>
+            identifierType switch
+            {
+                IdentifierType.Id => "id",
+                IdentifierType.Tiny => "tiny",
+                IdentifierType.Alias => "alias",
+                _ => string.Empty
+            };
+
+        IReadOnlyList<Error> Validate()
+        {
+            bool isIdentifierTypeMissing = identifierType switch
+            {
+                IdentifierType.Id => false,
+                IdentifierType.Tiny => false,
+                IdentifierType.Alias => false,
+                _ => true
+            };
+
+            var errors = new List<Error>();
+
+            if (isIdentifierTypeMissing)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    $"{identifierType.ToString()} is not a valid identifier type in the current context."));
+
+            bool isGuid = Guid.TryParse(identifier, out _);
+
+            if (isGuid && identifierType != IdentifierType.Id)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    "Identifier type is not compatible with identifier."));
+
+            if (isGuid && identifier != default && isIdentifierTypeMissing ||
+                (string.IsNullOrWhiteSpace(identifier) && isIdentifierTypeMissing))
+                errors.Add(Errors.Create(ErrorType.IdentifierType, "Identifier type is missing."));
+
+            return errors;
+        }
     }
 
 
     class AddAlertNoteCriteriaImpl :
         AddAlertNoteCriteria
     {
-        public Guid Identifier { get; private set; }
-        public IDictionary<string, object> QueryArguments { get; private set; }
-        public AddAlertNoteRequest Request { get; private set; }
-        public List<Error> Errors { get; private set; }
+        string _note;
+        string _source;
+        string _user;
 
-        public void Definition(Action<AlertNoteDefinition> definition)
+        public AddAlertNoteRequest Request =>
+            new()
+            {
+                Note = _note,
+                Source = _source,
+                User = _user
+            };
+
+        public void User(string displayName)
         {
-            var impl = new AlertNoteDefinitionImpl();
-            definition?.Invoke(impl);
-
-            Request = impl.Request;
+            _user = displayName;
         }
 
-        public void Where(Action<AddAlertNoteQuery> query)
+        public void Source(string displayName)
         {
-            var impl = new AddAlertNoteQueryImpl();
-            query?.Invoke(impl);
-
-            Identifier = impl.QueryIdentifier;
-            QueryArguments = impl.QueryArguments;
-            Errors = impl.Errors;
+            _source = displayName;
         }
 
-
-        class AlertNoteDefinitionImpl :
-            AlertNoteDefinition
+        public void Note(string note)
         {
-            string _note;
-            string _source;
-            string _user;
-
-            public AddAlertNoteRequest Request =>
-                new()
-                {
-                    Note = _note,
-                    Source = _source,
-                    User = _user
-                };
-
-            public void User(string displayName)
-            {
-                _user = displayName;
-            }
-
-            public void Source(string displayName)
-            {
-                _source = displayName;
-            }
-
-            public void Note(string note)
-            {
-                _note = note;
-            }
-        }
-
-
-        class AddAlertNoteQueryImpl :
-            AddAlertNoteQuery
-        {
-            public Guid QueryIdentifier { get; private set; }
-            public IDictionary<string, object> QueryArguments { get; }
-            public List<Error> Errors = new();
-
-            public AddAlertNoteQueryImpl()
-            {
-                QueryArguments = new Dictionary<string, object>();
-            }
-
-            public void SearchIdentifier(Guid identifier)
-            {
-                QueryIdentifier = identifier;
-            }
-
-            public void SearchIdentifierType(IdentifierType type)
-            {
-                string searchIdentifierType = type switch
-                {
-                    IdentifierType.Id => "id",
-                    IdentifierType.Tiny => "tiny",
-                    IdentifierType.Alias => "alias",
-                    _ => string.Empty
-                };
-
-                if (string.IsNullOrWhiteSpace(searchIdentifierType))
-                    Errors.Add(new Error{Reason = $"{type.ToString()} is not valid in the current context.", Timestamp = DateTimeOffset.UtcNow});
-            
-                QueryArguments.Add("identifierType", searchIdentifierType);
-            }
+            _note = note;
         }
     }
 }

@@ -2,7 +2,9 @@ namespace Flare;
 
 public interface AddAlertNoteCriteria
 {
-    void Definition(Action<AlertNoteDefinition> definition);
-    
-    void Where(Action<AddAlertNoteQuery> query);
+    void User(string displayName);
+
+    void Source(string displayName);
+
+    void Note(string note);
 }

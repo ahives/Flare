@@ -13,19 +13,11 @@ public class AddAlertNoteTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .AddNote(x =>
+            .AddNote(NewId.NextGuid().ToString(), IdentifierType.Id, x =>
             {
-                x.Definition(d =>
-                {
-                    d.User("Monitoring Script");
-                    d.Source("AWS Lambda");
-                    d.Note("Action executed via Alert API");
-                });
-                x.Where(q =>
-                {
-                    q.SearchIdentifier(NewId.NextGuid());
-                    q.SearchIdentifierType(IdentifierType.Id);
-                });
+                x.User("Monitoring Script");
+                x.Source("AWS Lambda");
+                x.Note("Action executed via Alert API");
             });
 
         Assert.Multiple(() =>
@@ -35,6 +27,28 @@ public class AddAlertNoteTests :
             Assert.That(result.Result.Result, Is.EqualTo("Request will be processed"));
             Assert.That(result.Result.Took, Is.EqualTo(0.213f));
             Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("43a29c5c-3dbf-4fa4-9c26-f4f71023e120")));
+        });
+    }
+
+    [Test]
+    public async Task Test2()
+    {
+        var result = await GetContainerBuilder("TestData/AddAlertNoteResponse.json")
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .AddNote(NewId.NextGuid().ToString(), IdentifierType.Name, x =>
+            {
+                x.User("Monitoring Script");
+                x.Source("AWS Lambda");
+                x.Note("Action executed via Alert API");
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.Result, Is.Null);
+            Assert.That(result.HasFaulted, Is.True);
         });
     }
 }
