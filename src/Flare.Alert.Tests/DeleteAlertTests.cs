@@ -1,5 +1,6 @@
 namespace Flare.Alert.Tests;
 
+using Flare.Model;
 using MassTransit;
 
 public class DeleteAlertTests :

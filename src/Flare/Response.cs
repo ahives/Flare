@@ -1,5 +1,7 @@
 namespace Flare;
 
+using Model;
+
 public static class Response
 {
     public static Maybe<IReadOnlyList<T>> Success<T>(IReadOnlyList<T> data, DebugInfo debugInfo) =>

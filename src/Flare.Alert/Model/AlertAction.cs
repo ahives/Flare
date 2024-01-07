@@ -1,4 +1,4 @@
-namespace Flare.Alert;
+namespace Flare.Alert.Model;
 
 public enum AlertAction
 {

@@ -1,6 +1,6 @@
-namespace Flare;
+namespace Flare.Model;
 
-public record Error
+public sealed record Error
 {
     public string Reason { get; init; }
 

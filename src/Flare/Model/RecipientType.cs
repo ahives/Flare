@@ -1,4 +1,4 @@
-namespace Flare;
+namespace Flare.Model;
 
 public enum RecipientType
 {

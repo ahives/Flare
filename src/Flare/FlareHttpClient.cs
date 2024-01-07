@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Extensions;
+using Model;
 
 public abstract class FlareHttpClient
 {

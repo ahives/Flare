@@ -1,5 +1,7 @@
 namespace Flare.Alert;
 
+using Flare.Model;
+
 public interface CountAlertCriteria
 {
     void Query(Action<SearchQueryCriteria> criteria);

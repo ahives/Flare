@@ -1,6 +1,7 @@
 namespace Flare.Alert;
 
 using System.Text.Json.Serialization;
+using Model;
 
 public sealed record AlertStatusData
 {

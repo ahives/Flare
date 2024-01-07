@@ -1,6 +1,6 @@
-namespace Flare;
+namespace Flare.Model;
 
-public record DebugInfo
+public sealed record DebugInfo
 {
     public string URL { get; init; }
 

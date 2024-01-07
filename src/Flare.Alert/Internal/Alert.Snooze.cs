@@ -1,6 +1,7 @@
 namespace Flare.Alert.Internal;
 
 using System.Collections.Immutable;
+using Flare.Model;
 using Model;
 using Serialization;
 

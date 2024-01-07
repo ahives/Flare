@@ -1,6 +1,7 @@
 namespace Flare.Extensions;
 
 using System.Text;
+using Model;
 
 public static class QueryExtensions
 {

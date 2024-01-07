@@ -2,6 +2,7 @@ namespace Flare.Alert.Serialization.Converters;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Flare.Model;
 
 public class RecipientTypeConverter :
     JsonConverter<RecipientType>

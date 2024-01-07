@@ -1,5 +1,7 @@
 namespace Flare.Alert.Tests;
 
+using Flare.Model;
+
 [TestFixture]
 public class UnacknowledgeAlertTests :
     FlareApiTesting

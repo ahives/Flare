@@ -1,5 +1,7 @@
 namespace Flare;
 
+using Model;
+
 public static class Errors
 {
     public static Error Create(ErrorType errorType, string reason) =>

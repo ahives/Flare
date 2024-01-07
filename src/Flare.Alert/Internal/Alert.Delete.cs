@@ -2,6 +2,7 @@ namespace Flare.Alert.Internal;
 
 using System.Collections.ObjectModel;
 using Extensions;
+using Flare.Model;
 using Model;
 using Serialization;
 

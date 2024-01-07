@@ -2,6 +2,7 @@ namespace Flare.Alert.Serialization.Converters;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Model;
 
 public class AlertActionConverter :
     JsonConverter<AlertAction>

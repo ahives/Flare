@@ -1,5 +1,7 @@
 namespace Flare;
 
+using Model;
+
 public record Maybe
 {
     public DateTimeOffset Timestamp { get; init; }

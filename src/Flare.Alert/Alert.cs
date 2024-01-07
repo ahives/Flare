@@ -1,5 +1,6 @@
 namespace Flare.Alert;
 
+using Flare.Model;
 using Model;
 
 public interface Alert :

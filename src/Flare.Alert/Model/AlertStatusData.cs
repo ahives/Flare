@@ -5,32 +5,32 @@ using System.Text.Json.Serialization;
 public sealed record AlertStatusData
 {
     [JsonPropertyName("success")]
-    public bool Success { get; set; }
+    public bool Success { get; init; }
 
     [JsonPropertyName("action")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Action { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public AlertAction Action { get; init; }
 
     [JsonPropertyName("processedAt")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public DateTimeOffset ProcessedAt { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTimeOffset ProcessedAt { get; init; }
 
     [JsonPropertyName("integrationId")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Guid IntegrationId { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public Guid IntegrationId { get; init; }
 
     [JsonPropertyName("isSuccess")]
-    public bool IsSuccess { get; set; }
+    public bool IsSuccess { get; init; }
 
     [JsonPropertyName("status")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Status { get; set; }
+    public string Status { get; init; }
 
     [JsonPropertyName("alertId")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Guid AlertId { get; set; }
+    public string AlertId { get; init; }
 
     [JsonPropertyName("alias")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Alias { get; set; }
+    public string Alias { get; init; }
 }

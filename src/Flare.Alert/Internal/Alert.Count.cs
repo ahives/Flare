@@ -1,6 +1,7 @@
 namespace Flare.Alert.Internal;
 
 using Extensions;
+using Flare.Model;
 using Model;
 using Serialization;
 

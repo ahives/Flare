@@ -1,5 +1,7 @@
 namespace Flare.Alert;
 
+using Flare.Model;
+
 public interface QueryAllAlertCriteria
 {
     void Query(Action<SearchQueryCriteria> criteria);
