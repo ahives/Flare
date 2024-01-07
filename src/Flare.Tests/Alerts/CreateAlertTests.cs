@@ -16,6 +16,7 @@ public class CreateAlertTests :
             .API<Alert>()
             .Create(x =>
             {
+                x.Message("An example alert message");
                 x.Description("Every alert needs a description");
                 x.Responders(r =>
                 {
@@ -57,9 +58,54 @@ public class CreateAlertTests :
             Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("43a29c5c-3dbf-4fa4-9c26-f4f71023e120")));
             var request = result.DebugInfo.Request.ToObject<CreateAlertRequest>();
         });
-        // request.Responders
-        // Console.WriteLine(result.DebugInfo.Request);
-        // Console.WriteLine(result.DebugInfo.Request.ToJsonString(Deserializer.Options));
+    }
+
+    [Test]
+    public async Task Test2()
+    {
+        var result = await GetContainerBuilder("TestData/CreateAlertResponse.json")
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .Create(x =>
+            {
+                x.Description("Every alert needs a description");
+                x.Responders(r =>
+                {
+                    r.Team(o => o.Id(NewId.NextGuid()));
+                    r.Team(o => o.Name("NOC"));
+                    r.User(o => o.Id(NewId.NextGuid()));
+                    r.User(o => o.Username("trinity@opsgenie.com"));
+                    r.Escalation(o => o.Id(NewId.NextGuid()));
+                    r.Escalation(o => o.Name("Nightwatch Escalation"));
+                    r.Schedule(o => o.Id(NewId.NextGuid()));
+                    r.Schedule(o => o.Name("First Responders Schedule"));
+                });
+                x.VisibleTo(v =>
+                {
+                    v.Team(o => o.Id(NewId.NextGuid()));
+                    v.Team(o => o.Name("rocket_team"));
+                    v.User(o => o.Id(NewId.NextGuid()));
+                    v.User(o => o.Username("trinity@opsgenie.com"));
+                });
+                x.ClientIdentifier("Life is too short for no alias");
+                x.AdditionalNotes("Some fake notes here");
+                x.CustomProperties(p =>
+                {
+                    p.Add("key1", "value1");
+                    p.Add("key2", "value2");
+                });
+                x.CustomActions("Restart", "AnExampleAction");
+                x.CustomTags("OverwriteQuietHours", "Critical");
+                x.RelatedToDomain("Fake entity");
+                x.Priority(AlertPriority.P1);
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+        });
     }
 
     // [Test]

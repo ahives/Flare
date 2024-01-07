@@ -12,25 +12,32 @@ public partial class AlertImpl
         var impl = new CreateAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
-        string url = "https://api.opsgenie.com/v2/alerts";
+        var qc = impl as IQueryCriteria;
+        string url = "alerts";
+        var errors = qc.Validate();
+        if (errors.Count != 0)
+            return Response.Failed<CreateAlertInfo>(Debug.WithErrors(url, errors));
+
 
         return await PostRequest<CreateAlertInfo, CreateAlertRequest>(url, impl.Request, cancellationToken).ConfigureAwait(false);
     }
 
 
     class CreateAlertCriteriaImpl :
-        CreateAlertCriteria
+        CreateAlertCriteria,
+        IQueryCriteria
     {
-        private string _description;
-        private string _clientIdentifier;
-        private string _notes;
-        private List<string> _actions;
-        private List<string> _tags;
-        private string _domain;
-        private AlertPriority _priority;
-        private object[] _responderRecipients;
-        private object[] _visibility;
-        private IDictionary<string, string> _properties;
+        string _description;
+        string _clientIdentifier;
+        string _notes;
+        List<string> _actions;
+        List<string> _tags;
+        string _domain;
+        AlertPriority _priority;
+        object[] _responderRecipients;
+        object[] _visibility;
+        IDictionary<string, string> _properties;
+        string _message;
 
         public CreateAlertRequest Request =>
             new()
@@ -122,6 +129,27 @@ public partial class AlertImpl
         public void Priority(AlertPriority priority)
         {
             _priority = priority;
+        }
+
+        public void Message(string message)
+        {
+            _message = message;
+        }
+
+        public bool IsSearchQuery() => false;
+
+        public IReadOnlyList<Error> Validate()
+        {
+            var errors = new List<Error>();
+            if (string.IsNullOrWhiteSpace(_message))
+                errors.Add(Errors.Create(ErrorType.Message, "Message is required to create an alert."));
+
+            return errors;
+        }
+
+        public Dictionary<string, QueryArg> GetQueryArguments()
+        {
+            throw new NotImplementedException();
         }
 
 

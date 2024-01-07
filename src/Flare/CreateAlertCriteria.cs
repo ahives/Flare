@@ -23,4 +23,6 @@ public interface CreateAlertCriteria
     void RelatedToDomain(string domain);
 
     void Priority(AlertPriority priority);
+
+    void Message(string message);
 }

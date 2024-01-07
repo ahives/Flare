@@ -6,5 +6,6 @@ public enum ErrorType
     EndTime,
     AlertStatus,
     SortField,
-    PaginationOffset
+    PaginationOffset,
+    Message
 }
