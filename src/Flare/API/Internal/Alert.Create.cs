@@ -1,5 +1,6 @@
 namespace Flare.API.Internal;
 
+using System.Collections.Immutable;
 using Model;
 using Flare.Model;
 
@@ -147,10 +148,7 @@ public partial class AlertImpl
             return errors;
         }
 
-        public Dictionary<string, QueryArg> GetQueryArguments()
-        {
-            throw new NotImplementedException();
-        }
+        public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
 
 
         class AlertPropertyImpl :
