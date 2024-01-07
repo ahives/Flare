@@ -1,6 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace Flare.Model;
+
+using System.Text.Json.Serialization;
 
 public record UserRecipient :
     BaseRecipient

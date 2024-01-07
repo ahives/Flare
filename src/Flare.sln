@@ -10,6 +10,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flare.DependencyInjection",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flare.Integration.Tests", "Flare.Integration.Tests\Flare.Integration.Tests.csproj", "{38A47B78-2FDB-4976-992F-A67DC2014886}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flare.Alert", "Flare.Alert\Flare.Alert.csproj", "{0587E282-006E-4249-8CCF-589FBFFE44B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flare.Alert.Tests", "Flare.Alert.Tests\Flare.Alert.Tests.csproj", "{3890773B-E019-4BB5-9F87-F5B78AE6A06F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,9 +36,18 @@ Global
 		{38A47B78-2FDB-4976-992F-A67DC2014886}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38A47B78-2FDB-4976-992F-A67DC2014886}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38A47B78-2FDB-4976-992F-A67DC2014886}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0587E282-006E-4249-8CCF-589FBFFE44B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0587E282-006E-4249-8CCF-589FBFFE44B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0587E282-006E-4249-8CCF-589FBFFE44B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0587E282-006E-4249-8CCF-589FBFFE44B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3890773B-E019-4BB5-9F87-F5B78AE6A06F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3890773B-E019-4BB5-9F87-F5B78AE6A06F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3890773B-E019-4BB5-9F87-F5B78AE6A06F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3890773B-E019-4BB5-9F87-F5B78AE6A06F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7A56F72F-7222-4602-B62B-66004712385C} = {7BF84B74-BC04-4B39-A909-6426B55C048E}
 		{38A47B78-2FDB-4976-992F-A67DC2014886} = {7BF84B74-BC04-4B39-A909-6426B55C048E}
+		{3890773B-E019-4BB5-9F87-F5B78AE6A06F} = {7BF84B74-BC04-4B39-A909-6426B55C048E}
 	EndGlobalSection
 EndGlobal

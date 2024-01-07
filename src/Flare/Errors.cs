@@ -1,6 +1,6 @@
 namespace Flare;
 
-internal static class Errors
+public static class Errors
 {
     public static Error Create(ErrorType errorType, string reason) =>
         new()

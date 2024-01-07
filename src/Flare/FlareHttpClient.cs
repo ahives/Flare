@@ -4,9 +4,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Configuration;
 using Extensions;
-using Serialization;
 
 public abstract class FlareHttpClient
 {
@@ -26,7 +24,7 @@ public abstract class FlareHttpClient
         };
     }
 
-    protected async Task<Maybe<IReadOnlyList<T>>> GetAllRequest<T>(string url, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<IReadOnlyList<T>>> GetAllRequest<T>(string url, JsonSerializerOptions options, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 
@@ -38,7 +36,7 @@ public abstract class FlareHttpClient
 
             return !response.IsSuccessStatusCode
                 ? Response.Failures<T>(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
-                : Response.Success(rawResponse.ToObject<List<T>>().GetDataOrEmpty(), Debug.WithoutErrors(url, rawResponse));
+                : Response.Success(rawResponse.ToObject<List<T>>(options).GetDataOrEmpty(), Debug.WithoutErrors(url, rawResponse));
         }
         catch (MissingMethodException e)
         {
@@ -62,7 +60,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Maybe<T>> GetRequest<T>(string url, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<T>> GetRequest<T>(string url, JsonSerializerOptions options, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 
@@ -74,7 +72,7 @@ public abstract class FlareHttpClient
 
             return !response.IsSuccessStatusCode
                 ? Response.Failed<T>(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
-                : Response.Success(rawResponse.ToObject<T>().GetDataOrDefault(), Debug.WithoutErrors(url, rawResponse))!;
+                : Response.Success(rawResponse.ToObject<T>(options).GetDataOrDefault(), Debug.WithoutErrors(url, rawResponse))!;
         }
         catch (MissingMethodException e)
         {
@@ -170,7 +168,7 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Maybe<T>> DeleteRequest<T>(string url, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<T>> DeleteRequest<T>(string url, JsonSerializerOptions options, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
 
@@ -182,7 +180,7 @@ public abstract class FlareHttpClient
 
             return !response.IsSuccessStatusCode
                 ? Response.Failed<T>(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
-                : Response.Success(rawResponse.ToObject<T>().GetDataOrDefault(), Debug.WithoutErrors(url, rawResponse))!;
+                : Response.Success(rawResponse.ToObject<T>(options).GetDataOrDefault(), Debug.WithoutErrors(url, rawResponse))!;
         }
         catch (MissingMethodException e)
         {
@@ -206,14 +204,14 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Maybe> PutRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
+    protected async Task<Maybe> PutRequest<TRequest>(string url, TRequest request, JsonSerializerOptions options, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
         string rawRequest = null!;
 
         try
         {
-            rawRequest = request.ToJsonString(Serializer.Options);
+            rawRequest = request.ToJsonString(options);
             var content = GetRequestContent(rawRequest);
             var response = await _client.PutAsync(url, content, cancellationToken).ConfigureAwait(false);
 
@@ -282,14 +280,14 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Maybe<T>> PostRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<T>> PostRequest<T, TRequest>(string url, TRequest request, JsonSerializerOptions options, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
         string rawRequest = null!;
 
         try
         {
-            rawRequest = request.ToJsonString(Serializer.Options);
+            rawRequest = request.ToJsonString(options);
             var content = GetRequestContent(rawRequest);
             var response = await _client.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
@@ -297,7 +295,7 @@ public abstract class FlareHttpClient
 
             return !response.IsSuccessStatusCode
                 ? Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, new List<Error> {GetError(response.StatusCode)}))
-                : Response.Success(rawResponse.ToObject<T>().GetDataOrDefault(), Debug.WithoutErrors(url, rawRequest, rawResponse))!;
+                : Response.Success(rawResponse.ToObject<T>(options).GetDataOrDefault(), Debug.WithoutErrors(url, rawRequest, rawResponse))!;
         }
         catch (MissingMethodException e)
         {
@@ -321,14 +319,14 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Maybe> PostRequest<TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
+    protected async Task<Maybe> PostRequest<TRequest>(string url, TRequest request, JsonSerializerOptions options, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
         string rawRequest = null!;
 
         try
         {
-            rawRequest = request.ToJsonString(Serializer.Options);
+            rawRequest = request.ToJsonString(options);
             var content = GetRequestContent(rawRequest);
             var response = await _client.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
@@ -360,14 +358,14 @@ public abstract class FlareHttpClient
         }
     }
 
-    protected async Task<Maybe<IReadOnlyList<T>>> PostListRequest<T, TRequest>(string url, TRequest request, CancellationToken cancellationToken = default)
+    protected async Task<Maybe<IReadOnlyList<T>>> PostListRequest<T, TRequest>(string url, TRequest request, JsonSerializerOptions options, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
         string rawRequest = null!;
 
         try
         {
-            rawRequest = request.ToJsonString(Serializer.Options);
+            rawRequest = request.ToJsonString(options);
             var content = GetRequestContent(rawRequest);
             var response = await _client.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
@@ -375,7 +373,7 @@ public abstract class FlareHttpClient
 
             return !response.IsSuccessStatusCode
                 ? Response.Failures<T>(Debug.WithErrors(url, rawRequest, rawResponse, new List<Error> {GetError(response.StatusCode)}))
-                : Response.Success(rawResponse.ToObject<List<T>>().GetDataOrEmpty(), Debug.WithoutErrors(url, rawRequest, rawResponse));
+                : Response.Success(rawResponse.ToObject<List<T>>(options).GetDataOrEmpty(), Debug.WithoutErrors(url, rawRequest, rawResponse));
         }
         catch (MissingMethodException e)
         {

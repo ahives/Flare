@@ -2,7 +2,7 @@ namespace Flare.Extensions;
 
 using System.Text;
 
-internal static class QueryExtensions
+public static class QueryExtensions
 {
     public static string BuildQueryString(this IDictionary<string, QueryArg> arguments)
     {

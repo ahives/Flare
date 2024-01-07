@@ -1,8 +1,8 @@
-using System.Text.Json.Serialization;
-
 namespace Flare.Model;
 
-public record Recipient :
+using System.Text.Json.Serialization;
+
+public sealed record Recipient :
     BaseRecipient
 {
     [JsonPropertyName("id")]

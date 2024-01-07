@@ -1,6 +1,6 @@
 namespace Flare;
 
-internal static class Response
+public static class Response
 {
     public static Maybe<IReadOnlyList<T>> Success<T>(IReadOnlyList<T> data, DebugInfo debugInfo) =>
         new()

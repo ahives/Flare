@@ -2,7 +2,7 @@ namespace Flare;
 
 using System.Collections.ObjectModel;
 
-internal static class Debug
+public static class Debug
 {
     public static DebugInfo WithoutErrors(string url, string responseJson) =>
         new()

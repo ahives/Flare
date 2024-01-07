@@ -31,50 +31,17 @@
 
     <ItemGroup>
       <None Remove="TestData\CreateAlertResponse.json" />
-      <Content Include="TestData\CreateAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\DeleteAlertResponse.json" />
-      <Content Include="TestData\DeleteAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\GetAlertResponse.json" />
-      <Content Include="TestData\GetAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\ListAlertResponse.json" />
       <None Remove="TestData\GetAllAlertResponse.json" />
-      <Content Include="TestData\GetAllAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\GetCountResponse.json" />
-      <Content Include="TestData\AlertCountResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\CloseAlertResponse.json" />
-      <Content Include="TestData\CloseAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\AddAlertNoteResponse.json" />
-      <Content Include="TestData\AddAlertNoteResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\AcknowledgeAlertResponse.json" />
-      <Content Include="TestData\AcknowledgeAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\AlertStatusResponse.json" />
-      <Content Include="TestData\AlertStatusResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\UnacknowledgeAlertResponse.json" />
-      <Content Include="TestData\UnacknowledgeAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\SnoozeAlertResponse.json" />
-      <Content Include="TestData\SnoozeAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
     </ItemGroup>
 
 </Project>
