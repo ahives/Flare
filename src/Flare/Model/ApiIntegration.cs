@@ -1,8 +1,8 @@
-using System.Text.Json.Serialization;
-
 namespace Flare.Model;
 
-public record ApiIntegration
+using System.Text.Json.Serialization;
+
+public sealed record ApiIntegration
 {
     [JsonPropertyName("id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
