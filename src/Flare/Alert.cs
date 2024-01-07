@@ -8,7 +8,7 @@ public interface Alert :
     Task<Maybe<CreateAlertInfo>> Create(Action<CreateAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Maybe<DeleteAlertInfo>> Delete(Guid identifier, IdentifierType identifierType,
+    Task<Maybe<DeleteAlertInfo>> Delete(string identifier, IdentifierType identifierType,
         Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
     Task<Maybe<AlertStatusInfo>> Status(Guid requestId, CancellationToken cancellationToken = default);

@@ -1,10 +1,12 @@
 namespace Flare.API.Internal;
 
+using System.Collections.ObjectModel;
+using Extensions;
 using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<DeleteAlertInfo>> Delete(Guid identifier, IdentifierType identifierType, Action<DeleteAlertCriteria> criteria,
+    public async Task<Maybe<DeleteAlertInfo>> Delete(string identifier, IdentifierType identifierType, Action<DeleteAlertCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -12,43 +14,89 @@ public partial class AlertImpl
         var impl = new DeleteAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
-        impl.QueryArguments.Add("identifierType", GetIdentifierType(identifierType));
+        var qc = impl as IQueryCriteria;
 
-        string queryString = BuildQueryString(impl.QueryArguments);
-        string url = string.IsNullOrWhiteSpace(queryString)
-            ? $"https://api.opsgenie.com/v2/alerts/{identifier}"
-            : $"https://api.opsgenie.com/v2/alerts/{identifier}?{queryString}";
+        var errors = new List<Error>();
+        errors.AddRange(Validate());
+        errors.AddRange(qc.Validate());
+
+        var arguments = qc.GetQueryArguments();
+        string url = arguments.Count > 0
+            ? $"alerts/{identifier}?identifierType={GetIdentifierType()}&{arguments.BuildQueryString()}"
+            : $"alerts/{identifier}?identifierType={GetIdentifierType()}";
 
         return await DeleteRequest<DeleteAlertInfo>(url, cancellationToken).ConfigureAwait(false);
 
-        string GetIdentifierType(IdentifierType type) =>
-            type switch
+        string GetIdentifierType() =>
+            identifierType switch
             {
                 IdentifierType.AlertId => "AlertID",
                 IdentifierType.TinyId => "tinyID",
                 _ => string.Empty
             };
+
+        IReadOnlyList<Error> Validate()
+        {
+            bool isIdentifierTypeMissing = identifierType switch
+            {
+                IdentifierType.AlertId => false,
+                IdentifierType.TinyId => false,
+                _ => true
+            };
+
+            var errors = new List<Error>();
+
+            if (isIdentifierTypeMissing)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    $"{identifierType.ToString()} is not a valid identifier type in the current context."));
+
+            bool isGuid = Guid.TryParse(identifier, out _);
+
+            if (isGuid && identifierType != IdentifierType.Id)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    "Identifier type is not compatible with identifier."));
+
+            if (isGuid && identifier != default && isIdentifierTypeMissing ||
+                (string.IsNullOrWhiteSpace(identifier) && isIdentifierTypeMissing))
+                errors.Add(Errors.Create(ErrorType.IdentifierType, "Identifier type is missing."));
+
+            return errors;
+        }
     }
 
     
     class DeleteAlertCriteriaImpl :
-        DeleteAlertCriteria
+        DeleteAlertCriteria,
+        IQueryCriteria
     {
-        public IDictionary<string, object> QueryArguments { get; }
-
-        public DeleteAlertCriteriaImpl()
-        {
-            QueryArguments = new Dictionary<string, object>();
-        }
+        private string _source;
+        private string _user;
 
         public void User(string displayName)
         {
-            QueryArguments.Add("user", displayName);
+            _user = displayName;
         }
 
         public void Source(string displayName)
         {
-            QueryArguments.Add("source", displayName);
+            _source = displayName;
+        }
+
+        public bool IsSearchQuery() => false;
+
+        public IReadOnlyList<Error> Validate() => ReadOnlyCollection<Error>.Empty;
+
+        public Dictionary<string, QueryArg> GetQueryArguments()
+        {
+            var arguments = new Dictionary<string, QueryArg>();
+
+            if (!string.IsNullOrWhiteSpace(_user))
+                arguments.Add("user", new QueryArg {Value = _user});
+
+            if (!string.IsNullOrWhiteSpace(_source))
+                arguments.Add("source", new QueryArg {Value = _source});
+
+            return arguments;
         }
     }
 }
