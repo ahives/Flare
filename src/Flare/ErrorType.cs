@@ -7,5 +7,6 @@ public enum ErrorType
     AlertStatus,
     SortField,
     PaginationOffset,
-    Message
+    Message,
+    StringLengthLimitExceeded
 }

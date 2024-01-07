@@ -22,8 +22,7 @@ public partial class AlertImpl
         if (errors.Count != 0)
             return Response.Failed<SnoozeAlertInfo>(Debug.WithErrors("alerts/{identifier}/snooze?identifierType={identifierType}", errors));
 
-        string url =
-            $"alerts/{identifier}/snooze?identifierType={GetIdentifierType()}";
+        string url = $"alerts/{identifier}/snooze?identifierType={GetIdentifierType()}";
 
         return await PostRequest<SnoozeAlertInfo, SnoozeAlertRequest>(url, impl.Request, cancellationToken);
 

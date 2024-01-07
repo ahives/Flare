@@ -2,7 +2,9 @@ namespace Flare;
 
 public interface CloseAlertCriteria
 {
-    void Definition(Action<CloseAlertDefinition> definition);
-    
-    void Where(Action<CloseAlertQuery> query);
+    void User(string displayName);
+
+    void Source(string displayName);
+
+    void Note(string note);
 }

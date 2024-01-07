@@ -1,120 +1,119 @@
 namespace Flare.API.Internal;
 
+using System.Collections.Immutable;
+using Extensions;
 using Model;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertCloseInfo>> Close(Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<AlertCloseInfo>> Close(string identifier, IdentifierType identifierType, Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         var impl = new CloseAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
-        string queryString = BuildQueryString(impl.QueryArguments);
-        string url = string.IsNullOrWhiteSpace(queryString)
-            ? $"https://api.opsgenie.com/v2/alerts/{impl.Identifier}/close"
-            : $"https://api.opsgenie.com/v2/alerts/{impl.Identifier}/close?{queryString}";
+        var qc = impl as IQueryCriteria;
 
-        if (impl.Errors.Any())
-            return Response.Failed<AlertCloseInfo>(Debug.WithErrors(url, impl.Errors));
+        var errors = new List<Error>();
+        errors.AddRange(Validate());
+        errors.AddRange(qc.Validate());
+
+        if (errors.Count != 0)
+            return Response.Failed<AlertCloseInfo>(Debug.WithErrors("alerts/{identifier}/close?identifierType={identifierType}", errors));
+
+        string url = $"alerts/{identifier}/close?identifierType={GetIdentifierType()}";
 
         return await PostRequest<AlertCloseInfo, CloseAlertRequest>(url, impl.Request, cancellationToken);
+
+        string GetIdentifierType() =>
+            identifierType switch
+            {
+                IdentifierType.Id => "id",
+                IdentifierType.Tiny => "tiny",
+                IdentifierType.Alias => "alias",
+                _ => string.Empty
+            };
+
+        IReadOnlyList<Error> Validate()
+        {
+            bool isIdentifierTypeMissing = identifierType switch
+            {
+                IdentifierType.Id => false,
+                IdentifierType.Tiny => false,
+                IdentifierType.Alias => false,
+                _ => true
+            };
+
+            var errors = new List<Error>();
+
+            if (isIdentifierTypeMissing)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    $"{identifierType.ToString()} is not a valid identifier type in the current context."));
+
+            bool isGuid = Guid.TryParse(identifier, out _);
+
+            if (isGuid && identifierType != IdentifierType.Id)
+                errors.Add(Errors.Create(ErrorType.IdentifierType,
+                    "Identifier type is not compatible with identifier."));
+
+            if (isGuid && identifier != default && isIdentifierTypeMissing ||
+                (string.IsNullOrWhiteSpace(identifier) && isIdentifierTypeMissing))
+                errors.Add(Errors.Create(ErrorType.IdentifierType, "Identifier type is missing."));
+
+            return errors;
+        }
     }
 
 
     class CloseAlertCriteriaImpl :
-        CloseAlertCriteria
+        CloseAlertCriteria,
+        IQueryCriteria
     {
-        public Guid Identifier { get; private set; }
-        public IDictionary<string, object> QueryArguments { get; private set; }
-        public CloseAlertRequest Request { get; private set; }
-        public List<Error> Errors { get; private set; }
+        string _note;
+        string _source;
+        string _user;
 
-        public void Definition(Action<CloseAlertDefinition> definition)
+        public CloseAlertRequest Request =>
+            new()
+            {
+                Note = _note,
+                Source = _source,
+                User = _user
+            };
+
+        public void User(string displayName)
         {
-            var impl = new CloseAlertDefinitionImpl();
-            definition?.Invoke(impl);
-
-            Request = impl.Request;
+            _user = displayName;
         }
 
-        public void Where(Action<CloseAlertQuery> query)
+        public void Source(string displayName)
         {
-            var impl = new CloseAlertQueryImpl();
-            query?.Invoke(impl);
-
-            Identifier = impl.QueryIdentifier;
-            QueryArguments = impl.QueryArguments;
-            Errors = impl.Errors;
+            _source = displayName;
         }
 
-
-        class CloseAlertDefinitionImpl :
-            CloseAlertDefinition
+        public void Note(string note)
         {
-            string _note;
-            string _source;
-            string _user;
-
-            public CloseAlertRequest Request =>
-                new()
-                {
-                    Note = _note,
-                    Source = _source,
-                    User = _user
-                };
-
-            public void User(string displayName)
-            {
-                _user = displayName;
-            }
-
-            public void Source(string displayName)
-            {
-                _source = displayName;
-            }
-
-            public void Note(string note)
-            {
-                _note = note;
-            }
+            _note = note;
         }
 
+        public bool IsSearchQuery() => false;
 
-        class CloseAlertQueryImpl :
-            CloseAlertQuery
+        public IReadOnlyList<Error> Validate()
         {
-            public Guid QueryIdentifier { get; private set; }
-            public IDictionary<string, object> QueryArguments { get; }
-            public List<Error> Errors { get; private set; }
+            var errors = new List<Error>();
+            if (_user.Length > 100)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The user property has a limit of 100 character."));
 
-            public CloseAlertQueryImpl()
-            {
-                QueryArguments = new Dictionary<string, object>();
-                Errors = new List<Error>();
-            }
+            if (_source.Length > 100)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The source property has a limit of 100 character."));
 
-            public void SearchIdentifier(Guid identifier)
-            {
-                QueryIdentifier = identifier;
-            }
+            if (_note.Length > 100)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The note property has a limit of 25,000 character."));
 
-            public void SearchIdentifierType(IdentifierType type)
-            {
-                string searchIdentifierType = type switch
-                {
-                    IdentifierType.Id => "id",
-                    IdentifierType.Tiny => "tiny",
-                    IdentifierType.Alias => "alias",
-                    _ => string.Empty
-                };
-
-                if (string.IsNullOrWhiteSpace(searchIdentifierType))
-                    Errors.Add(new Error{Reason = $"{type.ToString()} is not valid in the current context.", Timestamp = DateTimeOffset.UtcNow});
-
-                QueryArguments.Add("identifierType", searchIdentifierType);
-            }
+            return errors;
         }
+
+        public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
     }
 }

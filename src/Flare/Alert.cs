@@ -34,7 +34,7 @@ public interface Alert :
         Action<SnoozeAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertCloseInfo>> Close(Action<CloseAlertCriteria> criteria,
+    Task<Maybe<AlertCloseInfo>> Close(string identifier, IdentifierType identifierType, Action<CloseAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
     Task<Maybe<AlertNoteInfo>> AddNote(string identifier, IdentifierType identifierType,
