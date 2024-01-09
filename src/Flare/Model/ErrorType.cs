@@ -8,5 +8,12 @@ public enum ErrorType
     SortField,
     PaginationOffset,
     Message,
-    StringLengthLimitExceeded
+    StringLengthLimitExceeded,
+    NotesCharLimitExceeded,
+    UserCharLimitExceeded,
+    SourceCharLimitExceeded,
+    TagsLimitExceeded,
+    CustomPropertiesLimitExceeded,
+    ActionsLimitExceeded,
+    RespondersLimitExceeded
 }

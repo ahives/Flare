@@ -10,7 +10,11 @@ public interface CreateAlertCriteria
 
     void VisibleTo(Action<VisibleTo> action);
 
-    void ClientIdentifier(string alias);
+    void Alias(string alias);
+
+    void Source(string source);
+
+    void User(string user);
 
     void AdditionalNotes(string notes);
 
@@ -20,7 +24,7 @@ public interface CreateAlertCriteria
     
     void CustomTags(string tag, params string[] tags);
 
-    void RelatedToDomain(string domain);
+    void RelatedToDomain(string entity);
 
     void Priority(AlertPriority priority);
 

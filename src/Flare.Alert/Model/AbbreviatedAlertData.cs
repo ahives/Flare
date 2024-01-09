@@ -1,9 +1,8 @@
 namespace Flare.Alert.Model;
 
 using System.Text.Json.Serialization;
-using Flare.Model;
 
-public record AbbreviatedAlertData
+public sealed record AbbreviatedAlertData
 {
     [JsonPropertyName("id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -79,47 +78,4 @@ public record AbbreviatedAlertData
     [JsonPropertyName("report")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public AlertReport Report { get; init; }
-}
-
-
-
-public record TeamIdResponder
-{
-    [JsonPropertyName("id")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public Guid Id { get; init; }
-
-    [JsonPropertyName("type")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public ResponderType Type { get; init; }
-}
-
-public record TeamNameResponder
-{
-    [JsonPropertyName("name")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Name { get; init; }
-
-    [JsonPropertyName("type")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public ResponderType Type { get; init; }
-}
-
-public record UserResponder
-{
-    [JsonPropertyName("username")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Username { get; init; }
-
-    [JsonPropertyName("type")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public ResponderType Type { get; init; }
-}
-
-public enum ResponderType
-{
-    Team,
-    User,
-    Escalation,
-    Schedule
 }

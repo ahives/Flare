@@ -29,16 +29,18 @@ public partial class AlertImpl
         IQueryCriteria
     {
         string _description;
-        string _clientIdentifier;
+        string _alias;
         string _notes;
         List<string> _actions;
         List<string> _tags;
-        string _domain;
+        string _entity;
         AlertPriority _priority;
-        object[] _responderRecipients;
-        object[] _visibility;
-        IDictionary<string, string> _properties;
+        List<Recipient> _responderRecipients;
+        List<Recipient> _visibility;
+        IDictionary<string, string> _details;
         string _message;
+        string _source;
+        string _user;
 
         public CreateAlertRequest Request =>
             new()
@@ -46,14 +48,27 @@ public partial class AlertImpl
                 Description = _description,
                 Responders = _responderRecipients,
                 VisibleTo = _visibility,
-                Alias = _clientIdentifier,
+                Alias = _alias,
                 Note = _notes,
-                Details = _properties,
+                Details = _details,
                 Actions = _actions,
                 Tags = _tags,
-                Entity = _domain,
+                Entity = _entity,
+                Source = _source,
+                User = _user,
                 Priority = _priority
             };
+
+        public CreateAlertCriteriaImpl()
+        {
+            _priority = AlertPriority.P3;
+            _tags = new List<string>();
+            _responderRecipients = new List<Recipient>();
+            _visibility = new List<Recipient>();
+            _details = new Dictionary<string, string>();
+            _actions = new List<string>();
+            _tags = new List<string>();
+        }
 
         public void Description(string description)
         {
@@ -65,7 +80,7 @@ public partial class AlertImpl
             var impl = new ResponderImpl();
             action?.Invoke(impl);
 
-            _responderRecipients = impl.Recipients.ToArray();
+            _responderRecipients = impl.Recipients;
         }
 
         public void VisibleTo(Action<VisibleTo> action)
@@ -73,12 +88,22 @@ public partial class AlertImpl
             var impl = new VisibleToImpl();
             action?.Invoke(impl);
 
-            _visibility = impl.AlertVisibility.ToArray();
+            _visibility = impl.AlertVisibility;
         }
 
-        public void ClientIdentifier(string alias)
+        public void Alias(string alias)
         {
-            _clientIdentifier = alias;
+            _alias = alias;
+        }
+
+        public void Source(string source)
+        {
+            _source = source;
+        }
+
+        public void User(string user)
+        {
+            _user = user;
         }
 
         public void AdditionalNotes(string notes)
@@ -91,7 +116,7 @@ public partial class AlertImpl
             var impl = new AlertPropertyImpl();
             action?.Invoke(impl);
 
-            _properties = impl.Properties;
+            _details = impl.Properties;
         }
 
         public void CustomActions(string action, params string[] actions)
@@ -122,9 +147,9 @@ public partial class AlertImpl
             _tags = temp;
         }
 
-        public void RelatedToDomain(string domain)
+        public void RelatedToDomain(string entity)
         {
-            _domain = domain;
+            _entity = entity;
         }
 
         public void Priority(AlertPriority priority)
@@ -145,7 +170,60 @@ public partial class AlertImpl
             if (string.IsNullOrWhiteSpace(_message))
                 errors.Add(Errors.Create(ErrorType.Message, "Message is required to create an alert."));
 
+            if (!string.IsNullOrWhiteSpace(_message) && _message.Length > 130)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The message property has a limit of 100 character."));
+
+            if (!string.IsNullOrWhiteSpace(_alias) && _alias.Length > 512)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The alias property has a limit of 100 character."));
+
+            if (!string.IsNullOrWhiteSpace(_description) && _description.Length > 15000)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The description property has a limit of 100 character."));
+
+            if (_responderRecipients.Count > 50)
+                errors.Add(Errors.Create(ErrorType.RespondersLimitExceeded, "You can only have 50 responders."));
+
+            if (_visibility.Count > 50)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "You can only have 50 teams or users this alert can be visible to."));
+
+            if (_actions.Count > 50)
+                errors.Add(Errors.Create(ErrorType.ActionsLimitExceeded, "You can have no more than 50 actions on a single alert."));
+
+            int totalActionLength = TotalLength(_actions);
+            if (totalActionLength > 500)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, $"The total length of actions is {totalActionLength}. You can have no more than 50 actions on a single alert totaling 500 characters."));
+
+            if (_tags.Count > 50)
+                errors.Add(Errors.Create(ErrorType.TagsLimitExceeded, "You can have no more than 50 tags on a single alert."));
+
+            int totalTagsLength = TotalLength(_tags);
+            if (totalTagsLength > 1000)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, $"The total length of actions is {totalTagsLength}. You can have no more than 50 tags on a single alert totaling 1000 characters."));
+
+            if (TotalLength(_details.Values.ToList()) > 8000)
+                errors.Add(Errors.Create(ErrorType.CustomPropertiesLimitExceeded, "You can have no more than 50 tags on a single alert."));
+
+            if (!string.IsNullOrWhiteSpace(_entity) && _entity.Length > 512)
+                errors.Add(Errors.Create(ErrorType.TagsLimitExceeded, "You can have no more than 50 tags on a single alert."));
+
+            if (!string.IsNullOrWhiteSpace(_source) && _source.Length > 100)
+                errors.Add(Errors.Create(ErrorType.SourceCharLimitExceeded, "You can have no more than 100 characters to represent the source of the alert."));
+
+            if (!string.IsNullOrWhiteSpace(_user) && _user.Length > 100)
+                errors.Add(Errors.Create(ErrorType.UserCharLimitExceeded, "You can have no more than 100 characters to represent the display name of the request owner."));
+
+            if (!string.IsNullOrWhiteSpace(_notes) && _notes.Length > 100)
+                errors.Add(Errors.Create(ErrorType.NotesCharLimitExceeded, "You can have no more than 25000 characters to the note."));
+
             return errors;
+
+            int TotalLength(List<string> items)
+            {
+                int length = 0;
+                for (int i = 0; i < items.Count; i++)
+                    length += items[i].Length;
+
+                return length;
+            }
         }
 
         public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
@@ -171,11 +249,11 @@ public partial class AlertImpl
         class ResponderImpl :
             Responder
         {
-            public List<object> Recipients { get; }
+            public List<Recipient> Recipients { get; }
 
             public ResponderImpl()
             {
-                Recipients = new List<object>();
+                Recipients = new List<Recipient>();
             }
 
             public void Team(Action<RespondToTeam> action)
@@ -210,19 +288,20 @@ public partial class AlertImpl
                 Recipients.Add(impl.Data);
             }
 
+
             class RespondToEscalationImpl :
                 RespondToEscalation
             {
-                public object Data { get; private set; }
+                public Recipient Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = Recipient.Add(id, RecipientType.Escalation);
+                    Data = new Recipient {Id = id, Type = RecipientType.Escalation};
                 }
 
                 public void Name(string name)
                 {
-                    Data = TeamRecipient.Add(name, RecipientType.Escalation);
+                    Data = new Recipient {Name = name, Type = RecipientType.Escalation};
                 }
             }
 
@@ -230,16 +309,16 @@ public partial class AlertImpl
             class RespondToScheduleImpl :
                 RespondToSchedule
             {
-                public object Data { get; private set; }
+                public Recipient Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = Recipient.Add(id, RecipientType.Schedule);
+                    Data = new Recipient {Id = id, Type = RecipientType.Schedule};
                 }
 
                 public void Name(string name)
                 {
-                    Data = TeamRecipient.Add(name, RecipientType.Schedule);
+                    Data = new Recipient {Name = name, Type = RecipientType.Schedule};
                 }
             }
 
@@ -247,16 +326,16 @@ public partial class AlertImpl
             class RespondToUserImpl :
                 RespondToUser
             {
-                public object Data { get; private set; }
+                public Recipient Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = Recipient.Add(id, RecipientType.User);
+                    Data = new Recipient {Id = id, Type = RecipientType.User};
                 }
 
                 public void Username(string username)
                 {
-                    Data = UserRecipient.Add(username, RecipientType.User);
+                    Data = new Recipient {Username = username, Type = RecipientType.User};
                 }
             }
 
@@ -264,16 +343,16 @@ public partial class AlertImpl
             class RespondToTeamImpl :
                 RespondToTeam
             {
-                public object Data { get; private set; }
+                public Recipient Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = Recipient.Add(id, RecipientType.Team);
+                    Data = new Recipient {Id = id, Type = RecipientType.Team};
                 }
 
                 public void Name(string name)
                 {
-                    Data = TeamRecipient.Add(name, RecipientType.Team);
+                    Data = new Recipient {Name = name, Type = RecipientType.Team};
                 }
             }
         }
@@ -282,11 +361,11 @@ public partial class AlertImpl
         class VisibleToImpl :
             VisibleTo
         {
-            public List<object> AlertVisibility { get; }
+            public List<Recipient> AlertVisibility { get; }
 
             public VisibleToImpl()
             {
-                AlertVisibility = new List<object>();
+                AlertVisibility = new List<Recipient>();
             }
 
             public void Team(Action<VisibleToTeam> action)
@@ -309,16 +388,16 @@ public partial class AlertImpl
             class VisibleToTeamImpl :
                 VisibleToTeam
             {
-                public object Data { get; private set; }
+                public Recipient Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = Recipient.Add(id, RecipientType.Team);
+                    Data = new Recipient {Id = id, Type = RecipientType.Team};
                 }
 
                 public void Name(string name)
                 {
-                    Data = TeamRecipient.Add(name, RecipientType.Team);
+                    Data = new Recipient {Name = name, Type = RecipientType.Team};
                 }
             }
 
@@ -326,16 +405,16 @@ public partial class AlertImpl
             class VisibleToUserImpl :
                 VisibleToUser
             {
-                public object Data { get; private set; }
+                public Recipient Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = Recipient.Add(id, RecipientType.User);
+                    Data = new Recipient {Id = id, Type = RecipientType.User};
                 }
 
                 public void Username(string username)
                 {
-                    Data = UserRecipient.Add(username, RecipientType.User);
+                    Data = new Recipient {Username = username, Type = RecipientType.User};
                 }
             }
         }

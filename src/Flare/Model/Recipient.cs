@@ -2,20 +2,20 @@ namespace Flare.Model;
 
 using System.Text.Json.Serialization;
 
-public sealed record Recipient :
-    BaseRecipient
+public sealed record Recipient
 {
     [JsonPropertyName("id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public Guid Id { get; }
+    public Guid Id { get; set; }
 
-    private Recipient(Guid id, RecipientType type) : base(type)
-    {
-        Id = id;
-    }
+    [JsonPropertyName("name")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string Name { get; set; }
 
-    public static Recipient Add(Guid id, RecipientType type)
-    {
-        return new Recipient(id, type);
-    }
+    [JsonPropertyName("username")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string Username { get; set; }
+
+    [JsonPropertyName("type")]
+    public RecipientType Type { get; set; }
 }

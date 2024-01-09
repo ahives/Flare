@@ -1,4 +1,4 @@
-namespace Flare.Model;
+namespace Flare.Alert.Model;
 
 public enum ApiIntegrationType
 {

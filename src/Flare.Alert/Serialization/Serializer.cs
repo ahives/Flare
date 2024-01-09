@@ -21,8 +21,6 @@ public static class Serializer
                 new CustomDateTimeConverter(),
                 new CustomLongConverter(),
                 new CustomStringConverter(),
-                new RespondersTypeConverter(),
-                new ResponderTypeConverter(),
                 new AlertActionConverter(),
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
             }

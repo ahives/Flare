@@ -38,7 +38,7 @@ public class CreateAlertTests :
                     v.User(o => o.Id(NewId.NextGuid()));
                     v.User(o => o.Username("trinity@opsgenie.com"));
                 });
-                x.ClientIdentifier("Life is too short for no alias");
+                x.Alias("Life is too short for no alias");
                 x.AdditionalNotes("Some fake notes here");
                 x.CustomProperties(p =>
                 {
@@ -51,6 +51,7 @@ public class CreateAlertTests :
                 x.Priority(AlertPriority.P1);
             });
 
+        Console.WriteLine(result.DebugInfo.Request);
         Assert.Multiple(() =>
         {
             Assert.That(result.HasResult, Is.True);
@@ -90,7 +91,7 @@ public class CreateAlertTests :
                     v.User(o => o.Id(NewId.NextGuid()));
                     v.User(o => o.Username("trinity@opsgenie.com"));
                 });
-                x.ClientIdentifier("Life is too short for no alias");
+                x.Alias("Life is too short for no alias");
                 x.AdditionalNotes("Some fake notes here");
                 x.CustomProperties(p =>
                 {

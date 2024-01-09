@@ -1,6 +1,7 @@
 namespace Flare.Alert.Model;
 
 using System.Text.Json.Serialization;
+using Flare.Model;
 
 public sealed record CreateAlertRequest
 {
@@ -18,11 +19,11 @@ public sealed record CreateAlertRequest
 
     [JsonPropertyName("responders")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public object[] Responders { get; set; }
+    public List<Recipient> Responders { get; set; }
 
     [JsonPropertyName("visibleTo")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public object[] VisibleTo { get; set; }
+    public List<Recipient> VisibleTo { get; set; }
 
     [JsonPropertyName("actions")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
