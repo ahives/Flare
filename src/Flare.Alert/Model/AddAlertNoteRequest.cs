@@ -6,13 +6,13 @@ public sealed record AddAlertNoteRequest
 {
     [JsonPropertyName("user")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string User { get; set; }
+    public string User { get; init; }
 
     [JsonPropertyName("source")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Source { get; set; }
+    public string Source { get; init; }
 
     [JsonPropertyName("note")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Note { get; set; }
+    public string Note { get; init; }
 }

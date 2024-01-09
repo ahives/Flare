@@ -6,21 +6,21 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AcknowledgeAlertInfo>> Acknowledge(string identifier, IdentifierType identifierType, Action<AcknowledgeAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<AckAlertInfo>> Acknowledge(string identifier, IdentifierType identifierType, Action<AckAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new AcknowledgeAlertCriteriaImpl();
+        var impl = new AckAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
         var errors = Validate();
         if (errors.Count != 0)
-            return Response.Failed<AcknowledgeAlertInfo>(Debug.WithErrors("alerts/{identifier}/acknowledge?identifierType={idType}", errors));
+            return Response.Failed<AckAlertInfo>(Debug.WithErrors("alerts/{identifier}/acknowledge?identifierType={idType}", errors));
 
         string url =
             $"alerts/{identifier}/acknowledge?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<AcknowledgeAlertInfo, AcknowledgeAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
+        return await PostRequest<AckAlertInfo, AckAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
 
         string GetIdentifierType() =>
             identifierType switch
@@ -62,14 +62,14 @@ public partial class AlertImpl
     }
 
 
-    class AcknowledgeAlertCriteriaImpl :
-        AcknowledgeAlertCriteria
+    class AckAlertCriteriaImpl :
+        AckAlertCriteria
     {
         string _note;
         string _source;
         string _user;
 
-        public AcknowledgeAlertRequest Request =>
+        public AckAlertRequest Request =>
             new()
             {
                 Note = _note,

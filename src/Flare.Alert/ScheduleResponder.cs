@@ -1,6 +1,6 @@
 namespace Flare.Alert;
 
-public interface RespondToTeam
+public interface ScheduleResponder
 {
     void Id(Guid id);
 

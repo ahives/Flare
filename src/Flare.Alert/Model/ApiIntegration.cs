@@ -6,12 +6,12 @@ public sealed record ApiIntegration
 {
     [JsonPropertyName("id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
     [JsonPropertyName("name")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Name { get; set; }
+    public string Name { get; init; }
 
     [JsonPropertyName("type")]
-    public ApiIntegrationType Type { get; set; }
+    public ApiIntegrationType Type { get; init; }
 }

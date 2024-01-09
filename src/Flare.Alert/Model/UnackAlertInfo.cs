@@ -2,7 +2,7 @@ namespace Flare.Alert.Model;
 
 using System.Text.Json.Serialization;
 
-public sealed record AcknowledgeAlertInfo
+public sealed record UnackAlertInfo
 {
     [JsonPropertyName("result")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

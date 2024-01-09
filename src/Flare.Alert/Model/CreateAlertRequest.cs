@@ -7,52 +7,52 @@ public sealed record CreateAlertRequest
 {
     [JsonPropertyName("message")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Message { get; set; }
+    public string Message { get; init; }
 
     [JsonPropertyName("alias")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Alias { get; set; }
+    public string Alias { get; init; }
 
     [JsonPropertyName("description")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Description { get; set; }
+    public string Description { get; init; }
 
     [JsonPropertyName("responders")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<Recipient> Responders { get; set; }
+    public List<Recipient> Responders { get; init; }
 
     [JsonPropertyName("visibleTo")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<Recipient> VisibleTo { get; set; }
+    public List<Recipient> VisibleTo { get; init; }
 
     [JsonPropertyName("actions")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<string> Actions { get; set; }
+    public List<string> Actions { get; init; }
 
     [JsonPropertyName("tags")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<string> Tags { get; set; }
+    public List<string> Tags { get; init; }
 
     [JsonPropertyName("details")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IDictionary<string, string> Details { get; set; }
+    public IDictionary<string, string> Details { get; init; }
     
     [JsonPropertyName("entity")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Entity { get; set; }
+    public string Entity { get; init; }
 
     [JsonPropertyName("source")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Source { get; set; }
+    public string Source { get; init; }
 
     [JsonPropertyName("priority")]
-    public AlertPriority Priority { get; set; }
+    public AlertPriority Priority { get; init; }
     
     [JsonPropertyName("user")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string User { get; set; }
+    public string User { get; init; }
     
     [JsonPropertyName("note")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Note { get; set; }
+    public string Note { get; init; }
 }

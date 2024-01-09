@@ -1,6 +1,6 @@
 namespace Flare.Alert;
 
-public interface AcknowledgeAlertCriteria
+public interface AckAlertCriteria
 {
     void User(string displayName);
 

@@ -88,7 +88,7 @@ public partial class AlertImpl
             var impl = new VisibleToImpl();
             action?.Invoke(impl);
 
-            _visibility = impl.AlertVisibility;
+            _visibility = impl.Visibility;
         }
 
         public void Alias(string alias)
@@ -256,41 +256,41 @@ public partial class AlertImpl
                 Recipients = new List<Recipient>();
             }
 
-            public void Team(Action<RespondToTeam> action)
+            public void Team(Action<TeamResponder> action)
             {
-                var impl = new RespondToTeamImpl();
+                var impl = new TeamResponderImpl();
                 action?.Invoke(impl);
 
                 Recipients.Add(impl.Data);
             }
 
-            public void User(Action<RespondToUser> action)
+            public void User(Action<UserResponder> action)
             {
-                var impl = new RespondToUserImpl();
+                var impl = new UserResponderImpl();
                 action?.Invoke(impl);
 
                 Recipients.Add(impl.Data);
             }
 
-            public void Escalation(Action<RespondToEscalation> action)
+            public void Escalation(Action<EscalationResponder> action)
             {
-                var impl = new RespondToEscalationImpl();
+                var impl = new EscalationResponderImpl();
                 action?.Invoke(impl);
 
                 Recipients.Add(impl.Data);
             }
 
-            public void Schedule(Action<RespondToSchedule> action)
+            public void Schedule(Action<ScheduleResponder> action)
             {
-                var impl = new RespondToScheduleImpl();
+                var impl = new ScheduleResponderImpl();
                 action?.Invoke(impl);
 
                 Recipients.Add(impl.Data);
             }
 
 
-            class RespondToEscalationImpl :
-                RespondToEscalation
+            class EscalationResponderImpl :
+                EscalationResponder
             {
                 public Recipient Data { get; private set; }
                 
@@ -306,8 +306,8 @@ public partial class AlertImpl
             }
 
 
-            class RespondToScheduleImpl :
-                RespondToSchedule
+            class ScheduleResponderImpl :
+                ScheduleResponder
             {
                 public Recipient Data { get; private set; }
                 
@@ -323,8 +323,8 @@ public partial class AlertImpl
             }
 
 
-            class RespondToUserImpl :
-                RespondToUser
+            class UserResponderImpl :
+                UserResponder
             {
                 public Recipient Data { get; private set; }
                 
@@ -340,8 +340,8 @@ public partial class AlertImpl
             }
 
 
-            class RespondToTeamImpl :
-                RespondToTeam
+            class TeamResponderImpl :
+                TeamResponder
             {
                 public Recipient Data { get; private set; }
                 
@@ -361,11 +361,11 @@ public partial class AlertImpl
         class VisibleToImpl :
             VisibleTo
         {
-            public List<Recipient> AlertVisibility { get; }
+            public List<Recipient> Visibility { get; }
 
             public VisibleToImpl()
             {
-                AlertVisibility = new List<Recipient>();
+                Visibility = new List<Recipient>();
             }
 
             public void Team(Action<VisibleToTeam> action)
@@ -373,7 +373,7 @@ public partial class AlertImpl
                 var impl = new VisibleToTeamImpl();
                 action?.Invoke(impl);
 
-                AlertVisibility.Add(impl.Data);
+                Visibility.Add(impl.Data);
             }
 
             public void User(Action<VisibleToUser> action)
@@ -381,7 +381,7 @@ public partial class AlertImpl
                 var impl = new VisibleToUserImpl();
                 action?.Invoke(impl);
 
-                AlertVisibility.Add(impl.Data);
+                Visibility.Add(impl.Data);
             }
 
             

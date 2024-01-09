@@ -1,6 +1,6 @@
 namespace Flare.Alert;
 
-public interface RespondToSchedule
+public interface EscalationResponder
 {
     void Id(Guid id);
 

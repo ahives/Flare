@@ -6,22 +6,22 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<UnacknowledgeAlertInfo>> Unacknowledge(string identifier, IdentifierType identifierType, Action<UnacknowledgeAlertCriteria> criteria,
+    public async Task<Maybe<UnackAlertInfo>> Unacknowledge(string identifier, IdentifierType identifierType, Action<UnackAlertCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new UnacknowledgeAlertCriteriaImpl();
+        var impl = new UnackAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
         var errors = Validate();
         if (errors.Count != 0)
-            return Response.Failed<UnacknowledgeAlertInfo>(Debug.WithErrors("alerts/{identifier}/unacknowledge?identifierType={idType}", errors));
+            return Response.Failed<UnackAlertInfo>(Debug.WithErrors("alerts/{identifier}/unacknowledge?identifierType={idType}", errors));
 
         string url =
             $"alerts/{identifier}/unacknowledge?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<UnacknowledgeAlertInfo, UnacknowledgeAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
+        return await PostRequest<UnackAlertInfo, UnackAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
 
         string GetIdentifierType() =>
             identifierType switch
@@ -63,14 +63,14 @@ public partial class AlertImpl
     }
 
 
-    class UnacknowledgeAlertCriteriaImpl :
-        UnacknowledgeAlertCriteria
+    class UnackAlertCriteriaImpl :
+        UnackAlertCriteria
     {
         string _note;
         string _source;
         string _user;
 
-        public UnacknowledgeAlertRequest Request =>
+        public UnackAlertRequest Request =>
             new()
             {
                 Note = _note,

@@ -6,17 +6,17 @@ public sealed record AlertReport
 {
     [JsonPropertyName("ackTime")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public long AckTime { get; set; }
+    public long AckTime { get; init; }
 
     [JsonPropertyName("closeTime")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public long CloseTime { get; set; }
+    public long CloseTime { get; init; }
 
     [JsonPropertyName("acknowledgedBy")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string AcknowledgedBy { get; set; }
+    public string AcknowledgedBy { get; init; }
 
     [JsonPropertyName("closedBy")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string ClosedBy { get; set; }
+    public string ClosedBy { get; init; }
 }

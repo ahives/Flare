@@ -1,6 +1,6 @@
 namespace Flare.Alert;
 
-public interface RespondToEscalation
+public interface TeamResponder
 {
     void Id(Guid id);
 

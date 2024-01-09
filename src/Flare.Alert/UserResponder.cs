@@ -1,6 +1,6 @@
 namespace Flare.Alert;
 
-public interface RespondToUser
+public interface UserResponder
 {
     void Id(Guid id);
 

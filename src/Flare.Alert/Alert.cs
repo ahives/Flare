@@ -23,11 +23,11 @@ public interface Alert :
     Task<Maybe<AlertCountInfo>> Count(Action<CountAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Maybe<AcknowledgeAlertInfo>> Acknowledge(string identifier, IdentifierType identifierType,
-        Action<AcknowledgeAlertCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<AckAlertInfo>> Acknowledge(string identifier, IdentifierType identifierType,
+        Action<AckAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<UnacknowledgeAlertInfo>> Unacknowledge(string identifier, IdentifierType identifierType,
-        Action<UnacknowledgeAlertCriteria> criteria, CancellationToken cancellationToken = default);
+    Task<Maybe<UnackAlertInfo>> Unacknowledge(string identifier, IdentifierType identifierType,
+        Action<UnackAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
     Task<Maybe<SnoozeAlertInfo>> Snooze(string identifier, IdentifierType identifierType,
         Action<SnoozeAlertCriteria> criteria, CancellationToken cancellationToken = default);

@@ -2,11 +2,11 @@ namespace Flare.Alert;
 
 public interface Responder
 {
-    void Team(Action<RespondToTeam> action);
+    void Team(Action<TeamResponder> action);
 
-    void User(Action<RespondToUser> action);
+    void User(Action<UserResponder> action);
     
-    void Escalation(Action<RespondToEscalation> action);
+    void Escalation(Action<EscalationResponder> action);
     
-    void Schedule(Action<RespondToSchedule> action);
+    void Schedule(Action<ScheduleResponder> action);
 }
