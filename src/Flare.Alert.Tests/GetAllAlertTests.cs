@@ -31,7 +31,7 @@ public class GetAllAlertTests :
                 x.SearchIdentifierType(identifierType);
             });
 
-        var expected1 = new AbbreviatedAlertData
+        var expected1 = new AlertData
         {
             Id = Guid.Parse("70413a06-38d6-4c85-92b8-5ebc900d42e2"),
             TinyId = "1791",
@@ -62,13 +62,10 @@ public class GetAllAlertTests :
                 AcknowledgedBy = "agent_smith@opsgenie.com",
                 ClosedBy = "neo@opsgenie.com"
             },
-            Responders = new List<object>
-            {
-                new object(){}
-            }
+            Responders = new List<Recipient>()
         };
 
-        var expected2 = new AbbreviatedAlertData
+        var expected2 = new AlertData
         {
             Id = Guid.Parse("70413a06-38d6-4c85-92b8-5ebc900d42e2"),
             TinyId = "1791",
@@ -131,6 +128,7 @@ public class GetAllAlertTests :
             _ => string.Empty
         };
 
+        Console.WriteLine(result.DebugInfo.Response);
         Assert.Multiple(() =>
         {
             Assert.That(result.HasResult, Is.True);
@@ -272,7 +270,7 @@ public class GetAllAlertTests :
         });
     }
 
-    void AssertData(AbbreviatedAlertData actual, AbbreviatedAlertData expected)
+    void AssertData(AlertData actual, AlertData expected)
     {
         Assert.That(actual.Id, Is.EqualTo(expected.Id));
         Assert.That(actual.TinyId, Is.EqualTo(expected.TinyId));

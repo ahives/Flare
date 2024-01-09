@@ -6,7 +6,7 @@ public sealed record AlertAllInfo
 {
     [JsonPropertyName("data")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<AbbreviatedAlertData>? Data { get; init; }
+    public List<AlertData>? Data { get; init; }
 
     [JsonPropertyName("paging")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
