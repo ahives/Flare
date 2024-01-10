@@ -29,6 +29,9 @@ public interface Alert :
     Task<Maybe<UnackAlertInfo>> Unacknowledge(string identifier, IdentifierType identifierType,
         Action<UnackAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
+    Task<Maybe<EscalateAlertInfo>> Escalate(string identifier, IdentifierType identifierType,
+        Action<EscalateAlertCriteria> criteria, CancellationToken cancellationToken = default);
+
     Task<Maybe<SnoozeAlertInfo>> Snooze(string identifier, IdentifierType identifierType,
         Action<SnoozeAlertCriteria> criteria, CancellationToken cancellationToken = default);
 

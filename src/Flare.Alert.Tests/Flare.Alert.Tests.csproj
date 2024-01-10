@@ -99,6 +99,10 @@
       <Content Include="TestData\UnacknowledgeAlertResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="TestData\EscalateAlertResponse.json" />
+      <Content Include="TestData\EscalateAlertResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
