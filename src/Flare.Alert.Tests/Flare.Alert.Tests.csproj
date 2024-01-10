@@ -103,6 +103,10 @@
       <Content Include="TestData\EscalateAlertResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="TestData\AssignAlertResponse.json" />
+      <Content Include="TestData\AssignAlertResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

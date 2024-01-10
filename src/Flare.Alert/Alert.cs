@@ -32,6 +32,9 @@ public interface Alert :
     Task<Maybe<EscalateAlertInfo>> Escalate(string identifier, IdentifierType identifierType,
         Action<EscalateAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
+    Task<Maybe<AssignAlertInfo>> Assign(string identifier, IdentifierType identifierType,
+        Action<AssignAlertCriteria> criteria, CancellationToken cancellationToken = default);
+
     Task<Maybe<SnoozeAlertInfo>> Snooze(string identifier, IdentifierType identifierType,
         Action<SnoozeAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
