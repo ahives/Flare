@@ -6,7 +6,7 @@ public sealed record EscalateAlertRequest
 {
     [JsonPropertyName("escalation")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Escalation Escalation { get; init; }
+    public Escalation? Escalation { get; init; }
 
     [JsonPropertyName("user")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -79,7 +79,7 @@ public partial class AlertImpl
         string _note;
         string _source;
         string _user;
-        Escalation _escalation;
+        Escalation? _escalation;
 
         public EscalateAlertRequest Request =>
             new()
@@ -124,8 +124,11 @@ public partial class AlertImpl
             if (_source.Length > 100)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The source property has a limit of 100 character."));
 
-            if (_note.Length > 100)
+            if (_note.Length > 25000)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The note property has a limit of 25,000 character."));
+
+            if (_escalation is null)
+                errors.Add(Errors.Create(ErrorType.EscalationMissing, "The escalation property is missing."));
 
             return errors;
         }

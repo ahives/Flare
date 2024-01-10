@@ -15,5 +15,7 @@ public enum ErrorType
     TagsLimitExceeded,
     CustomPropertiesLimitExceeded,
     ActionsLimitExceeded,
-    RespondersLimitExceeded
+    RespondersLimitExceeded,
+    OwnerMissing,
+    EscalationMissing
 }

@@ -6,7 +6,7 @@ public sealed record AssignAlertRequest
 {
     [JsonPropertyName("owner")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Owner Owner { get; init; }
+    public Owner? Owner { get; init; }
 
     [JsonPropertyName("user")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
