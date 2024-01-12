@@ -1,6 +1,7 @@
 namespace Flare.Alert.Internal;
 
 using System.Collections.Immutable;
+using Extensions;
 using Flare.Model;
 using Model;
 using Serialization;
@@ -41,34 +42,14 @@ public partial class AlertImpl
                 _ => string.Empty
             };
 
-        IReadOnlyList<Error> Validate()
-        {
-            bool isIdentifierTypeMissing = identifierType switch
+        IReadOnlyList<Error> Validate() =>
+            identifier.ValidateIdType(identifierType, t => t switch
             {
                 IdentifierType.Id => false,
                 IdentifierType.Tiny => false,
                 IdentifierType.Alias => false,
                 _ => true
-            };
-
-            var errors = new List<Error>();
-
-            if (isIdentifierTypeMissing)
-                errors.Add(Errors.Create(ErrorType.IdentifierType,
-                    $"{identifierType.ToString()} is not a valid identifier type in the current context."));
-
-            bool isGuid = Guid.TryParse(identifier, out _);
-
-            if (isGuid && identifierType != IdentifierType.Id)
-                errors.Add(Errors.Create(ErrorType.IdentifierType,
-                    "Identifier type is not compatible with identifier."));
-
-            if (isGuid && identifier != default && isIdentifierTypeMissing ||
-                (string.IsNullOrWhiteSpace(identifier) && isIdentifierTypeMissing))
-                errors.Add(Errors.Create(ErrorType.IdentifierType, "Identifier type is missing."));
-
-            return errors;
-        }
+            });
     }
 
 
@@ -76,7 +57,7 @@ public partial class AlertImpl
         AssignAlertCriteria,
         IQueryCriteria
     {
-        string _note;
+        string _notes;
         string _source;
         string _user;
         Owner? _owner;
@@ -85,7 +66,7 @@ public partial class AlertImpl
             new()
             {
                 Owner = _owner,
-                Note = _note,
+                Notes = _notes,
                 Source = _source,
                 User = _user
             };
@@ -108,9 +89,9 @@ public partial class AlertImpl
             _source = displayName;
         }
 
-        public void Note(string note)
+        public void Notes(string notes)
         {
-            _note = note;
+            _notes = notes;
         }
 
         public bool IsSearchQuery() => false;
@@ -118,13 +99,13 @@ public partial class AlertImpl
         public IReadOnlyList<Error> Validate()
         {
             var errors = new List<Error>();
-            if (_user.Length > 100)
+            if (!string.IsNullOrWhiteSpace(_user) && _user.Length > 100)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The user property has a limit of 100 character."));
 
-            if (_source.Length > 100)
+            if (!string.IsNullOrWhiteSpace(_source) && _source.Length > 100)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The source property has a limit of 100 character."));
 
-            if (_note.Length > 25000)
+            if (!string.IsNullOrWhiteSpace(_notes) && _notes.Length > 25000)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The note property has a limit of 25,000 character."));
 
             if (_owner is null)

@@ -8,5 +8,5 @@ public interface SnoozeAlertCriteria
 
     void Source(string displayName);
 
-    void Note(string note);
+    void Notes(string notes);
 }

@@ -6,5 +6,5 @@ public interface AckAlertCriteria
 
     void Source(string displayName);
 
-    void Note(string note);
+    void Notes(string notes);
 }

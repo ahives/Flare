@@ -34,10 +34,10 @@ public class CountAlertTests :
         {
             Assert.That(result.HasResult, Is.True);
             Assert.That(result.Result, Is.Not.Null);
-            Assert.That(result.Result.Data.Count, Is.EqualTo(7));
+            Assert.That(result.Result!.Data.Count, Is.EqualTo(7));
             Assert.That(result.Result.Took, Is.EqualTo(0.051f));
             Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("9ae63dd7-ed00-4c81-86f0-c4ffd33142c9")));
-            Assert.That(result.DebugInfo.URL, Is.EqualTo($"alerts/count?searchIdentifier={identifier}&searchIdentifierType={searchIdentifierType}"));
+            Assert.That(result.DebugInfo!.URL, Is.EqualTo($"alerts/count?searchIdentifier={identifier}&searchIdentifierType={searchIdentifierType}"));
         });
     }
 
@@ -67,10 +67,10 @@ public class CountAlertTests :
         {
             Assert.That(result.HasResult, Is.True);
             Assert.That(result.Result, Is.Not.Null);
-            Assert.That(result.Result.Data.Count, Is.EqualTo(7));
+            Assert.That(result.Result!.Data.Count, Is.EqualTo(7));
             Assert.That(result.Result.Took, Is.EqualTo(0.051f));
             Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("9ae63dd7-ed00-4c81-86f0-c4ffd33142c9")));
-            Assert.That(result.DebugInfo.URL, Is.EqualTo($"alerts/count?searchIdentifier={identifier}&searchIdentifierType={searchIdentifierType}"));
+            Assert.That(result.DebugInfo!.URL, Is.EqualTo($"alerts/count?searchIdentifier={identifier}&searchIdentifierType={searchIdentifierType}"));
         });
     }
 
@@ -98,40 +98,96 @@ public class CountAlertTests :
     }
 
     [Test]
-    public async Task Test4()
+    public async Task Test5()
     {
         string identifier = NewId.NextGuid().ToString();
-        var identifierType = IdentifierType.Id;
+        var identifierType = IdentifierType.Name;
         var status = AlertStatus.Open;
-        var result = await GetContainerBuilder("TestData/AlertCountResponse.json")
+        var result = await GetContainerBuilder()
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
             .Count(x =>
             {
-                x.Query(c =>
-                {
-                    c.Status(status);
-                });
                 x.SearchIdentifier(identifier);
                 x.SearchIdentifierType(identifierType);
             });
 
-        string alertStatus = status switch
+        Assert.Multiple(() =>
         {
-            AlertStatus.Open => "open",
-            AlertStatus.Closed => "close",
-            _ => string.Empty
-        };
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeIncompatible));
+        });
+    }
+
+    [Test]
+    public async Task Test6()
+    {
+        string identifier = string.Empty;
+        var identifierType = IdentifierType.Id;
+        var result = await GetContainerBuilder()
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .Count(x =>
+            {
+                x.SearchIdentifier(identifier);
+                x.SearchIdentifierType(identifierType);
+            });
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.HasResult, Is.True);
-            Assert.That(result.Result, Is.Not.Null);
-            Assert.That(result.Result.Data.Count, Is.EqualTo(7));
-            Assert.That(result.Result.Took, Is.EqualTo(0.051f));
-            Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("9ae63dd7-ed00-4c81-86f0-c4ffd33142c9")));
-            Assert.That(result.DebugInfo.URL, Is.EqualTo($"alerts/count?query=status:{alertStatus}"));
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierInvalid));
+        });
+    }
+
+    [Test]
+    public async Task Test7()
+    {
+        string identifier = string.Empty;
+        var result = await GetContainerBuilder()
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .Count(x =>
+            {
+                x.SearchIdentifier(identifier);
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(2));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeMissing));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierInvalid));
+        });
+    }
+
+    [Test]
+    public async Task Test8()
+    {
+        string identifier = string.Empty;
+        var result = await GetContainerBuilder()
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .Count(x =>
+            {
+                x.SearchIdentifier(identifier);
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(2));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeMissing));
         });
     }
 }

@@ -31,6 +31,15 @@ public class FlareApiTesting
         return services;
     }
 
+    protected ServiceCollection GetContainerBuilder()
+    {
+        var services = new ServiceCollection();
+
+        services.AddSingleton<IFlareClient>(x => new FlareClient(GetClient()));
+
+        return services;
+    }
+
     protected HttpClient GetClient(string data, HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         var mock = new Mock<HttpMessageHandler>();
@@ -50,6 +59,15 @@ public class FlareApiTesting
 
         var uri = new Uri("http://localhost/");
         var client = new HttpClient(mock.Object){BaseAddress = uri};
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        return client;
+    }
+
+    protected HttpClient GetClient()
+    {
+        var uri = new Uri("http://localhost/");
+        var client = new HttpClient(new HttpClientHandler()){BaseAddress = uri};
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
         return client;

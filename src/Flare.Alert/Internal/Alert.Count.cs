@@ -21,8 +21,8 @@ public partial class AlertImpl
             return Response.Failed<AlertCountInfo>(Debug.WithErrors(baseUrl, errors));
 
         string url = qc.IsSearchQuery()
-            ? $"{baseUrl}?query={QueryExtensions.BuildQueryString(qc.GetQueryArguments())}"
-            : $"{baseUrl}?{QueryExtensions.BuildQueryString(qc.GetQueryArguments())}";
+            ? $"{baseUrl}?query={qc.GetQueryArguments().BuildQueryString()}"
+            : $"{baseUrl}?{qc.GetQueryArguments().BuildQueryString()}";
 
         return await GetRequest<AlertCountInfo>(url, Serializer.Options, cancellationToken);
     }
@@ -32,9 +32,14 @@ public partial class AlertImpl
         CountAlertCriteria,
         IQueryCriteria
     {
-        IdentifierType _identifierType;
+        IdentifierType? _identifierType;
         string _identifier;
         IQueryCriteria _criteria;
+
+        public CountAlertQueryCriteriaImpl()
+        {
+            _identifierType = null;
+        }
 
         public void Query(Action<SearchQueryCriteria> criteria)
         {
@@ -61,29 +66,12 @@ public partial class AlertImpl
             if (IsSearchQuery())
                 return _criteria.Validate();
 
-            var errors = new List<Error>();
-            bool isIdentifierTypeMissing = _identifierType switch
+            return _identifier.ValidateNullableIdType(_identifierType, t => t switch
             {
                 IdentifierType.Id => false,
                 IdentifierType.Name => false,
                 _ => true
-            };
-
-            if (isIdentifierTypeMissing)
-                errors.Add(Errors.Create(ErrorType.IdentifierType,
-                    $"{_identifierType.ToString()} is not a valid identifier type in the current context."));
-
-            bool isGuid = Guid.TryParse(_identifier, out var identifier);
-
-            if (!isGuid && _identifierType != IdentifierType.Name)
-                errors.Add(Errors.Create(ErrorType.IdentifierType,
-                    $"Identifier type is not compatible with identifier."));
-
-            if (isGuid && identifier != default && isIdentifierTypeMissing ||
-                (string.IsNullOrWhiteSpace(_identifier) && isIdentifierTypeMissing))
-                errors.Add(Errors.Create(ErrorType.IdentifierType, $"Identifier type is missing."));
-
-            return errors;
+            });
         }
 
         public Dictionary<string, QueryArg> GetQueryArguments()
@@ -110,7 +98,7 @@ public partial class AlertImpl
             SearchQueryCriteria,
             IQueryCriteria
         {
-            AlertStatus _status;
+            AlertStatus? _status;
 
             public void Status(AlertStatus status)
             {
@@ -119,7 +107,6 @@ public partial class AlertImpl
 
             public IReadOnlyList<Error> Validate()
             {
-                var errors = new List<Error>();
                 bool isStatusMissing = _status switch
                 {
                     AlertStatus.Open => false,
@@ -127,8 +114,12 @@ public partial class AlertImpl
                     _ => true
                 };
 
+                var errors = new List<Error>();
                 if (isStatusMissing)
-                    errors.Add(Errors.Create(ErrorType.AlertStatus, $"{_status.ToString()} is not a valid alert status in the current context."));
+                    errors.Add(Errors.Create(ErrorType.AlertStatusIncompatible, $"{_status.ToString()} is not a valid alert status in the current context."));
+
+                if (!_status.HasValue)
+                    errors.Add(Errors.Create(ErrorType.AlertStatusMissing, "Alert status is missing."));
 
                 return errors;
             }

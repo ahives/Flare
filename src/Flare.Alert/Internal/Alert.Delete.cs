@@ -1,6 +1,5 @@
 namespace Flare.Alert.Internal;
 
-using System.Collections.ObjectModel;
 using Extensions;
 using Flare.Model;
 using Model;
@@ -22,9 +21,12 @@ public partial class AlertImpl
         errors.AddRange(Validate());
         errors.AddRange(qc.Validate());
 
+        if (errors.Count != 0)
+            return Response.Failed<DeleteAlertInfo>(Debug.WithErrors("alerts/{identifier}?identifierType={identifierType}", errors));
+
         var arguments = qc.GetQueryArguments();
         string url = arguments.Count > 0
-            ? $"alerts/{identifier}?identifierType={GetIdentifierType()}&{QueryExtensions.BuildQueryString(arguments)}"
+            ? $"alerts/{identifier}?identifierType={GetIdentifierType()}&{arguments.BuildQueryString()}"
             : $"alerts/{identifier}?identifierType={GetIdentifierType()}";
 
         return await DeleteRequest<DeleteAlertInfo>(url, Serializer.Options, cancellationToken).ConfigureAwait(false);
@@ -37,33 +39,13 @@ public partial class AlertImpl
                 _ => string.Empty
             };
 
-        IReadOnlyList<Error> Validate()
-        {
-            bool isIdentifierTypeMissing = identifierType switch
+        IReadOnlyList<Error> Validate() =>
+            identifier.ValidateIdType(identifierType, t => t switch
             {
                 IdentifierType.AlertId => false,
                 IdentifierType.TinyId => false,
                 _ => true
-            };
-
-            var errors = new List<Error>();
-
-            if (isIdentifierTypeMissing)
-                errors.Add(Errors.Create(ErrorType.IdentifierType,
-                    $"{identifierType.ToString()} is not a valid identifier type in the current context."));
-
-            bool isGuid = Guid.TryParse(identifier, out _);
-
-            if (isGuid && identifierType != IdentifierType.Id)
-                errors.Add(Errors.Create(ErrorType.IdentifierType,
-                    "Identifier type is not compatible with identifier."));
-
-            if (isGuid && identifier != default && isIdentifierTypeMissing ||
-                (string.IsNullOrWhiteSpace(identifier) && isIdentifierTypeMissing))
-                errors.Add(Errors.Create(ErrorType.IdentifierType, "Identifier type is missing."));
-
-            return errors;
-        }
+            });
     }
 
     
@@ -71,8 +53,8 @@ public partial class AlertImpl
         DeleteAlertCriteria,
         IQueryCriteria
     {
-        private string _source;
-        private string _user;
+        string _source;
+        string _user;
 
         public void User(string displayName)
         {
@@ -86,7 +68,17 @@ public partial class AlertImpl
 
         public bool IsSearchQuery() => false;
 
-        public IReadOnlyList<Error> Validate() => ReadOnlyCollection<Error>.Empty;
+        public IReadOnlyList<Error> Validate()
+        {
+            var errors = new List<Error>();
+            if (!string.IsNullOrWhiteSpace(_user) && _user.Length > 100)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The user property has a limit of 100 character."));
+
+            if (!string.IsNullOrWhiteSpace(_source) && _source.Length > 100)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The source property has a limit of 100 character."));
+
+            return errors;
+        }
 
         public Dictionary<string, QueryArg> GetQueryArguments()
         {

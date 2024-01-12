@@ -8,5 +8,5 @@ public interface EscalateAlertCriteria
 
     void Source(string displayName);
 
-    void Note(string note);
+    void Notes(string notes);
 }

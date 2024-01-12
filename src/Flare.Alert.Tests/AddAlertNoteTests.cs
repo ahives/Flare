@@ -18,7 +18,7 @@ public class AddAlertNoteTests :
             {
                 x.User("Monitoring Script");
                 x.Source("AWS Lambda");
-                x.Note("Action executed via Alert API");
+                x.Notes("Action executed via Alert API");
             });
 
         Assert.Multiple(() =>
@@ -34,22 +34,158 @@ public class AddAlertNoteTests :
     [Test]
     public async Task Test2()
     {
-        var result = await GetContainerBuilder("TestData/AddAlertNoteResponse.json")
+        var result = await GetContainerBuilder()
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .AddNote(NewId.NextGuid().ToString(), IdentifierType.Name, x =>
+            .AddNote(NewId.NextGuid().ToString(), IdentifierType.Id, x =>
             {
-                x.User("Monitoring Script");
-                x.Source("AWS Lambda");
-                x.Note("Action executed via Alert API");
+                x.User("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
             });
 
         Assert.Multiple(() =>
         {
             Assert.That(result.HasResult, Is.False);
-            Assert.That(result.Result, Is.Null);
             Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.StringLengthLimitExceeded));
+        });
+    }
+
+    [Test]
+    public async Task Test3()
+    {
+        var result = await GetContainerBuilder()
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .AddNote(NewId.NextGuid().ToString(), IdentifierType.Id, x =>
+            {
+                x.Source("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.StringLengthLimitExceeded));
+        });
+    }
+
+    [Test]
+    public async Task Test4()
+    {
+        string notes = await File.ReadAllTextAsync($"{TestContext.CurrentContext.TestDirectory}/TestData/long_message.txt");
+        var result = await GetContainerBuilder()
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .AddNote(NewId.NextGuid().ToString(), IdentifierType.Id, x =>
+            {
+                x.Notes(notes);
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.StringLengthLimitExceeded));
+        });
+    }
+
+    [Test]
+    public async Task Test5()
+    {
+        string notes = await File.ReadAllTextAsync($"{TestContext.CurrentContext.TestDirectory}/TestData/long_message.txt");
+        var result = await GetContainerBuilder()
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .AddNote(NewId.NextGuid().ToString(), IdentifierType.Name, x =>
+            {
+                x.User("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                x.Source("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                x.Notes(notes);
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(5));
+            Assert.That(result.DebugInfo.Errors.Count(x => x.Type == ErrorType.StringLengthLimitExceeded), Is.EqualTo(3));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeInvalidWithinContext));
+        });
+    }
+
+    [Test]
+    public async Task Test6()
+    {
+        var result = await GetContainerBuilder()
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .AddNote(Guid.Empty.ToString(), IdentifierType.Id, x =>
+            {
+                x.User("Flare");
+                x.Source("Flare");
+                x.Notes("");
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierInvalid));
+        });
+    }
+
+    [Test]
+    public async Task Test7()
+    {
+        var result = await GetContainerBuilder()
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .AddNote("no_alias", IdentifierType.Id, x =>
+            {
+                x.User("Flare");
+                x.Source("Flare");
+                x.Notes("");
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeIncompatible));
+        });
+    }
+
+    [Test]
+    public async Task Test8()
+    {
+        var result = await GetContainerBuilder()
+            .BuildServiceProvider()
+            .GetService<IFlareClient>()!
+            .API<Alert>()
+            .AddNote(string.Empty, IdentifierType.Alias, x =>
+            {
+                x.User("Flare");
+                x.Source("Flare");
+                x.Notes("");
+            });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.HasResult, Is.False);
+            Assert.That(result.HasFaulted, Is.True);
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierInvalid));
         });
     }
 }

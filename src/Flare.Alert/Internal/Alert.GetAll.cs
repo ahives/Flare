@@ -93,30 +93,13 @@ public partial class AlertImpl
             }
             else
             {
-                bool isIdentifierTypeMissing = _identifierType switch
-                {
-                    IdentifierType.Id => false,
-                    IdentifierType.Name => false,
-                    _ => true
-                };
-
-                if (isIdentifierTypeMissing)
-                    errors.Add(Errors.Create(ErrorType.IdentifierType,
-                        $"{_identifierType.ToString()} is not a valid identifier type in the current context."));
-
-                bool isGuid = Guid.TryParse(_identifier, out var identifier);
-
-                if (!isGuid && _identifierType != IdentifierType.Name)
-                    errors.Add(Errors.Create(ErrorType.IdentifierType,
-                        "Identifier type is not compatible with identifier."));
-
-                if (isGuid && _identifierType != IdentifierType.Id)
-                    errors.Add(Errors.Create(ErrorType.IdentifierType,
-                        "Identifier type is not compatible with identifier."));
-
-                if (isGuid && identifier != default && isIdentifierTypeMissing ||
-                    (string.IsNullOrWhiteSpace(_identifier) && isIdentifierTypeMissing))
-                    errors.Add(Errors.Create(ErrorType.IdentifierType, "Identifier type is missing."));
+                errors.AddRange(
+                    _identifier.ValidateIdType(_identifierType, t => t switch
+                    {
+                        IdentifierType.Id => false,
+                        IdentifierType.Name => false,
+                        _ => true
+                    }));
             }
 
             string sortField = _sortField switch
@@ -233,7 +216,7 @@ public partial class AlertImpl
                 };
 
                 if (isStatusMissing)
-                    errors.Add(Errors.Create(ErrorType.AlertStatus, $"{_status.ToString()} is not a valid alert status in the current context."));
+                    errors.Add(Errors.Create(ErrorType.AlertStatusIncompatible, $"{_status.ToString()} is not a valid alert status in the current context."));
 
                 return errors;
             }

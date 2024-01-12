@@ -2,14 +2,12 @@ namespace Flare.Model;
 
 public enum ErrorType
 {
-    IdentifierType,
     EndTime,
-    AlertStatus,
+    AlertStatusIncompatible,
     SortField,
     PaginationOffset,
     Message,
     StringLengthLimitExceeded,
-    NotesCharLimitExceeded,
     UserCharLimitExceeded,
     SourceCharLimitExceeded,
     TagsLimitExceeded,
@@ -17,5 +15,10 @@ public enum ErrorType
     ActionsLimitExceeded,
     RespondersLimitExceeded,
     OwnerMissing,
-    EscalationMissing
+    EscalationMissing,
+    IdentifierTypeInvalidWithinContext,
+    IdentifierTypeIncompatible,
+    IdentifierInvalid,
+    IdentifierTypeMissing,
+    AlertStatusMissing
 }

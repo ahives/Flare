@@ -212,7 +212,7 @@ public partial class AlertImpl
                 errors.Add(Errors.Create(ErrorType.UserCharLimitExceeded, "You can have no more than 100 characters to represent the display name of the request owner."));
 
             if (!string.IsNullOrWhiteSpace(_notes) && _notes.Length > 100)
-                errors.Add(Errors.Create(ErrorType.NotesCharLimitExceeded, "You can have no more than 25000 characters to the note."));
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "You can have no more than 25000 characters to the note."));
 
             return errors;
 

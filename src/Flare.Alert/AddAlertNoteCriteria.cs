@@ -6,5 +6,5 @@ public interface AddAlertNoteCriteria
 
     void Source(string displayName);
 
-    void Note(string note);
+    void Notes(string notes);
 }

@@ -18,5 +18,5 @@ public sealed record AssignAlertRequest
 
     [JsonPropertyName("note")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string Note { get; init; }
+    public string Notes { get; init; }
 }

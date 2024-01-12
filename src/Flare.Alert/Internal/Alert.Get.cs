@@ -1,5 +1,6 @@
 namespace Flare.Alert.Internal;
 
+using Extensions;
 using Flare.Model;
 using Model;
 using Serialization;
@@ -27,33 +28,13 @@ public partial class AlertImpl
                 _ => string.Empty
             };
 
-        IReadOnlyList<Error> Validate()
-        {
-            bool isIdentifierTypeMissing = identifierType switch
+        IReadOnlyList<Error> Validate() =>
+            identifier.ValidateIdType(identifierType, t => t switch
             {
                 IdentifierType.Id => false,
                 IdentifierType.Tiny => false,
                 IdentifierType.Alias => false,
                 _ => true
-            };
-
-            var errors = new List<Error>();
-
-            if (isIdentifierTypeMissing)
-                errors.Add(Errors.Create(ErrorType.IdentifierType,
-                    $"{identifierType.ToString()} is not a valid identifier type in the current context."));
-
-            bool isGuid = Guid.TryParse(identifier, out _);
-
-            if (isGuid && identifierType != IdentifierType.Id)
-                errors.Add(Errors.Create(ErrorType.IdentifierType,
-                    "Identifier type is not compatible with identifier."));
-
-            if (isGuid && identifier != default && isIdentifierTypeMissing ||
-                (string.IsNullOrWhiteSpace(identifier) && isIdentifierTypeMissing))
-                errors.Add(Errors.Create(ErrorType.IdentifierType, "Identifier type is missing."));
-
-            return errors;
-        }
+            });
     }
 }
