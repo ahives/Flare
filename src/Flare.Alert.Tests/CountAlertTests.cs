@@ -141,7 +141,8 @@ public class CountAlertTests :
         {
             Assert.That(result.HasResult, Is.False);
             Assert.That(result.HasFaulted, Is.True);
-            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(2));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeIncompatible));
             Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierInvalid));
         });
     }
@@ -163,7 +164,8 @@ public class CountAlertTests :
         {
             Assert.That(result.HasResult, Is.False);
             Assert.That(result.HasFaulted, Is.True);
-            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(2));
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(3));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeIncompatible));
             Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeMissing));
             Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierInvalid));
         });

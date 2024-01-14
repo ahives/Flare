@@ -15,11 +15,7 @@ public static class ValidationExtensions
         if (!identifierType.HasValue)
             errors.Add(Errors.Create(ErrorType.IdentifierTypeMissing, "Identifier type is missing."));
 
-        bool isGuid = Guid.TryParse(identifier, out _);
-
-        if (isGuid && identifierType != IdentifierType.Id
-            || (!isGuid && !string.IsNullOrWhiteSpace(identifier) &&
-                identifierType is not (IdentifierType.Name or IdentifierType.Alias)))
+        if (!IsIdCompatibleWithType())
             errors.Add(Errors.Create(ErrorType.IdentifierTypeIncompatible,
                 "Identifier type is not compatible with identifier."));
 
@@ -27,21 +23,29 @@ public static class ValidationExtensions
             errors.Add(Errors.Create(ErrorType.IdentifierInvalid, "Identifier is invalid."));
 
         return errors;
+
+        bool IsIdCompatibleWithType() =>
+            identifierType switch
+            {
+                IdentifierType.Id => Guid.TryParse(identifier, out _),
+                IdentifierType.TinyId => int.TryParse(identifier, out _),
+                IdentifierType.Name or IdentifierType.Alias => !string.IsNullOrWhiteSpace(identifier),
+                null => false,
+                _ => true
+            };
     }
 
     public static IReadOnlyList<Error> ValidateIdType(this string identifier, IdentifierType identifierType,
         Func<IdentifierType, bool> isIdTypeMissing)
     {
         var errors = new List<Error>();
-        if (isIdTypeMissing(identifierType))
+
+        bool isMissing = isIdTypeMissing(identifierType);
+        if (isMissing)
             errors.Add(Errors.Create(ErrorType.IdentifierTypeInvalidWithinContext,
                 $"{identifierType.ToString()} is not a valid identifier type in the current context."));
 
-        bool isGuid = Guid.TryParse(identifier, out _);
-
-        if (isGuid && identifierType != IdentifierType.Id
-            || (!isGuid && !string.IsNullOrWhiteSpace(identifier) &&
-                identifierType is not (IdentifierType.Name or IdentifierType.Alias)))
+        if (!IsIdCompatibleWithType())
             errors.Add(Errors.Create(ErrorType.IdentifierTypeIncompatible,
                 "Identifier type is not compatible with identifier."));
 
@@ -49,5 +53,14 @@ public static class ValidationExtensions
             errors.Add(Errors.Create(ErrorType.IdentifierInvalid, "Identifier is invalid."));
 
         return errors;
+
+        bool IsIdCompatibleWithType() =>
+            identifierType switch
+            {
+                IdentifierType.Id => Guid.TryParse(identifier, out _),
+                IdentifierType.TinyId => int.TryParse(identifier, out _),
+                IdentifierType.Name or IdentifierType.Alias => !string.IsNullOrWhiteSpace(identifier),
+                _ => true
+            };
     }
 }

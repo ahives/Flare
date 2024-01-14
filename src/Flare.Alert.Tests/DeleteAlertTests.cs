@@ -46,10 +46,10 @@ public class DeleteAlertTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .Delete("abc", IdentifierType.AlertId, x =>
+            .Delete("1905", IdentifierType.AlertId, x =>
             {
                 x.User("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-                x.Source("Flare");
+                // x.Source("Flare");
             });
 
         Assert.Multiple(() =>
@@ -68,7 +68,7 @@ public class DeleteAlertTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .Delete("abc", IdentifierType.AlertId, x =>
+            .Delete("1905", IdentifierType.AlertId, x =>
             {
                 // x.User("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
                 x.Source("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -90,7 +90,7 @@ public class DeleteAlertTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .Delete("abc", IdentifierType.AlertId, x =>
+            .Delete("1905", IdentifierType.AlertId, x =>
             {
                 x.User("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
                 x.Source("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -111,7 +111,7 @@ public class DeleteAlertTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .Delete(NewId.NextGuid().ToString(), IdentifierType.AlertId, x =>
+            .Delete(NewId.NextGuid().ToString(), IdentifierType.Name, x =>
             {
                 x.User("Flare");
                 x.Source("Flare");
@@ -122,7 +122,7 @@ public class DeleteAlertTests :
             Assert.That(result.HasResult, Is.False);
             Assert.That(result.HasFaulted, Is.True);
             Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeIncompatible));
+            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeInvalidWithinContext));
         });
     }
 
@@ -143,8 +143,8 @@ public class DeleteAlertTests :
         {
             Assert.That(result.HasResult, Is.False);
             Assert.That(result.HasFaulted, Is.True);
-            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(2));
-            Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeIncompatible));
+            Assert.That(result.DebugInfo!.Errors.Count, Is.EqualTo(1));
+            // Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierTypeIncompatible));
             Assert.That(result.DebugInfo.Errors.Any(x => x.Type == ErrorType.IdentifierInvalid));
         });
     }
