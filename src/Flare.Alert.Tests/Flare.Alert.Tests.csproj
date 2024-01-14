@@ -111,6 +111,10 @@
       <Content Include="TestData\long_message.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="TestData\AddAlertTeamResponse.json" />
+      <Content Include="TestData\AddAlertTeamResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

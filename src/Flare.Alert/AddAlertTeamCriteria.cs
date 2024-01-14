@@ -1,8 +1,8 @@
 namespace Flare.Alert;
 
-public interface EscalateAlertCriteria
+public interface AddAlertTeamCriteria
 {
-    void Escalation(Action<AlertEscalationIdentifier> action);
+    void Team(Action<AlertTeamIdentifier> action);
 
     void User(string displayName);
 

@@ -15,10 +15,11 @@ public enum ErrorType
     ActionsLimitExceeded,
     RespondersLimitExceeded,
     OwnerMissing,
-    EscalationMissing,
+    AlertEscalationMissing,
     IdentifierTypeInvalidWithinContext,
     IdentifierTypeIncompatible,
     IdentifierInvalid,
     IdentifierTypeMissing,
-    AlertStatusMissing
+    AlertStatusMissing,
+    AlertTeamMissing
 }

@@ -2,7 +2,7 @@ namespace Flare.Alert.Model;
 
 using System.Text.Json.Serialization;
 
-public sealed record EscalateAlertInfo
+public sealed record AlertTeamInfo
 {
     [JsonPropertyName("result")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

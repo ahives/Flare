@@ -8,13 +8,12 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertEscalationInfo>> Escalate(string identifier, IdentifierType identifierType,
-        Action<EscalateAlertCriteria> criteria,
+    public async Task<Maybe<AlertTeamInfo>> AddTeam(string identifier, IdentifierType identifierType, Action<AddAlertTeamCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new EscalateAlertCriteriaImpl();
+        var impl = new AddAlertTeamCriteriaImpl();
         criteria?.Invoke(impl);
 
         var qc = impl as IQueryCriteria;
@@ -24,13 +23,13 @@ public partial class AlertImpl
         errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<AlertEscalationInfo>(
-                Debug.WithErrors("alerts/{identifier}/escalate?identifierType={idType}", errors));
+            return Response.Failed<AlertTeamInfo>(
+                Debug.WithErrors("alerts/{identifier}/teams?identifierType={idType}", errors));
 
         string url =
-            $"alerts/{identifier}/escalate?identifierType={GetIdentifierType()}";
+            $"alerts/{identifier}/teams?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<AlertEscalationInfo, EscalateAlertRequest>(url, impl.Request, Serializer.Options,
+        return await PostRequest<AlertTeamInfo, AddAlertTeamRequest>(url, impl.Request, Serializer.Options,
             cancellationToken);
 
         string GetIdentifierType() =>
@@ -53,23 +52,31 @@ public partial class AlertImpl
     }
 
 
-    class EscalateAlertCriteriaImpl :
-        EscalateAlertCriteria,
+    class AddAlertTeamCriteriaImpl :
+        AddAlertTeamCriteria,
         IQueryCriteria
     {
         string _notes;
         string _source;
         string _user;
-        Escalation? _escalation;
+        Team? _team;
 
-        public EscalateAlertRequest Request =>
+        public AddAlertTeamRequest Request =>
             new()
             {
-                Escalation = _escalation,
+                Team = _team,
                 Notes = _notes,
                 Source = _source,
                 User = _user
             };
+
+        public void Team(Action<AlertTeamIdentifier> action)
+        {
+            var impl = new AlertTeamIdentifierImpl();
+            action?.Invoke(impl);
+
+            _team = impl.Team;
+        }
 
         public void User(string displayName)
         {
@@ -86,14 +93,6 @@ public partial class AlertImpl
             _notes = notes;
         }
 
-        public void Escalation(Action<AlertEscalationIdentifier> action)
-        {
-            var impl = new AlertEscalationIdentifierImpl();
-            action?.Invoke(impl);
-
-            _escalation = impl.Escalation;
-        }
-
         public bool IsSearchQuery() => false;
 
         public IReadOnlyList<Error> Validate()
@@ -108,8 +107,8 @@ public partial class AlertImpl
             if (!string.IsNullOrWhiteSpace(_notes) && _notes.Length > 25000)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The note property has a limit of 25,000 character."));
 
-            if (_escalation is null)
-                errors.Add(Errors.Create(ErrorType.AlertEscalationMissing, "The escalation property is missing."));
+            if (_team is null)
+                errors.Add(Errors.Create(ErrorType.AlertTeamMissing, "The alert team is missing."));
 
             return errors;
         }
@@ -117,13 +116,13 @@ public partial class AlertImpl
         public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
 
 
-        class AlertEscalationIdentifierImpl :
-            AlertEscalationIdentifier
+        class AlertTeamIdentifierImpl :
+            AlertTeamIdentifier
         {
             string _name;
             Guid _id;
 
-            public Escalation Escalation => new()
+            public Team Team => new()
             {
                 Id = _id,
                 Name = _name

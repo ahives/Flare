@@ -29,8 +29,11 @@ public interface Alert :
     Task<Maybe<UnackAlertInfo>> Unacknowledge(string identifier, IdentifierType identifierType,
         Action<UnackAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<EscalateAlertInfo>> Escalate(string identifier, IdentifierType identifierType,
+    Task<Maybe<AlertEscalationInfo>> Escalate(string identifier, IdentifierType identifierType,
         Action<EscalateAlertCriteria> criteria, CancellationToken cancellationToken = default);
+
+    Task<Maybe<AlertTeamInfo>> AddTeam(string identifier, IdentifierType identifierType,
+        Action<AddAlertTeamCriteria> criteria, CancellationToken cancellationToken = default);
 
     Task<Maybe<AssignAlertInfo>> Assign(string identifier, IdentifierType identifierType,
         Action<AssignAlertCriteria> criteria, CancellationToken cancellationToken = default);

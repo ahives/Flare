@@ -1,6 +1,6 @@
 namespace Flare.Alert;
 
-public interface EscalationAlertIdentifier
+public interface AlertEscalationIdentifier
 {
     void Id(Guid identifier);
 
