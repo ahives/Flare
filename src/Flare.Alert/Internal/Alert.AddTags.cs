@@ -1,0 +1,115 @@
+namespace Flare.Alert.Internal;
+
+using System.Collections.Immutable;
+using Extensions;
+using Flare.Model;
+using Model;
+using Serialization;
+
+public partial class AlertImpl
+{
+    public async Task<Maybe<AlertTagInfo>> AddTags(string identifier, IdentifierType identifierType, Action<AddAlertTagsCriteria> criteria,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var impl = new AddAlertTagsCriteriaImpl();
+        criteria?.Invoke(impl);
+
+        var qc = impl as IQueryCriteria;
+
+        var errors = new List<Error>();
+        errors.AddRange(Validate());
+        errors.AddRange(qc.Validate());
+
+        if (errors.Count != 0)
+            return Response.Failed<AlertTagInfo>(
+                Debug.WithErrors("alerts/{identifier}/responders?identifierType={idType}", errors));
+
+        string url =
+            $"alerts/{identifier}/responders?identifierType={GetIdentifierType()}";
+
+        return await PostRequest<AlertTagInfo, AddAlertTagsRequest>(url, impl.Request, Serializer.Options,
+            cancellationToken);
+
+        string GetIdentifierType() =>
+            identifierType switch
+            {
+                IdentifierType.Id => "id",
+                IdentifierType.Tiny => "tiny",
+                IdentifierType.Alias => "alias",
+                _ => string.Empty
+            };
+
+        IReadOnlyList<Error> Validate() =>
+            identifier.ValidateIdType(identifierType, t => t switch
+            {
+                IdentifierType.Id => false,
+                IdentifierType.Tiny => false,
+                IdentifierType.Alias => false,
+                _ => true
+            });
+    }
+
+
+    class AddAlertTagsCriteriaImpl :
+        AddAlertTagsCriteria,
+        IQueryCriteria
+    {
+        string _notes;
+        string _source;
+        string _user;
+        List<string> _tags;
+
+        public AddAlertTagsRequest Request =>
+            new()
+            {
+                Tags = _tags,
+                Notes = _notes,
+                Source = _source,
+                User = _user
+            };
+
+        public void Tags(List<string> tags)
+        {
+            _tags = tags;
+        }
+
+        public void User(string displayName)
+        {
+            _user = displayName;
+        }
+
+        public void Source(string displayName)
+        {
+            _source = displayName;
+        }
+
+        public void Notes(string notes)
+        {
+            _notes = notes;
+        }
+
+        public bool IsSearchQuery() => false;
+
+        public IReadOnlyList<Error> Validate()
+        {
+            var errors = new List<Error>();
+            if (!string.IsNullOrWhiteSpace(_user) && _user.Length > 100)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The user property has a limit of 100 character."));
+
+            if (!string.IsNullOrWhiteSpace(_source) && _source.Length > 100)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The source property has a limit of 100 character."));
+
+            if (!string.IsNullOrWhiteSpace(_notes) && _notes.Length > 25000)
+                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The note property has a limit of 25,000 character."));
+
+            if (!_tags.Any())
+                errors.Add(Errors.Create(ErrorType.AlertResponderMissing, "The alert responder is missing."));
+
+            return errors;
+        }
+
+        public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
+    }
+}
