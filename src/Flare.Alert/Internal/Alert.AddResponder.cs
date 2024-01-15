@@ -59,7 +59,7 @@ public partial class AlertImpl
         string _notes;
         string _source;
         string _user;
-        Recipient? _responder;
+        Responder? _responder;
 
         public AddAlertResponderRequest Request =>
             new()
@@ -121,9 +121,9 @@ public partial class AlertImpl
         {
             Guid _id;
             string _username;
-            RecipientType _responderType;
+            ResponderType _responderType;
 
-            public Recipient Responder => new()
+            public Responder Responder => new()
             {
                 Id = _id,
                 Username = _username,
@@ -135,7 +135,7 @@ public partial class AlertImpl
                 _id = id;
             }
 
-            public void Type(RecipientType responder)
+            public void Type(ResponderType responder)
             {
                 _responderType = responder;
             }

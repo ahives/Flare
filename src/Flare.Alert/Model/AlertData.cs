@@ -70,7 +70,7 @@ public sealed record AlertData
 
     [JsonPropertyName("responders")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<Recipient> Responders { get; init; }
+    public List<Responder> Responders { get; init; }
 
     [JsonPropertyName("integration")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

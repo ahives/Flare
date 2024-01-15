@@ -6,7 +6,7 @@ public interface CreateAlertCriteria
 {
     void Description(string description);
 
-    void Responders(Action<Responder> action);
+    void Responders(Action<AddResponder> action);
 
     void VisibleTo(Action<VisibleTo> action);
 

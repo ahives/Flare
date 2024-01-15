@@ -1,6 +1,6 @@
 namespace Flare.Alert;
 
-public interface Responder
+public interface AddResponder
 {
     void Team(Action<TeamResponder> action);
 

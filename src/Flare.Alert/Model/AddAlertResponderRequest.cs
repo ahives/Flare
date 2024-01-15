@@ -7,7 +7,7 @@ public sealed record AddAlertResponderRequest
 {
     [JsonPropertyName("responder")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Recipient? Responder { get; init; }
+    public Responder? Responder { get; init; }
 
     [JsonPropertyName("user")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

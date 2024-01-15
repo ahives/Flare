@@ -19,11 +19,11 @@ public sealed record CreateAlertRequest
 
     [JsonPropertyName("responders")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<Recipient> Responders { get; init; }
+    public List<Responder> Responders { get; init; }
 
     [JsonPropertyName("visibleTo")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<Recipient> VisibleTo { get; init; }
+    public List<VisibleResponder> VisibleTo { get; init; }
 
     [JsonPropertyName("actions")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

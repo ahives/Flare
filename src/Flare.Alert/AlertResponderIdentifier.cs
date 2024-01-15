@@ -6,7 +6,7 @@ public interface AlertResponderIdentifier
 {
     void Id(Guid id);
 
-    void Type(RecipientType responder);
+    void Type(ResponderType responder);
 
     void Username(string username);
 }

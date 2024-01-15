@@ -2,7 +2,7 @@ namespace Flare.Model;
 
 using System.Text.Json.Serialization;
 
-public sealed record Recipient
+public sealed record VisibleResponder
 {
     [JsonPropertyName("id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -17,5 +17,5 @@ public sealed record Recipient
     public string Username { get; set; }
 
     [JsonPropertyName("type")]
-    public RecipientType Type { get; set; }
+    public ResponderType Type { get; set; }
 }

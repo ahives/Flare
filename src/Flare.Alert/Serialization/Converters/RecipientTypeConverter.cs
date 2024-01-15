@@ -5,37 +5,37 @@ using System.Text.Json.Serialization;
 using Flare.Model;
 
 public class RecipientTypeConverter :
-    JsonConverter<RecipientType>
+    JsonConverter<ResponderType>
 {
-    public override RecipientType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override ResponderType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return reader.GetString() switch
         {
-            "team" => RecipientType.Team,
-            "escalation" => RecipientType.Escalation,
-            "user" => RecipientType.User,
-            "schedule" => RecipientType.Schedule,
+            "team" => ResponderType.Team,
+            "escalation" => ResponderType.Escalation,
+            "user" => ResponderType.User,
+            "schedule" => ResponderType.Schedule,
             _ => throw new JsonException()
         };
     }
 
-    public override void Write(Utf8JsonWriter writer, RecipientType value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, ResponderType value, JsonSerializerOptions options)
     {
         switch (value)
         {
-            case RecipientType.Team:
+            case ResponderType.Team:
                 writer.WriteStringValue("team");
                 break;
             
-            case RecipientType.User:
+            case ResponderType.User:
                 writer.WriteStringValue("user");
                 break;
             
-            case RecipientType.Escalation:
+            case ResponderType.Escalation:
                 writer.WriteStringValue("escalation");
                 break;
             
-            case RecipientType.Schedule:
+            case ResponderType.Schedule:
                 writer.WriteStringValue("schedule");
                 break;
             

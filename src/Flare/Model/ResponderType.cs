@@ -1,6 +1,6 @@
 namespace Flare.Model;
 
-public enum RecipientType
+public enum ResponderType
 {
     Team,
     User,

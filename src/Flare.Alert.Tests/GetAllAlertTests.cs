@@ -62,7 +62,7 @@ public class GetAllAlertTests :
                 AcknowledgedBy = "agent_smith@opsgenie.com",
                 ClosedBy = "neo@opsgenie.com"
             },
-            Responders = new List<Recipient>()
+            Responders = new List<Responder>()
         };
 
         var expected2 = new AlertData

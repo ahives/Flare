@@ -35,8 +35,8 @@ public partial class AlertImpl
         List<string> _tags;
         string _entity;
         AlertPriority _priority;
-        List<Recipient> _responderRecipients;
-        List<Recipient> _visibility;
+        List<Responder> _responders;
+        List<VisibleResponder> _visibility;
         IDictionary<string, string> _details;
         string _message;
         string _source;
@@ -46,7 +46,7 @@ public partial class AlertImpl
             new()
             {
                 Description = _description,
-                Responders = _responderRecipients,
+                Responders = _responders,
                 VisibleTo = _visibility,
                 Alias = _alias,
                 Note = _notes,
@@ -63,8 +63,8 @@ public partial class AlertImpl
         {
             _priority = AlertPriority.P3;
             _tags = new List<string>();
-            _responderRecipients = new List<Recipient>();
-            _visibility = new List<Recipient>();
+            _responders = new List<Responder>();
+            _visibility = new List<VisibleResponder>();
             _details = new Dictionary<string, string>();
             _actions = new List<string>();
             _tags = new List<string>();
@@ -75,12 +75,12 @@ public partial class AlertImpl
             _description = description;
         }
 
-        public void Responders(Action<Responder> action)
+        public void Responders(Action<AddResponder> action)
         {
-            var impl = new ResponderImpl();
+            var impl = new AddResponderImpl();
             action?.Invoke(impl);
 
-            _responderRecipients = impl.Recipients;
+            _responders = impl.Recipients;
         }
 
         public void VisibleTo(Action<VisibleTo> action)
@@ -179,7 +179,7 @@ public partial class AlertImpl
             if (!string.IsNullOrWhiteSpace(_description) && _description.Length > 15000)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The description property has a limit of 100 character."));
 
-            if (_responderRecipients.Count > 50)
+            if (_responders.Count > 50)
                 errors.Add(Errors.Create(ErrorType.RespondersLimitExceeded, "You can only have 50 responders."));
 
             if (_visibility.Count > 50)
@@ -246,14 +246,14 @@ public partial class AlertImpl
         }
 
 
-        class ResponderImpl :
-            Responder
+        class AddResponderImpl :
+            AddResponder
         {
-            public List<Recipient> Recipients { get; }
+            public List<Responder> Recipients { get; }
 
-            public ResponderImpl()
+            public AddResponderImpl()
             {
-                Recipients = new List<Recipient>();
+                Recipients = new List<Responder>();
             }
 
             public void Team(Action<TeamResponder> action)
@@ -292,16 +292,16 @@ public partial class AlertImpl
             class EscalationResponderImpl :
                 EscalationResponder
             {
-                public Recipient Data { get; private set; }
+                public Responder Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Recipient {Id = id, Type = RecipientType.Escalation};
+                    Data = new Responder {Id = id, Type = ResponderType.Escalation};
                 }
 
                 public void Name(string name)
                 {
-                    Data = new Recipient {Name = name, Type = RecipientType.Escalation};
+                    Data = new Responder {Name = name, Type = ResponderType.Escalation};
                 }
             }
 
@@ -309,16 +309,16 @@ public partial class AlertImpl
             class ScheduleResponderImpl :
                 ScheduleResponder
             {
-                public Recipient Data { get; private set; }
+                public Responder Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Recipient {Id = id, Type = RecipientType.Schedule};
+                    Data = new Responder {Id = id, Type = ResponderType.Schedule};
                 }
 
                 public void Name(string name)
                 {
-                    Data = new Recipient {Name = name, Type = RecipientType.Schedule};
+                    Data = new Responder {Name = name, Type = ResponderType.Schedule};
                 }
             }
 
@@ -326,16 +326,16 @@ public partial class AlertImpl
             class UserResponderImpl :
                 UserResponder
             {
-                public Recipient Data { get; private set; }
+                public Responder Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Recipient {Id = id, Type = RecipientType.User};
+                    Data = new Responder {Id = id, Type = ResponderType.User};
                 }
 
                 public void Username(string username)
                 {
-                    Data = new Recipient {Username = username, Type = RecipientType.User};
+                    Data = new Responder {Username = username, Type = ResponderType.User};
                 }
             }
 
@@ -343,16 +343,16 @@ public partial class AlertImpl
             class TeamResponderImpl :
                 TeamResponder
             {
-                public Recipient Data { get; private set; }
+                public Responder Data { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Recipient {Id = id, Type = RecipientType.Team};
+                    Data = new Responder {Id = id, Type = ResponderType.Team};
                 }
 
                 public void Name(string name)
                 {
-                    Data = new Recipient {Name = name, Type = RecipientType.Team};
+                    Data = new Responder {Name = name, Type = ResponderType.Team};
                 }
             }
         }
@@ -361,11 +361,11 @@ public partial class AlertImpl
         class VisibleToImpl :
             VisibleTo
         {
-            public List<Recipient> Visibility { get; }
+            public List<VisibleResponder> Visibility { get; }
 
             public VisibleToImpl()
             {
-                Visibility = new List<Recipient>();
+                Visibility = new List<VisibleResponder>();
             }
 
             public void Team(Action<VisibleToTeam> action)
@@ -373,7 +373,7 @@ public partial class AlertImpl
                 var impl = new VisibleToTeamImpl();
                 action?.Invoke(impl);
 
-                Visibility.Add(impl.Data);
+                Visibility.Add(impl.VisibleResponder);
             }
 
             public void User(Action<VisibleToUser> action)
@@ -381,23 +381,23 @@ public partial class AlertImpl
                 var impl = new VisibleToUserImpl();
                 action?.Invoke(impl);
 
-                Visibility.Add(impl.Data);
+                Visibility.Add(impl.VisibleResponder);
             }
 
             
             class VisibleToTeamImpl :
                 VisibleToTeam
             {
-                public Recipient Data { get; private set; }
+                public VisibleResponder VisibleResponder { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Recipient {Id = id, Type = RecipientType.Team};
+                    VisibleResponder = new VisibleResponder {Id = id, Type = ResponderType.Team};
                 }
 
                 public void Name(string name)
                 {
-                    Data = new Recipient {Name = name, Type = RecipientType.Team};
+                    VisibleResponder = new VisibleResponder {Name = name, Type = ResponderType.Team};
                 }
             }
 
@@ -405,16 +405,16 @@ public partial class AlertImpl
             class VisibleToUserImpl :
                 VisibleToUser
             {
-                public Recipient Data { get; private set; }
+                public VisibleResponder VisibleResponder { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Recipient {Id = id, Type = RecipientType.User};
+                    VisibleResponder = new VisibleResponder {Id = id, Type = ResponderType.User};
                 }
 
                 public void Username(string username)
                 {
-                    Data = new Recipient {Username = username, Type = RecipientType.User};
+                    VisibleResponder = new VisibleResponder {Username = username, Type = ResponderType.User};
                 }
             }
         }
