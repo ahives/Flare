@@ -35,6 +35,9 @@ public interface Alert :
     Task<Maybe<AlertTeamInfo>> AddTeam(string identifier, IdentifierType identifierType,
         Action<AddAlertTeamCriteria> criteria, CancellationToken cancellationToken = default);
 
+    Task<Maybe<AlertResponderInfo>> AddResponder(string identifier, IdentifierType identifierType,
+        Action<AddAlertResponderCriteria> criteria, CancellationToken cancellationToken = default);
+
     Task<Maybe<AssignAlertInfo>> Assign(string identifier, IdentifierType identifierType,
         Action<AssignAlertCriteria> criteria, CancellationToken cancellationToken = default);
 

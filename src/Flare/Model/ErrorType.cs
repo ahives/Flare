@@ -21,5 +21,6 @@ public enum ErrorType
     IdentifierInvalid,
     IdentifierTypeMissing,
     AlertStatusMissing,
-    AlertTeamMissing
+    AlertTeamMissing,
+    AlertResponderMissing
 }
