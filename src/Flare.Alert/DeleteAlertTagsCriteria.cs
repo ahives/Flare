@@ -1,6 +1,6 @@
 namespace Flare.Alert;
 
-public interface AddAlertTagsCriteria
+public interface DeleteAlertTagsCriteria
 {
     void Tags(Action<TagBuilder> action);
 

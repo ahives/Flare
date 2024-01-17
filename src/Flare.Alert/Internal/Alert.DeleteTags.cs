@@ -1,6 +1,5 @@
 namespace Flare.Alert.Internal;
 
-using System.Collections.Immutable;
 using System.Text;
 using Extensions;
 using Flare.Model;
@@ -9,12 +8,12 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertTagInfo>> AddTags(string identifier, IdentifierType identifierType, Action<AddAlertTagsCriteria> criteria,
+    public async Task<Maybe<AlertTagInfo>> DeleteTags(string identifier, IdentifierType identifierType, Action<DeleteAlertTagsCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new AddAlertTagsCriteriaImpl();
+        var impl = new DeleteAlertTagsCriteriaImpl();
         criteria?.Invoke(impl);
 
         var qc = impl as IQueryCriteria;
@@ -27,11 +26,12 @@ public partial class AlertImpl
             return Response.Failed<AlertTagInfo>(
                 Debug.WithErrors("alerts/{identifier}/tags?identifierType={idType}", errors));
 
-        string url =
-            $"alerts/{identifier}/tags?identifierType={GetIdentifierType()}";
+        var args = qc.GetQueryArguments();
+        string url = args.Count > 0
+            ? $"alerts/{identifier}/tags?identifierType={GetIdentifierType()}&{args.BuildQueryString()}"
+            : $"alerts/{identifier}/tags?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<AlertTagInfo, AddAlertTagsRequest>(url, impl.Request, Serializer.Options,
-            cancellationToken);
+        return await DeleteRequest<AlertTagInfo>(url, Serializer.Options, cancellationToken);
 
         string GetIdentifierType() =>
             identifierType switch
@@ -53,43 +53,31 @@ public partial class AlertImpl
     }
 
 
-    class AddAlertTagsCriteriaImpl :
-        AddAlertTagsCriteria,
+    class DeleteAlertTagsCriteriaImpl :
+        DeleteAlertTagsCriteria,
         IQueryCriteria
     {
         string _notes;
         string _source;
         string _user;
-        string _tags;
-
-        public AddAlertTagsRequest Request =>
-            new()
-            {
-                Tags = _tags,
-                Notes = _notes,
-                Source = _source,
-                User = _user
-            };
+        List<AlertTag> _tags;
 
         public void Tags(Action<TagBuilder> action)
         {
             var impl = new TagBuilderImpl();
             action?.Invoke(impl);
 
-            StringBuilder builder = new StringBuilder();
-        
-            for (int i = 0; i < impl.Tags.Count; i++)
-            {
-                if (i == 0)
-                {
-                    builder.AppendFormat(impl.Tags[i].ToString());
-                    continue;
-                }
-            
-                builder.AppendFormat($",{impl.Tags[i].ToString()}");
-            }
+            _tags = impl.Tags;
+        }
 
-            _tags = builder.ToString();
+        class TagBuilderImpl : TagBuilder
+        {
+            public List<AlertTag> Tags { get; } = new();
+
+            public void Add(AlertTag tag)
+            {
+                Tags.Add(tag);
+            }
         }
 
         public void User(string displayName)
@@ -121,24 +109,34 @@ public partial class AlertImpl
             if (!string.IsNullOrWhiteSpace(_notes) && _notes.Length > 25000)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The note property has a limit of 25,000 character."));
 
-            if (!string.IsNullOrWhiteSpace(_tags) && _tags.Length > 1000)
-                errors.Add(Errors.Create(ErrorType.AlertTagsMissing, "The alert responder is missing."));
+            if (!_tags.Any())
+                errors.Add(Errors.Create(ErrorType.AlertTagsMissing, "The tags are missing."));
 
             return errors;
         }
 
-        public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
-
-
-        class TagBuilderImpl :
-            TagBuilder
+        public Dictionary<string, QueryArg> GetQueryArguments()
         {
-            public List<AlertTag> Tags { get; } = new();
-
-            public void Add(AlertTag tag)
+            StringBuilder builder = new StringBuilder();
+        
+            for (int i = 0; i < _tags.Count; i++)
             {
-                Tags.Add(tag);
+                if (i == 0)
+                {
+                    builder.AppendFormat(_tags[i].ToString());
+                    continue;
+                }
+            
+                builder.AppendFormat($",{_tags[i].ToString()}");
             }
+
+            return new Dictionary<string, QueryArg>
+            {
+                {"tags", new QueryArg {Value = builder.ToString()}},
+                {"user", new QueryArg {Value = _user}},
+                {"source", new QueryArg {Value = _source}},
+                {"note", new QueryArg {Value = _notes}}
+            };
         }
     }
 }

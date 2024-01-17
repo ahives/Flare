@@ -41,6 +41,9 @@ public interface Alert :
     Task<Maybe<AlertTagInfo>> AddTags(string identifier, IdentifierType identifierType,
         Action<AddAlertTagsCriteria> criteria, CancellationToken cancellationToken = default);
 
+    Task<Maybe<AlertTagInfo>> DeleteTags(string identifier, IdentifierType identifierType,
+        Action<DeleteAlertTagsCriteria> criteria, CancellationToken cancellationToken = default);
+
     Task<Maybe<AssignAlertInfo>> Assign(string identifier, IdentifierType identifierType,
         Action<AssignAlertCriteria> criteria, CancellationToken cancellationToken = default);
 

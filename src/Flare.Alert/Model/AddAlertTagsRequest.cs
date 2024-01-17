@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 
 public sealed record AddAlertTagsRequest
 {
-    [JsonPropertyName("responder")]
+    [JsonPropertyName("tags")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<string> Tags { get; init; }
+    public string Tags { get; init; }
 
     [JsonPropertyName("user")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
