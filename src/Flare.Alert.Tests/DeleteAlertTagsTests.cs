@@ -8,7 +8,7 @@ public class DeleteAlertTagsTests :
     [Test]
     public async Task Test1()
     {
-        var result = await GetContainerBuilder("TestData/AddAlertTeamResponse.json")
+        var result = await GetContainerBuilder("TestData/StandardResponse.json")
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()

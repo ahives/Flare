@@ -8,7 +8,7 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertEscalationInfo>> Escalate(string identifier, IdentifierType identifierType,
+    public async Task<Maybe<ResultInfo>> Escalate(string identifier, IdentifierType identifierType,
         Action<EscalateAlertCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
@@ -24,13 +24,13 @@ public partial class AlertImpl
         errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<AlertEscalationInfo>(
+            return Response.Failed<ResultInfo>(
                 Debug.WithErrors("alerts/{identifier}/escalate?identifierType={idType}", errors));
 
         string url =
             $"alerts/{identifier}/escalate?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<AlertEscalationInfo, EscalateAlertRequest>(url, impl.Request, Serializer.Options,
+        return await PostRequest<ResultInfo, EscalateAlertRequest>(url, impl.Request, Serializer.Options,
             cancellationToken);
 
         string GetIdentifierType() =>

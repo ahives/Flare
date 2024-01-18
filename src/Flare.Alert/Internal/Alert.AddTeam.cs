@@ -8,7 +8,7 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertTeamInfo>> AddTeam(string identifier, IdentifierType identifierType, Action<AddAlertTeamCriteria> criteria,
+    public async Task<Maybe<ResultInfo>> AddTeam(string identifier, IdentifierType identifierType, Action<AddAlertTeamCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -23,13 +23,13 @@ public partial class AlertImpl
         errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<AlertTeamInfo>(
+            return Response.Failed<ResultInfo>(
                 Debug.WithErrors("alerts/{identifier}/teams?identifierType={idType}", errors));
 
         string url =
             $"alerts/{identifier}/teams?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<AlertTeamInfo, AddAlertTeamRequest>(url, impl.Request, Serializer.Options,
+        return await PostRequest<ResultInfo, AddAlertTeamRequest>(url, impl.Request, Serializer.Options,
             cancellationToken);
 
         string GetIdentifierType() =>

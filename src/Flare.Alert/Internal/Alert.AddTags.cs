@@ -9,7 +9,7 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertTagInfo>> AddTags(string identifier, IdentifierType identifierType, Action<AddAlertTagsCriteria> criteria,
+    public async Task<Maybe<ResultInfo>> AddTags(string identifier, IdentifierType identifierType, Action<AddAlertTagsCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -24,13 +24,13 @@ public partial class AlertImpl
         errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<AlertTagInfo>(
+            return Response.Failed<ResultInfo>(
                 Debug.WithErrors("alerts/{identifier}/tags?identifierType={idType}", errors));
 
         string url =
             $"alerts/{identifier}/tags?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<AlertTagInfo, AddAlertTagsRequest>(url, impl.Request, Serializer.Options,
+        return await PostRequest<ResultInfo, AddAlertTagsRequest>(url, impl.Request, Serializer.Options,
             cancellationToken);
 
         string GetIdentifierType() =>

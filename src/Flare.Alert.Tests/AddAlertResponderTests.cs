@@ -8,7 +8,7 @@ public class AddAlertResponderTests :
     [Test]
     public async Task Test1()
     {
-        var result = await GetContainerBuilder("TestData/AddAlertResponderResponse.json")
+        var result = await GetContainerBuilder("TestData/StandardResponse.json")
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()

@@ -7,7 +7,7 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<CreateAlertInfo>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<ResultInfo>> Create(Action<CreateAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -19,9 +19,9 @@ public partial class AlertImpl
 
         var errors = qc.Validate();
         if (errors.Count != 0)
-            return Response.Failed<CreateAlertInfo>(Debug.WithErrors(url, errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors(url, errors));
 
-        return await PostRequest<CreateAlertInfo, CreateAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken).ConfigureAwait(false);
+        return await PostRequest<ResultInfo, CreateAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken).ConfigureAwait(false);
     }
 
 

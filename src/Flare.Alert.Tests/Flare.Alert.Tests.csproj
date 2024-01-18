@@ -56,13 +56,7 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="TestData\AcknowledgeAlertResponse.json" />
-      <Content Include="TestData\AcknowledgeAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\AddAlertNoteResponse.json" />
-      <Content Include="TestData\AddAlertNoteResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\AlertCountResponse.json" />
       <Content Include="TestData\AlertCountResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -72,17 +66,8 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="TestData\CloseAlertResponse.json" />
-      <Content Include="TestData\CloseAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\CreateAlertResponse.json" />
-      <Content Include="TestData\CreateAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\DeleteAlertResponse.json" />
-      <Content Include="TestData\DeleteAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\GetAlertResponse.json" />
       <Content Include="TestData\GetAlertResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -92,31 +77,17 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="TestData\SnoozeAlertResponse.json" />
-      <Content Include="TestData\SnoozeAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\UnacknowledgeAlertResponse.json" />
-      <Content Include="TestData\UnacknowledgeAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\EscalateAlertResponse.json" />
-      <Content Include="TestData\EscalateAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\AssignAlertResponse.json" />
-      <Content Include="TestData\AssignAlertResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\long_message.txt" />
       <Content Include="TestData\long_message.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="TestData\AddAlertTeamResponse.json" />
-      <Content Include="TestData\AddAlertTeamResponse.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="TestData\AddAlertResponderResponse.json" />
-      <Content Include="TestData\AddAlertResponderResponse.json">
+      <None Remove="TestData\StandardResponse.json" />
+      <Content Include="TestData\StandardResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

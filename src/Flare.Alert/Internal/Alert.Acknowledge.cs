@@ -8,7 +8,7 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AckAlertInfo>> Acknowledge(string identifier, IdentifierType identifierType, Action<AckAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<ResultInfo>> Acknowledge(string identifier, IdentifierType identifierType, Action<AckAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -22,12 +22,12 @@ public partial class AlertImpl
         errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<AckAlertInfo>(Debug.WithErrors("alerts/{identifier}/acknowledge?identifierType={idType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/acknowledge?identifierType={idType}", errors));
 
         string url =
             $"alerts/{identifier}/acknowledge?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<AckAlertInfo, AckAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
+        return await PostRequest<ResultInfo, AckAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
 
         string GetIdentifierType() =>
             identifierType switch

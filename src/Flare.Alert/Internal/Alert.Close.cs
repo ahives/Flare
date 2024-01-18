@@ -8,7 +8,7 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertCloseInfo>> Close(string identifier, IdentifierType identifierType, Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default)
+    public async Task<Maybe<ResultInfo>> Close(string identifier, IdentifierType identifierType, Action<CloseAlertCriteria> criteria, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -22,11 +22,11 @@ public partial class AlertImpl
         errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<AlertCloseInfo>(Debug.WithErrors("alerts/{identifier}/close?identifierType={identifierType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/close?identifierType={identifierType}", errors));
 
         string url = $"alerts/{identifier}/close?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<AlertCloseInfo, CloseAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
+        return await PostRequest<ResultInfo, CloseAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
 
         string GetIdentifierType() =>
             identifierType switch

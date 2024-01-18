@@ -8,7 +8,7 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertNoteInfo>> AddNote(string identifier, IdentifierType identifierType,
+    public async Task<Maybe<ResultInfo>> AddNote(string identifier, IdentifierType identifierType,
         Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -23,11 +23,11 @@ public partial class AlertImpl
         errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<AlertNoteInfo>(Debug.WithErrors("alerts/{identifier}/notes?identifierType={identifierType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/notes?identifierType={identifierType}", errors));
 
         string url = $"alerts/{identifier}/notes?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<AlertNoteInfo, AddAlertNoteRequest>(url, impl.Request, Serializer.Options, cancellationToken);
+        return await PostRequest<ResultInfo, AddAlertNoteRequest>(url, impl.Request, Serializer.Options, cancellationToken);
 
         string GetIdentifierType() =>
             identifierType switch

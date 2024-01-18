@@ -1,8 +1,8 @@
-namespace Flare.Alert.Model;
+namespace Flare.Model;
 
 using System.Text.Json.Serialization;
 
-public sealed record AlertTeamInfo
+public sealed record ResultInfo
 {
     [JsonPropertyName("result")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -3,12 +3,11 @@ namespace Flare.Alert.Internal;
 using System.Text;
 using Extensions;
 using Flare.Model;
-using Model;
 using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<AlertTagInfo>> DeleteTags(string identifier, IdentifierType identifierType, Action<DeleteAlertTagsCriteria> criteria,
+    public async Task<Maybe<ResultInfo>> DeleteTags(string identifier, IdentifierType identifierType, Action<DeleteAlertTagsCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -23,7 +22,7 @@ public partial class AlertImpl
         errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<AlertTagInfo>(
+            return Response.Failed<ResultInfo>(
                 Debug.WithErrors("alerts/{identifier}/tags?identifierType={idType}", errors));
 
         var args = qc.GetQueryArguments();
@@ -31,7 +30,7 @@ public partial class AlertImpl
             ? $"alerts/{identifier}/tags?identifierType={GetIdentifierType()}&{args.BuildQueryString()}"
             : $"alerts/{identifier}/tags?identifierType={GetIdentifierType()}";
 
-        return await DeleteRequest<AlertTagInfo>(url, Serializer.Options, cancellationToken);
+        return await DeleteRequest<ResultInfo>(url, Serializer.Options, cancellationToken);
 
         string GetIdentifierType() =>
             identifierType switch

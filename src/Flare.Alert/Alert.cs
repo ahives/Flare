@@ -6,10 +6,10 @@ using Model;
 public interface Alert :
     FlareAPI
 {
-    Task<Maybe<CreateAlertInfo>> Create(Action<CreateAlertCriteria> criteria,
+    Task<Maybe<ResultInfo>> Create(Action<CreateAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Maybe<DeleteAlertInfo>> Delete(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> Delete(string identifier, IdentifierType identifierType,
         Action<DeleteAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
     Task<Maybe<AlertStatusInfo>> Status(Guid requestId, CancellationToken cancellationToken = default);
@@ -23,36 +23,36 @@ public interface Alert :
     Task<Maybe<AlertCountInfo>> Count(Action<CountAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Maybe<AckAlertInfo>> Acknowledge(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> Acknowledge(string identifier, IdentifierType identifierType,
         Action<AckAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<UnackAlertInfo>> Unacknowledge(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> Unacknowledge(string identifier, IdentifierType identifierType,
         Action<UnackAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertEscalationInfo>> Escalate(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> Escalate(string identifier, IdentifierType identifierType,
         Action<EscalateAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertTeamInfo>> AddTeam(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> AddTeam(string identifier, IdentifierType identifierType,
         Action<AddAlertTeamCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertResponderInfo>> AddResponder(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> AddResponder(string identifier, IdentifierType identifierType,
         Action<AddAlertResponderCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertTagInfo>> AddTags(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> AddTags(string identifier, IdentifierType identifierType,
         Action<AddAlertTagsCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertTagInfo>> DeleteTags(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> DeleteTags(string identifier, IdentifierType identifierType,
         Action<DeleteAlertTagsCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AssignAlertInfo>> Assign(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> Assign(string identifier, IdentifierType identifierType,
         Action<AssignAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<SnoozeAlertInfo>> Snooze(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> Snooze(string identifier, IdentifierType identifierType,
         Action<SnoozeAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertCloseInfo>> Close(string identifier, IdentifierType identifierType, Action<CloseAlertCriteria> criteria,
+    Task<Maybe<ResultInfo>> Close(string identifier, IdentifierType identifierType, Action<CloseAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
-    Task<Maybe<AlertNoteInfo>> AddNote(string identifier, IdentifierType identifierType,
+    Task<Maybe<ResultInfo>> AddNote(string identifier, IdentifierType identifierType,
         Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default);
 }

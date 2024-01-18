@@ -11,7 +11,7 @@ public class DeleteAlertTests :
     {
         string identifier = "1905";
         var identifierType = IdentifierType.AlertId;
-        var result = await GetContainerBuilder("TestData/DeleteAlertResponse.json")
+        var result = await GetContainerBuilder("TestData/StandardResponse.json")
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
@@ -34,7 +34,7 @@ public class DeleteAlertTests :
             Assert.That(result.HasFaulted, Is.False);
             Assert.That(result.DebugInfo!.URL, Is.EqualTo($"alerts/{identifier}?identifierType={identifierTypeString}"));
             Assert.That(result.Result!.Result, Is.EqualTo("Request will be processed"));
-            Assert.That(result.Result.Took, Is.EqualTo(0.204f));
+            Assert.That(result.Result.Took, Is.EqualTo(0.333f));
             Assert.That(result.Result.RequestId, Is.EqualTo(Guid.Parse("43a29c5c-3dbf-4fa4-9c26-f4f71023e120")));
         });
     }

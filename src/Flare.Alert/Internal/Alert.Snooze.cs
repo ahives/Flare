@@ -8,7 +8,7 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<SnoozeAlertInfo>> Snooze(string identifier, IdentifierType identifierType, Action<SnoozeAlertCriteria> criteria,
+    public async Task<Maybe<ResultInfo>> Snooze(string identifier, IdentifierType identifierType, Action<SnoozeAlertCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -23,11 +23,11 @@ public partial class AlertImpl
         errors.AddRange(qc.Validate());
 
         if (errors.Count != 0)
-            return Response.Failed<SnoozeAlertInfo>(Debug.WithErrors("alerts/{identifier}/snooze?identifierType={identifierType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/snooze?identifierType={identifierType}", errors));
 
         string url = $"alerts/{identifier}/snooze?identifierType={GetIdentifierType()}";
 
-        return await PostRequest<SnoozeAlertInfo, SnoozeAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
+        return await PostRequest<ResultInfo, SnoozeAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
 
         string GetIdentifierType() =>
             identifierType switch
