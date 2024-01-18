@@ -18,10 +18,7 @@ public partial class AlertImpl
 
         var qc = impl as IQueryCriteria;
 
-        var errors = new List<Error>();
-        errors.AddRange(Validate());
-        errors.AddRange(qc.Validate());
-
+        var errors = Validate().Concat(qc.Validate()).ToList();
         if (errors.Count != 0)
             return Response.Failed<ResultInfo>(
                 Debug.WithErrors("alerts/{identifier}/responders?identifierType={idType}", errors));

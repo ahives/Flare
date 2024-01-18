@@ -16,6 +16,7 @@ public partial class AlertImpl
 
         var qc = impl as IQueryCriteria;
         string baseUrl = "alerts";
+
         var errors = qc.Validate();
         if (errors.Any())
             return Response.Failed<AlertAllInfo>(Debug.WithErrors(baseUrl, errors));
