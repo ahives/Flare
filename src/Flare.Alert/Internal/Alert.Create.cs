@@ -16,6 +16,7 @@ public partial class AlertImpl
 
         var qc = impl as IQueryCriteria;
         string url = "alerts";
+
         var errors = qc.Validate();
         if (errors.Count != 0)
             return Response.Failed<CreateAlertInfo>(Debug.WithErrors(url, errors));
@@ -32,7 +33,7 @@ public partial class AlertImpl
         string _alias;
         string _notes;
         List<string> _actions;
-        List<string> _tags;
+        List<AlertTag> _tags;
         string _entity;
         AlertPriority _priority;
         List<Responder> _responders;
@@ -62,12 +63,11 @@ public partial class AlertImpl
         public CreateAlertCriteriaImpl()
         {
             _priority = AlertPriority.P3;
-            _tags = new List<string>();
+            _tags = new List<AlertTag>();
             _responders = new List<Responder>();
             _visibility = new List<VisibleResponder>();
             _details = new Dictionary<string, string>();
             _actions = new List<string>();
-            _tags = new List<string>();
         }
 
         public void Description(string description)
@@ -133,18 +133,12 @@ public partial class AlertImpl
             _actions = temp;
         }
 
-        public void CustomTags(string tag, params string[] tags)
+        public void Tags(Action<TagBuilder> action)
         {
-            var temp = new List<string> {tag};
+            var impl = new TagBuilderImpl();
+            action?.Invoke(impl);
 
-            for (int i = 0; i < tags.Length; i++)
-            {
-                if (string.IsNullOrWhiteSpace(tags[i]))
-                    continue;
-                temp.Add(tags[i]);
-            }
-
-            _tags = temp;
+            _tags = impl.Tags;
         }
 
         public void RelatedToDomain(string entity)
@@ -195,9 +189,9 @@ public partial class AlertImpl
             if (_tags.Count > 50)
                 errors.Add(Errors.Create(ErrorType.TagsLimitExceeded, "You can have no more than 50 tags on a single alert."));
 
-            int totalTagsLength = TotalLength(_tags);
-            if (totalTagsLength > 1000)
-                errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, $"The total length of actions is {totalTagsLength}. You can have no more than 50 tags on a single alert totaling 1000 characters."));
+            // int totalTagsLength = TotalLength(_tags);
+            // if (totalTagsLength > 1000)
+            //     errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, $"The total length of actions is {totalTagsLength}. You can have no more than 50 tags on a single alert totaling 1000 characters."));
 
             if (TotalLength(_details.Values.ToList()) > 8000)
                 errors.Add(Errors.Create(ErrorType.CustomPropertiesLimitExceeded, "You can have no more than 50 tags on a single alert."));
@@ -227,6 +221,18 @@ public partial class AlertImpl
         }
 
         public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
+
+
+        class TagBuilderImpl :
+            TagBuilder
+        {
+            public List<AlertTag> Tags { get; } = new();
+
+            public void Add(AlertTag tag)
+            {
+                Tags.Add(tag);
+            }
+        }
 
 
         class AlertPropertyImpl :

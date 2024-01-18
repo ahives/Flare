@@ -46,7 +46,11 @@ public class CreateAlertTests :
                     p.Add("key2", "value2");
                 });
                 x.CustomActions("Restart", "AnExampleAction");
-                x.CustomTags("OverwriteQuietHours", "Critical");
+                x.Tags(t =>
+                {
+                    t.Add(AlertTag.OverwriteQuietHours);
+                    t.Add(AlertTag.Critical);
+                });
                 x.RelatedToDomain("Fake entity");
                 x.Priority(AlertPriority.P1);
             });
@@ -99,11 +103,16 @@ public class CreateAlertTests :
                     p.Add("key2", "value2");
                 });
                 x.CustomActions("Restart", "AnExampleAction");
-                x.CustomTags("OverwriteQuietHours", "Critical");
+                x.Tags(t =>
+                {
+                    t.Add(AlertTag.OverwriteQuietHours);
+                    t.Add(AlertTag.Critical);
+                });
                 x.RelatedToDomain("Fake entity");
                 x.Priority(AlertPriority.P1);
             });
 
+        Console.WriteLine(result.DebugInfo.Request);
         Assert.Multiple(() =>
         {
             Assert.That(result.HasResult, Is.False);

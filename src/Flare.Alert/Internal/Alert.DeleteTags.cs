@@ -70,16 +70,6 @@ public partial class AlertImpl
             _tags = impl.Tags;
         }
 
-        class TagBuilderImpl : TagBuilder
-        {
-            public List<AlertTag> Tags { get; } = new();
-
-            public void Add(AlertTag tag)
-            {
-                Tags.Add(tag);
-            }
-        }
-
         public void User(string displayName)
         {
             _user = displayName;
@@ -137,6 +127,18 @@ public partial class AlertImpl
                 {"source", new QueryArg {Value = _source}},
                 {"note", new QueryArg {Value = _notes}}
             };
+        }
+
+
+        class TagBuilderImpl :
+            TagBuilder
+        {
+            public List<AlertTag> Tags { get; } = new();
+
+            public void Add(AlertTag tag)
+            {
+                Tags.Add(tag);
+            }
         }
     }
 }

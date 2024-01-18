@@ -22,7 +22,7 @@ public interface CreateAlertCriteria
 
     void CustomActions(string action, params string[] actions);
     
-    void CustomTags(string tag, params string[] tags);
+    void Tags(Action<TagBuilder> action);
 
     void RelatedToDomain(string entity);
 

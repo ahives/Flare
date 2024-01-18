@@ -31,7 +31,7 @@ public sealed record CreateAlertRequest
 
     [JsonPropertyName("tags")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public List<string> Tags { get; init; }
+    public List<AlertTag> Tags { get; init; }
 
     [JsonPropertyName("details")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
