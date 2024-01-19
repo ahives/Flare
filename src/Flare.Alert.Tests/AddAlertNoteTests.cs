@@ -8,7 +8,7 @@ public class AddAlertNoteTests :
     FlareApiTesting
 {
     [Test]
-    public async Task Verify()
+    public async Task Verify1()
     {
         var result = await GetContainerBuilder("TestData/StandardResponse.json")
             .BuildServiceProvider()
