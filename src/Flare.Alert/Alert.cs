@@ -32,18 +32,6 @@ public interface Alert :
     Task<Maybe<ResultInfo>> Escalate(string identifier, IdentifierType identifierType,
         Action<EscalateAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
-    Task<Maybe<ResultInfo>> AddTeam(string identifier, IdentifierType identifierType,
-        Action<AddAlertTeamCriteria> criteria, CancellationToken cancellationToken = default);
-
-    Task<Maybe<ResultInfo>> AddResponder(string identifier, IdentifierType identifierType,
-        Action<AddAlertResponderCriteria> criteria, CancellationToken cancellationToken = default);
-
-    Task<Maybe<ResultInfo>> AddTags(string identifier, IdentifierType identifierType,
-        Action<AddAlertTagsCriteria> criteria, CancellationToken cancellationToken = default);
-
-    Task<Maybe<ResultInfo>> DeleteTags(string identifier, IdentifierType identifierType,
-        Action<DeleteAlertTagsCriteria> criteria, CancellationToken cancellationToken = default);
-
     Task<Maybe<ResultInfo>> Assign(string identifier, IdentifierType identifierType,
         Action<AssignAlertCriteria> criteria, CancellationToken cancellationToken = default);
 
@@ -53,6 +41,21 @@ public interface Alert :
     Task<Maybe<ResultInfo>> Close(string identifier, IdentifierType identifierType, Action<CloseAlertCriteria> criteria,
         CancellationToken cancellationToken = default);
 
+    Task<Maybe<ResultInfo>> AddTeam(string identifier, IdentifierType identifierType,
+        Action<AddAlertTeamCriteria> criteria, CancellationToken cancellationToken = default);
+
+    Task<Maybe<ResultInfo>> AddResponder(string identifier, IdentifierType identifierType,
+        Action<AddAlertResponderCriteria> criteria, CancellationToken cancellationToken = default);
+
+    Task<Maybe<ResultInfo>> AddTags(string identifier, IdentifierType identifierType,
+        Action<AddAlertTagsCriteria> criteria, CancellationToken cancellationToken = default);
+
+    Task<Maybe<ResultInfo>> AddCustomProperties(string identifier, IdentifierType identifierType,
+        Action<AddAlertCustomPropertiesCriteria> criteria, CancellationToken cancellationToken = default);
+
     Task<Maybe<ResultInfo>> AddNote(string identifier, IdentifierType identifierType,
         Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default);
+
+    Task<Maybe<ResultInfo>> DeleteTags(string identifier, IdentifierType identifierType,
+        Action<DeleteAlertTagsCriteria> criteria, CancellationToken cancellationToken = default);
 }
