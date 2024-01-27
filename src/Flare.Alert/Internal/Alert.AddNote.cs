@@ -12,7 +12,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new AddAlertNoteCriteriaImpl(identifier, identifierType);
+        var impl = new AddAlertNoteImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -25,7 +25,7 @@ public partial class AlertImpl
     }
 
 
-    class AddAlertNoteCriteriaImpl :
+    class AddAlertNoteImpl :
         AddAlertNoteCriteria,
         IQueryCriteria,
         IValidator
@@ -36,7 +36,7 @@ public partial class AlertImpl
         string _source;
         string _user;
 
-        public AddAlertNoteCriteriaImpl(string identifier, IdentifierType identifierType)
+        public AddAlertNoteImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;

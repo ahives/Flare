@@ -11,7 +11,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new CountAlertQueryCriteriaImpl();
+        var impl = new CountAlertImpl();
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -24,16 +24,16 @@ public partial class AlertImpl
     }
 
     
-    class CountAlertQueryCriteriaImpl :
+    class CountAlertImpl :
         CountAlertCriteria,
         IQueryCriteria,
         IValidator
     {
         IdentifierType? _identifierType;
         string _identifier;
-        private AlertStatus? _status;
+        AlertStatus? _status;
 
-        public CountAlertQueryCriteriaImpl()
+        public CountAlertImpl()
         {
             _identifierType = null;
         }

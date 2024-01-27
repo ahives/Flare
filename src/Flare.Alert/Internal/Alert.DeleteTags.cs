@@ -12,7 +12,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new DeleteAlertTagsCriteriaImpl(identifier, identifierType);
+        var impl = new DeleteAlertTagsImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -25,7 +25,7 @@ public partial class AlertImpl
     }
 
 
-    class DeleteAlertTagsCriteriaImpl :
+    class DeleteAlertTagsImpl :
         DeleteAlertTagsCriteria,
         IQueryCriteria,
         IValidator
@@ -37,7 +37,7 @@ public partial class AlertImpl
         string _user;
         List<AlertTag> _tags;
 
-        public DeleteAlertTagsCriteriaImpl(string identifier, IdentifierType identifierType)
+        public DeleteAlertTagsImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;

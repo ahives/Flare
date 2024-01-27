@@ -11,7 +11,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new CreateAlertCriteriaImpl();
+        var impl = new CreateAlertImpl();
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -22,7 +22,7 @@ public partial class AlertImpl
     }
 
 
-    class CreateAlertCriteriaImpl :
+    class CreateAlertImpl :
         CreateAlertCriteria,
         IQueryCriteria,
         IValidator
@@ -58,7 +58,7 @@ public partial class AlertImpl
                 Priority = _priority
             };
 
-        public CreateAlertCriteriaImpl()
+        public CreateAlertImpl()
         {
             _priority = AlertPriority.P3;
             _tags = new List<AlertTag>();
@@ -263,7 +263,7 @@ public partial class AlertImpl
                 var impl = new TeamResponderImpl();
                 action?.Invoke(impl);
 
-                Recipients.Add(impl.Data);
+                Recipients.Add(impl.Responder);
             }
 
             public void User(Action<UserResponder> action)
@@ -271,7 +271,7 @@ public partial class AlertImpl
                 var impl = new UserResponderImpl();
                 action?.Invoke(impl);
 
-                Recipients.Add(impl.Data);
+                Recipients.Add(impl.Responder);
             }
 
             public void Escalation(Action<EscalationResponder> action)
@@ -279,7 +279,7 @@ public partial class AlertImpl
                 var impl = new EscalationResponderImpl();
                 action?.Invoke(impl);
 
-                Recipients.Add(impl.Data);
+                Recipients.Add(impl.Responder);
             }
 
             public void Schedule(Action<ScheduleResponder> action)
@@ -287,23 +287,23 @@ public partial class AlertImpl
                 var impl = new ScheduleResponderImpl();
                 action?.Invoke(impl);
 
-                Recipients.Add(impl.Data);
+                Recipients.Add(impl.Responder);
             }
 
 
             class EscalationResponderImpl :
                 EscalationResponder
             {
-                public Responder Data { get; private set; }
+                public Responder Responder { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Responder {Id = id, Type = ResponderType.Escalation};
+                    Responder = new Responder {Id = id, Type = ResponderType.Escalation};
                 }
 
                 public void Name(string name)
                 {
-                    Data = new Responder {Name = name, Type = ResponderType.Escalation};
+                    Responder = new Responder {Name = name, Type = ResponderType.Escalation};
                 }
             }
 
@@ -311,16 +311,16 @@ public partial class AlertImpl
             class ScheduleResponderImpl :
                 ScheduleResponder
             {
-                public Responder Data { get; private set; }
+                public Responder Responder { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Responder {Id = id, Type = ResponderType.Schedule};
+                    Responder = new Responder {Id = id, Type = ResponderType.Schedule};
                 }
 
                 public void Name(string name)
                 {
-                    Data = new Responder {Name = name, Type = ResponderType.Schedule};
+                    Responder = new Responder {Name = name, Type = ResponderType.Schedule};
                 }
             }
 
@@ -328,16 +328,16 @@ public partial class AlertImpl
             class UserResponderImpl :
                 UserResponder
             {
-                public Responder Data { get; private set; }
+                public Responder Responder { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Responder {Id = id, Type = ResponderType.User};
+                    Responder = new Responder {Id = id, Type = ResponderType.User};
                 }
 
                 public void Username(string username)
                 {
-                    Data = new Responder {Username = username, Type = ResponderType.User};
+                    Responder = new Responder {Username = username, Type = ResponderType.User};
                 }
             }
 
@@ -345,16 +345,16 @@ public partial class AlertImpl
             class TeamResponderImpl :
                 TeamResponder
             {
-                public Responder Data { get; private set; }
+                public Responder Responder { get; private set; }
                 
                 public void Id(Guid id)
                 {
-                    Data = new Responder {Id = id, Type = ResponderType.Team};
+                    Responder = new Responder {Id = id, Type = ResponderType.Team};
                 }
 
                 public void Name(string name)
                 {
-                    Data = new Responder {Name = name, Type = ResponderType.Team};
+                    Responder = new Responder {Name = name, Type = ResponderType.Team};
                 }
             }
         }

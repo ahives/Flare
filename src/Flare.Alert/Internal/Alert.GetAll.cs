@@ -11,7 +11,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new QueryAllAlertCriteriaImpl();
+        var impl = new QueryAllAlertsImpl();
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -24,7 +24,7 @@ public partial class AlertImpl
     }
 
     
-    class QueryAllAlertCriteriaImpl :
+    class QueryAllAlertsImpl :
         QueryAllAlertCriteria,
         IQueryCriteria,
         IValidator

@@ -11,7 +11,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new AckAlertCriteriaImpl(identifier, identifierType);
+        var impl = new AckAlertImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -24,7 +24,7 @@ public partial class AlertImpl
     }
 
 
-    class AckAlertCriteriaImpl :
+    class AckAlertImpl :
         AckAlertCriteria,
         IQueryCriteria,
         IValidator
@@ -43,7 +43,7 @@ public partial class AlertImpl
                 User = _user
             };
 
-        public AckAlertCriteriaImpl(string identifier, IdentifierType identifierType)
+        public AckAlertImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;

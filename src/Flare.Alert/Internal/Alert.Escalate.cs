@@ -13,7 +13,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new EscalateAlertCriteriaImpl(identifier, identifierType);
+        var impl = new EscalateAlertImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -26,7 +26,7 @@ public partial class AlertImpl
     }
 
 
-    class EscalateAlertCriteriaImpl :
+    class EscalateAlertImpl :
         EscalateAlertCriteria,
         IQueryCriteria,
         IValidator
@@ -47,7 +47,7 @@ public partial class AlertImpl
                 User = _user
             };
 
-        public EscalateAlertCriteriaImpl(string identifier, IdentifierType identifierType)
+        public EscalateAlertImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;

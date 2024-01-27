@@ -11,7 +11,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new DeleteAlertCriteriaImpl(identifier, identifierType);
+        var impl = new DeleteAlertImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -24,7 +24,7 @@ public partial class AlertImpl
     }
 
     
-    class DeleteAlertCriteriaImpl :
+    class DeleteAlertImpl :
         DeleteAlertCriteria,
         IQueryCriteria,
         IValidator
@@ -34,7 +34,7 @@ public partial class AlertImpl
         string _source;
         string _user;
 
-        public DeleteAlertCriteriaImpl(string identifier, IdentifierType identifierType)
+        public DeleteAlertImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;
@@ -49,8 +49,6 @@ public partial class AlertImpl
         {
             _source = displayName;
         }
-
-        public bool IsSearchQuery() => false;
 
         public IReadOnlyList<Error> Validate()
         {

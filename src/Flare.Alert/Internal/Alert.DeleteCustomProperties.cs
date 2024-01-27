@@ -11,7 +11,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new DeleteAlertCustomPropertiesCriteriaImpl(identifier, identifierType);
+        var impl = new DeleteAlertCustomPropertiesImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -24,7 +24,7 @@ public partial class AlertImpl
     }
 
 
-    class DeleteAlertCustomPropertiesCriteriaImpl :
+    class DeleteAlertCustomPropertiesImpl :
         DeleteAlertCustomPropertiesCriteria,
         IQueryCriteria,
         IValidator
@@ -36,7 +36,7 @@ public partial class AlertImpl
         string _user;
         List<string> _details;
 
-        public DeleteAlertCustomPropertiesCriteriaImpl(string identifier, IdentifierType identifierType)
+        public DeleteAlertCustomPropertiesImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;

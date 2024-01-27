@@ -11,7 +11,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new CloseAlertCriteriaImpl(identifier, identifierType);
+        var impl = new CloseAlertImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -24,7 +24,7 @@ public partial class AlertImpl
     }
 
 
-    class CloseAlertCriteriaImpl :
+    class CloseAlertImpl :
         CloseAlertCriteria,
         IQueryCriteria,
         IValidator
@@ -43,7 +43,7 @@ public partial class AlertImpl
                 User = _user
             };
 
-        public CloseAlertCriteriaImpl(string identifier, IdentifierType identifierType)
+        public CloseAlertImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;

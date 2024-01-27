@@ -12,7 +12,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new UnackAlertCriteriaImpl(identifier, identifierType);
+        var impl = new UnackAlertImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -25,7 +25,7 @@ public partial class AlertImpl
     }
 
 
-    class UnackAlertCriteriaImpl :
+    class UnackAlertImpl :
         UnackAlertCriteria,
         IQueryCriteria,
         IValidator
@@ -44,7 +44,7 @@ public partial class AlertImpl
                 User = _user
             };
 
-        public UnackAlertCriteriaImpl(string identifier, IdentifierType identifierType)
+        public UnackAlertImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;

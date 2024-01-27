@@ -12,7 +12,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new AddAlertCustomPropertiesCriteriaImpl(identifier, identifierType);
+        var impl = new AddAlertCustomPropertiesImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -25,7 +25,7 @@ public partial class AlertImpl
     }
 
 
-    class AddAlertCustomPropertiesCriteriaImpl :
+    class AddAlertCustomPropertiesImpl :
         AddAlertCustomPropertiesCriteria,
         IQueryCriteria,
         IValidator
@@ -46,7 +46,7 @@ public partial class AlertImpl
                 User = _user
             };
 
-        public AddAlertCustomPropertiesCriteriaImpl(string identifier, IdentifierType identifierType)
+        public AddAlertCustomPropertiesImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;

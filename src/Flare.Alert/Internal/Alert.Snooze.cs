@@ -12,7 +12,7 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new SnoozeAlertCriteriaImpl(identifier, identifierType);
+        var impl = new SnoozeAlertImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
@@ -25,7 +25,7 @@ public partial class AlertImpl
     }
 
 
-    class SnoozeAlertCriteriaImpl :
+    class SnoozeAlertImpl :
         SnoozeAlertCriteria,
         IQueryCriteria,
         IValidator
@@ -46,7 +46,7 @@ public partial class AlertImpl
                 User = _user
             };
 
-        public SnoozeAlertCriteriaImpl(string identifier, IdentifierType identifierType)
+        public SnoozeAlertImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;
