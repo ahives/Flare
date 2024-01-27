@@ -14,10 +14,10 @@ public static class QueryExtensions
         for (int i = 0; i < keys.Count; i++)
         {
             string key = keys[i];
-            string arg = arguments[key].IsSearchQuery ? $"{key}%3A{arguments[key].Value}" : $"{key}={arguments[key].Value}";
+            string arg = arguments[key].IsQuery ? $"{key}%3A{arguments[key].Value}" : $"{key}={arguments[key].Value}";
 
             if (!isQuery)
-                isQuery = arguments[key].IsSearchQuery;
+                isQuery = arguments[key].IsQuery;
             
             if (i == 0)
             {

@@ -92,7 +92,7 @@ public partial class AlertImpl
                     _ => string.Empty
                 };
 
-                return new Dictionary<string, QueryArg> {{"status", new QueryArg{IsSearchQuery = true, Value = status}}};
+                return new Dictionary<string, QueryArg> {{"status", new QueryArg{IsQuery = true, Value = status}}};
             }
 
             string identifierType = _identifierType switch

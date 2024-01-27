@@ -193,7 +193,7 @@ public partial class AlertImpl
 
                 var args = new Dictionary<string, QueryArg>();
                 if (!string.IsNullOrWhiteSpace(status))
-                    args.Add("status", new QueryArg {IsSearchQuery = true, Value = status});
+                    args.Add("status", new QueryArg {IsQuery = true, Value = status});
 
                 args.Add("offset", new QueryArg{Value = _offset});
                 args.Add("limit", new QueryArg{Value = _limit});
