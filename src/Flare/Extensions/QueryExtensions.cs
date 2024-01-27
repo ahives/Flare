@@ -9,12 +9,16 @@ public static class QueryExtensions
     {
         StringBuilder builder = new StringBuilder();
         var keys = arguments.Keys.ToList();
+        bool isQuery = false;
         
-        for (int i = 0; i < arguments.Keys.Count; i++)
+        for (int i = 0; i < keys.Count; i++)
         {
             string key = keys[i];
-            string arg = arguments[key].IsSearchQuery ? $"{key}:{arguments[key].Value}" : $"{key}={arguments[key].Value}";
+            string arg = arguments[key].IsSearchQuery ? $"{key}%3A{arguments[key].Value}" : $"{key}={arguments[key].Value}";
 
+            if (!isQuery)
+                isQuery = arguments[key].IsSearchQuery;
+            
             if (i == 0)
             {
                 builder.AppendFormat(arg);
@@ -24,6 +28,8 @@ public static class QueryExtensions
             builder.AppendFormat($"&{arg}");
         }
 
-        return builder.ToString();
+        string queryDelimiter = isQuery ? "?query=" : "?";
+
+        return keys.Count > 0 ? $"{queryDelimiter}{builder}" : string.Empty;
     }
 }

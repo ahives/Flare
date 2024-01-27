@@ -14,16 +14,11 @@ public partial class AlertImpl
         var impl = new CountAlertQueryCriteriaImpl();
         criteria?.Invoke(impl);
 
-        var qc = impl as IQueryCriteria;
-        string baseUrl = "alerts/count";
-
-        var errors = qc.Validate();
+        var errors = impl.Validate();
         if (errors.Count != 0)
-            return Response.Failed<AlertCountInfo>(Debug.WithErrors(baseUrl, errors));
+            return Response.Failed<AlertCountInfo>(Debug.WithErrors("alerts/count", errors));
 
-        string url = qc.IsSearchQuery()
-            ? $"{baseUrl}?query={qc.GetQueryArguments().BuildQueryString()}"
-            : $"{baseUrl}?{qc.GetQueryArguments().BuildQueryString()}";
+        string url = $"alerts/count{impl.GetQueryArguments().BuildQueryString()}";
 
         return await GetRequest<AlertCountInfo>(url, Serializer.Options, cancellationToken);
     }
@@ -31,11 +26,12 @@ public partial class AlertImpl
     
     class CountAlertQueryCriteriaImpl :
         CountAlertCriteria,
-        IQueryCriteria
+        IQueryCriteria,
+        IValidator
     {
         IdentifierType? _identifierType;
         string _identifier;
-        IQueryCriteria _criteria;
+        private AlertStatus? _status;
 
         public CountAlertQueryCriteriaImpl()
         {
@@ -47,7 +43,7 @@ public partial class AlertImpl
             var impl = new SearchQueryCriteriaImpl();
             criteria?.Invoke(impl);
 
-            _criteria = impl;
+            _status = impl.AlertStatus;
         }
 
         public void SearchIdentifier(string identifier)
@@ -60,74 +56,35 @@ public partial class AlertImpl
             _identifierType = type;
         }
 
-        public bool IsSearchQuery() => _criteria != null && _criteria.IsSearchQuery();
-
         public IReadOnlyList<Error> Validate()
         {
-            if (IsSearchQuery())
-                return _criteria.Validate();
+            if (!_status.HasValue)
+                return _identifier.ValidateNullableIdType(_identifierType, t => t switch
+                {
+                    IdentifierType.Id => false,
+                    IdentifierType.Name => false,
+                    _ => true
+                });
 
-            return _identifier.ValidateNullableIdType(_identifierType, t => t switch
+            bool isStatusMissing = _status switch
             {
-                IdentifierType.Id => false,
-                IdentifierType.Name => false,
+                AlertStatus.Open => false,
+                AlertStatus.Closed => false,
                 _ => true
-            });
+            };
+
+            var errors = new List<Error>();
+            if (isStatusMissing)
+                errors.Add(Errors.Create(ErrorType.AlertStatusIncompatible,
+                    $"{_status.ToString()} is not a valid alert status in the current context."));
+
+            return errors;
         }
 
         public Dictionary<string, QueryArg> GetQueryArguments()
         {
-            if (IsSearchQuery())
-                return _criteria.GetQueryArguments();
-
-            var arguments = new Dictionary<string, QueryArg>();
-            string searchIdentifierType = _identifierType switch
+            if (_status.HasValue)
             {
-                IdentifierType.Id => "id",
-                IdentifierType.Name => "name",
-                _ => string.Empty
-            };
-            
-            arguments.Add("searchIdentifier", new QueryArg{Value = _identifier});
-            arguments.Add("searchIdentifierType", new QueryArg{Value = searchIdentifierType});
-
-            return arguments;
-        }
-
-
-        class SearchQueryCriteriaImpl :
-            SearchQueryCriteria,
-            IQueryCriteria
-        {
-            AlertStatus? _status;
-
-            public void Status(AlertStatus status)
-            {
-                _status = status;
-            }
-
-            public IReadOnlyList<Error> Validate()
-            {
-                bool isStatusMissing = _status switch
-                {
-                    AlertStatus.Open => false,
-                    AlertStatus.Closed => false,
-                    _ => true
-                };
-
-                var errors = new List<Error>();
-                if (isStatusMissing)
-                    errors.Add(Errors.Create(ErrorType.AlertStatusIncompatible, $"{_status.ToString()} is not a valid alert status in the current context."));
-
-                if (!_status.HasValue)
-                    errors.Add(Errors.Create(ErrorType.AlertStatusMissing, "Alert status is missing."));
-
-                return errors;
-            }
-
-            public Dictionary<string, QueryArg> GetQueryArguments()
-            {
-                var arguments = new Dictionary<string, QueryArg>();
                 string status = _status switch
                 {
                     AlertStatus.Open => "open",
@@ -135,12 +92,35 @@ public partial class AlertImpl
                     _ => string.Empty
                 };
 
-                arguments.Add("status", new QueryArg{IsSearchQuery = true, Value = status});
-
-                return arguments;
+                return new Dictionary<string, QueryArg> {{"status", new QueryArg{IsSearchQuery = true, Value = status}}};
             }
 
-            public bool IsSearchQuery() => true;
+            string identifierType = _identifierType switch
+            {
+                IdentifierType.Id => "id",
+                IdentifierType.Name => "name",
+                _ => string.Empty
+            };
+
+            return !string.IsNullOrWhiteSpace(_identifier) && !string.IsNullOrWhiteSpace(identifierType)
+                ? new Dictionary<string, QueryArg>
+                {
+                    {"searchIdentifier", new QueryArg {Value = _identifier}},
+                    {"searchIdentifierType", new QueryArg {Value = identifierType}}
+                }
+                : new Dictionary<string, QueryArg>();
+        }
+
+
+        class SearchQueryCriteriaImpl :
+            SearchQueryCriteria
+        {
+            public AlertStatus? AlertStatus { get; private set; }
+
+            public void Status(AlertStatus status)
+            {
+                AlertStatus = status;
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 namespace Flare.Alert.Internal;
 
-using System.Collections.Immutable;
 using System.Text;
 using Extensions;
 using Flare.Model;
@@ -14,46 +13,26 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new AddAlertTagsCriteriaImpl();
+        var impl = new AddAlertTagsCriteriaImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
-        var qc = impl as IQueryCriteria;
-
-        var errors = Validate().Concat(qc.Validate()).ToList();
+        var errors = impl.Validate();
         if (errors.Count != 0)
-            return Response.Failed<ResultInfo>(
-                Debug.WithErrors("alerts/{identifier}/tags?identifierType={idType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/tags?identifierType={idType}", errors));
 
-        string url =
-            $"alerts/{identifier}/tags?identifierType={GetIdentifierType()}";
+        string url = $"alerts/{identifier}/tags{impl.GetQueryArguments().BuildQueryString()}";
 
-        return await PostRequest<ResultInfo, AddAlertTagsRequest>(url, impl.Request, Serializer.Options,
-            cancellationToken);
-
-        string GetIdentifierType() =>
-            identifierType switch
-            {
-                IdentifierType.Id => "id",
-                IdentifierType.Tiny => "tiny",
-                IdentifierType.Alias => "alias",
-                _ => string.Empty
-            };
-
-        IReadOnlyList<Error> Validate() =>
-            identifier.ValidateIdType(identifierType, t => t switch
-            {
-                IdentifierType.Id => false,
-                IdentifierType.Tiny => false,
-                IdentifierType.Alias => false,
-                _ => true
-            });
+        return await PostRequest<ResultInfo, AddAlertTagsRequest>(url, impl.Request, Serializer.Options, cancellationToken);
     }
 
 
     class AddAlertTagsCriteriaImpl :
         AddAlertTagsCriteria,
-        IQueryCriteria
+        IQueryCriteria,
+        IValidator
     {
+        string _identifier;
+        IdentifierType _identifierType;
         string _notes;
         string _source;
         string _user;
@@ -67,6 +46,12 @@ public partial class AlertImpl
                 Source = _source,
                 User = _user
             };
+
+        public AddAlertTagsCriteriaImpl(string identifier, IdentifierType identifierType)
+        {
+            _identifier = identifier;
+            _identifierType = identifierType;
+        }
 
         public void Tags(Action<TagBuilder> action)
         {
@@ -104,8 +89,6 @@ public partial class AlertImpl
             _notes = notes;
         }
 
-        public bool IsSearchQuery() => false;
-
         public IReadOnlyList<Error> Validate()
         {
             var errors = new List<Error>();
@@ -121,10 +104,31 @@ public partial class AlertImpl
             if (!string.IsNullOrWhiteSpace(_tags) && _tags.Length > 1000)
                 errors.Add(Errors.Create(ErrorType.AlertTagsMissing, "The alert responder is missing."));
 
+            errors.AddRange(_identifier.ValidateIdType(_identifierType, t => t switch
+            {
+                IdentifierType.Id => false,
+                IdentifierType.Tiny => false,
+                IdentifierType.Alias => false,
+                _ => true
+            }));
+
             return errors;
         }
 
-        public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
+        public Dictionary<string, QueryArg> GetQueryArguments()
+        {
+            string identifierType = _identifierType switch
+            {
+                IdentifierType.Id => "id",
+                IdentifierType.Tiny => "tiny",
+                IdentifierType.Alias => "alias",
+                _ => string.Empty
+            };
+
+            return string.IsNullOrWhiteSpace(identifierType)
+                ? new Dictionary<string, QueryArg>()
+                : new Dictionary<string, QueryArg> {{"identifierType", new QueryArg {Value = identifierType}}};
+        }
 
 
         class TagBuilderImpl :

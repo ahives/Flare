@@ -14,20 +14,18 @@ public partial class AlertImpl
         var impl = new CreateAlertCriteriaImpl();
         criteria?.Invoke(impl);
 
-        var qc = impl as IQueryCriteria;
-        string url = "alerts";
-
-        var errors = qc.Validate();
+        var errors = impl.Validate();
         if (errors.Count != 0)
-            return Response.Failed<ResultInfo>(Debug.WithErrors(url, errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts", errors));
 
-        return await PostRequest<ResultInfo, CreateAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken).ConfigureAwait(false);
+        return await PostRequest<ResultInfo, CreateAlertRequest>("alerts", impl.Request, Serializer.Options, cancellationToken).ConfigureAwait(false);
     }
 
 
     class CreateAlertCriteriaImpl :
         CreateAlertCriteria,
-        IQueryCriteria
+        IQueryCriteria,
+        IValidator
     {
         string _description;
         string _alias;
@@ -155,8 +153,6 @@ public partial class AlertImpl
         {
             _message = message;
         }
-
-        public bool IsSearchQuery() => false;
 
         public IReadOnlyList<Error> Validate()
         {

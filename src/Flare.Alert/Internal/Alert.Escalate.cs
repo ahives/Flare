@@ -1,6 +1,5 @@
 namespace Flare.Alert.Internal;
 
-using System.Collections.Immutable;
 using Extensions;
 using Flare.Model;
 using Model;
@@ -14,46 +13,26 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new EscalateAlertCriteriaImpl();
+        var impl = new EscalateAlertCriteriaImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
-        var qc = impl as IQueryCriteria;
-
-        var errors = Validate().Concat(qc.Validate()).ToList();
+        var errors = impl.Validate();
         if (errors.Count != 0)
-            return Response.Failed<ResultInfo>(
-                Debug.WithErrors("alerts/{identifier}/escalate?identifierType={idType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/escalate?identifierType={idType}", errors));
 
-        string url =
-            $"alerts/{identifier}/escalate?identifierType={GetIdentifierType()}";
+        string url = $"alerts/{identifier}/escalate{impl.GetQueryArguments().BuildQueryString()}";
 
-        return await PostRequest<ResultInfo, EscalateAlertRequest>(url, impl.Request, Serializer.Options,
-            cancellationToken);
-
-        string GetIdentifierType() =>
-            identifierType switch
-            {
-                IdentifierType.Id => "id",
-                IdentifierType.Tiny => "tiny",
-                IdentifierType.Alias => "alias",
-                _ => string.Empty
-            };
-
-        IReadOnlyList<Error> Validate() =>
-            identifier.ValidateIdType(identifierType, t => t switch
-            {
-                IdentifierType.Id => false,
-                IdentifierType.Tiny => false,
-                IdentifierType.Alias => false,
-                _ => true
-            });
+        return await PostRequest<ResultInfo, EscalateAlertRequest>(url, impl.Request, Serializer.Options, cancellationToken);
     }
 
 
     class EscalateAlertCriteriaImpl :
         EscalateAlertCriteria,
-        IQueryCriteria
+        IQueryCriteria,
+        IValidator
     {
+        string _identifier;
+        IdentifierType _identifierType;
         string _notes;
         string _source;
         string _user;
@@ -67,6 +46,12 @@ public partial class AlertImpl
                 Source = _source,
                 User = _user
             };
+
+        public EscalateAlertCriteriaImpl(string identifier, IdentifierType identifierType)
+        {
+            _identifier = identifier;
+            _identifierType = identifierType;
+        }
 
         public void User(string displayName)
         {
@@ -91,8 +76,6 @@ public partial class AlertImpl
             _escalation = impl.Escalation;
         }
 
-        public bool IsSearchQuery() => false;
-
         public IReadOnlyList<Error> Validate()
         {
             var errors = new List<Error>();
@@ -108,10 +91,31 @@ public partial class AlertImpl
             if (_escalation is null)
                 errors.Add(Errors.Create(ErrorType.AlertEscalationMissing, "The escalation property is missing."));
 
+            errors.AddRange(_identifier.ValidateIdType(_identifierType, t => t switch
+            {
+                IdentifierType.Id => false,
+                IdentifierType.Tiny => false,
+                IdentifierType.Alias => false,
+                _ => true
+            }));
+
             return errors;
         }
 
-        public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
+        public Dictionary<string, QueryArg> GetQueryArguments()
+        {
+            string identifierType = _identifierType switch
+            {
+                IdentifierType.Id => "id",
+                IdentifierType.Tiny => "tiny",
+                IdentifierType.Alias => "alias",
+                _ => string.Empty
+            };
+
+            return string.IsNullOrWhiteSpace(identifierType)
+                ? new Dictionary<string, QueryArg>()
+                : new Dictionary<string, QueryArg> {{"identifierType", new QueryArg {Value = identifierType}}};
+        }
 
 
         class AlertEscalationIdentifierImpl :

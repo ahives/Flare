@@ -11,46 +11,34 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new DeleteAlertCriteriaImpl();
+        var impl = new DeleteAlertCriteriaImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
-        var qc = impl as IQueryCriteria;
-
-        var errors = Validate().Concat(qc.Validate()).ToList();
+        var errors = impl.Validate();
         if (errors.Count != 0)
             return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}?identifierType={identifierType}", errors));
 
-        var arguments = qc.GetQueryArguments();
-        string url = arguments.Count > 0
-            ? $"alerts/{identifier}?identifierType={GetIdentifierType()}&{arguments.BuildQueryString()}"
-            : $"alerts/{identifier}?identifierType={GetIdentifierType()}";
+        string url = $"alerts/{identifier}{impl.GetQueryArguments().BuildQueryString()}";
 
         return await DeleteRequest<ResultInfo>(url, Serializer.Options, cancellationToken).ConfigureAwait(false);
-
-        string GetIdentifierType() =>
-            identifierType switch
-            {
-                IdentifierType.AlertId => "AlertID",
-                IdentifierType.TinyId => "tinyID",
-                _ => string.Empty
-            };
-
-        IReadOnlyList<Error> Validate() =>
-            identifier.ValidateIdType(identifierType, t => t switch
-            {
-                IdentifierType.AlertId => false,
-                IdentifierType.TinyId => false,
-                _ => true
-            });
     }
 
     
     class DeleteAlertCriteriaImpl :
         DeleteAlertCriteria,
-        IQueryCriteria
+        IQueryCriteria,
+        IValidator
     {
+        string _identifier;
+        IdentifierType _identifierType;
         string _source;
         string _user;
+
+        public DeleteAlertCriteriaImpl(string identifier, IdentifierType identifierType)
+        {
+            _identifier = identifier;
+            _identifierType = identifierType;
+        }
 
         public void User(string displayName)
         {
@@ -73,12 +61,29 @@ public partial class AlertImpl
             if (!string.IsNullOrWhiteSpace(_source) && _source.Length > 100)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The source property has a limit of 100 character."));
 
+            errors.AddRange(_identifier.ValidateIdType(_identifierType, t => t switch
+            {
+                IdentifierType.AlertId => false,
+                IdentifierType.TinyId => false,
+                _ => true
+            }));
+
             return errors;
         }
 
         public Dictionary<string, QueryArg> GetQueryArguments()
         {
+            string identifierType = _identifierType switch
+            {
+                IdentifierType.AlertId => "AlertID",
+                IdentifierType.TinyId => "tinyID",
+                _ => string.Empty
+            };
+
             var arguments = new Dictionary<string, QueryArg>();
+
+            if (!string.IsNullOrWhiteSpace(identifierType))
+                arguments.Add("identifierType", new QueryArg {Value = identifierType});
 
             if (!string.IsNullOrWhiteSpace(_user))
                 arguments.Add("user", new QueryArg {Value = _user});

@@ -53,6 +53,9 @@ public interface Alert :
     Task<Maybe<ResultInfo>> AddCustomProperties(string identifier, IdentifierType identifierType,
         Action<AddAlertCustomPropertiesCriteria> criteria, CancellationToken cancellationToken = default);
 
+    Task<Maybe<ResultInfo>> DeleteCustomProperties(string identifier, IdentifierType identifierType,
+        Action<DeleteAlertCustomPropertiesCriteria> criteria, CancellationToken cancellationToken = default);
+
     Task<Maybe<ResultInfo>> AddNote(string identifier, IdentifierType identifierType,
         Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default);
 

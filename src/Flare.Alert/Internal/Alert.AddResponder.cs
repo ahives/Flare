@@ -1,6 +1,5 @@
 namespace Flare.Alert.Internal;
 
-using System.Collections.Immutable;
 using Extensions;
 using Flare.Model;
 using Model;
@@ -13,46 +12,26 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new AddAlertResponderCriteriaImpl();
+        var impl = new AddAlertResponderCriteriaImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
-        var qc = impl as IQueryCriteria;
-
-        var errors = Validate().Concat(qc.Validate()).ToList();
+        var errors = impl.Validate();
         if (errors.Count != 0)
-            return Response.Failed<ResultInfo>(
-                Debug.WithErrors("alerts/{identifier}/responders?identifierType={idType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/responders?identifierType={idType}", errors));
 
-        string url =
-            $"alerts/{identifier}/responders?identifierType={GetIdentifierType()}";
+        string url = $"alerts/{identifier}/responders{impl.GetQueryArguments().BuildQueryString()}";
 
-        return await PostRequest<ResultInfo, AddAlertResponderRequest>(url, impl.Request, Serializer.Options,
-            cancellationToken);
-
-        string GetIdentifierType() =>
-            identifierType switch
-            {
-                IdentifierType.Id => "id",
-                IdentifierType.Tiny => "tiny",
-                IdentifierType.Alias => "alias",
-                _ => string.Empty
-            };
-
-        IReadOnlyList<Error> Validate() =>
-            identifier.ValidateIdType(identifierType, t => t switch
-            {
-                IdentifierType.Id => false,
-                IdentifierType.Tiny => false,
-                IdentifierType.Alias => false,
-                _ => true
-            });
+        return await PostRequest<ResultInfo, AddAlertResponderRequest>(url, impl.Request, Serializer.Options, cancellationToken);
     }
 
 
     class AddAlertResponderCriteriaImpl :
         AddAlertResponderCriteria,
-        IQueryCriteria
+        IQueryCriteria,
+        IValidator
     {
+        string _identifier;
+        IdentifierType _identifierType;
         string _notes;
         string _source;
         string _user;
@@ -66,6 +45,12 @@ public partial class AlertImpl
                 Source = _source,
                 User = _user
             };
+
+        public AddAlertResponderCriteriaImpl(string identifier, IdentifierType identifierType)
+        {
+            _identifier = identifier;
+            _identifierType = identifierType;
+        }
 
         public void Responder(Action<AlertResponderIdentifier> action)
         {
@@ -90,8 +75,6 @@ public partial class AlertImpl
             _notes = notes;
         }
 
-        public bool IsSearchQuery() => false;
-
         public IReadOnlyList<Error> Validate()
         {
             var errors = new List<Error>();
@@ -107,10 +90,31 @@ public partial class AlertImpl
             if (_responder is null)
                 errors.Add(Errors.Create(ErrorType.AlertResponderMissing, "The alert responder is missing."));
 
+            errors.AddRange(_identifier.ValidateIdType(_identifierType, t => t switch
+            {
+                IdentifierType.Id => false,
+                IdentifierType.Tiny => false,
+                IdentifierType.Alias => false,
+                _ => true
+            }));
+
             return errors;
         }
 
-        public Dictionary<string, QueryArg> GetQueryArguments() => new(ImmutableDictionary<string, QueryArg>.Empty);
+        public Dictionary<string, QueryArg> GetQueryArguments()
+        {
+            string identifierType = _identifierType switch
+            {
+                IdentifierType.Id => "id",
+                IdentifierType.Tiny => "tiny",
+                IdentifierType.Alias => "alias",
+                _ => string.Empty
+            };
+
+            return string.IsNullOrWhiteSpace(identifierType)
+                ? new Dictionary<string, QueryArg>()
+                : new Dictionary<string, QueryArg> {{"identifierType", new QueryArg {Value = identifierType}}};
+        }
 
 
         class AlertResponderIdentifierImpl :

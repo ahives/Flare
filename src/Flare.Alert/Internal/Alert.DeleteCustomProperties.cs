@@ -2,31 +2,30 @@ namespace Flare.Alert.Internal;
 
 using Extensions;
 using Flare.Model;
-using Model;
 using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<ResultInfo>> AddTeam(string identifier, IdentifierType identifierType, Action<AddAlertTeamCriteria> criteria,
+    public async Task<Maybe<ResultInfo>> DeleteCustomProperties(string identifier, IdentifierType identifierType, Action<DeleteAlertCustomPropertiesCriteria> criteria,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new AddAlertTeamCriteriaImpl(identifier, identifierType);
+        var impl = new DeleteAlertCustomPropertiesCriteriaImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
         var errors = impl.Validate();
         if (errors.Count != 0)
-            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/teams?identifierType={idType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/details", errors));
 
-        string url = $"alerts/{identifier}/teams{impl.GetQueryArguments().BuildQueryString()}";
+        string url = $"alerts/{identifier}/details{impl.GetQueryArguments().BuildQueryString()}";
 
-        return await PostRequest<ResultInfo, AddAlertTeamRequest>(url, impl.Request, Serializer.Options, cancellationToken);
+        return await DeleteRequest<ResultInfo>(url, Serializer.Options, cancellationToken);
     }
 
 
-    class AddAlertTeamCriteriaImpl :
-        AddAlertTeamCriteria,
+    class DeleteAlertCustomPropertiesCriteriaImpl :
+        DeleteAlertCustomPropertiesCriteria,
         IQueryCriteria,
         IValidator
     {
@@ -35,29 +34,31 @@ public partial class AlertImpl
         string _notes;
         string _source;
         string _user;
-        Team? _team;
+        List<string> _details;
 
-        public AddAlertTeamRequest Request =>
-            new()
-            {
-                Team = _team,
-                Notes = _notes,
-                Source = _source,
-                User = _user
-            };
-
-        public AddAlertTeamCriteriaImpl(string identifier, IdentifierType identifierType)
+        public DeleteAlertCustomPropertiesCriteriaImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;
+            _details = new List<string>();
         }
 
-        public void Team(Action<AlertTeamIdentifier> action)
+        class CustomPropertyKeyBuilderImpl : CustomPropertyKeyBuilder
         {
-            var impl = new AlertTeamIdentifierImpl();
+            public List<string> Details { get; } = new();
+
+            public void Add(string key)
+            {
+                Details.Add(key);
+            }
+        }
+
+        public void Details(Action<CustomPropertyKeyBuilder> action)
+        {
+            var impl = new CustomPropertyKeyBuilderImpl();
             action?.Invoke(impl);
 
-            _team = impl.Team;
+            _details = impl.Details;
         }
 
         public void User(string displayName)
@@ -87,8 +88,8 @@ public partial class AlertImpl
             if (!string.IsNullOrWhiteSpace(_notes) && _notes.Length > 25000)
                 errors.Add(Errors.Create(ErrorType.StringLengthLimitExceeded, "The note property has a limit of 25,000 character."));
 
-            if (_team is null)
-                errors.Add(Errors.Create(ErrorType.AlertTeamMissing, "The alert team is missing."));
+            // if (!string.IsNullOrWhiteSpace(_details) && _details.Length > 1000)
+            //     errors.Add(Errors.Create(ErrorType.AlertTagsMissing, "The alert responder is missing."));
 
             errors.AddRange(_identifier.ValidateIdType(_identifierType, t => t switch
             {
@@ -111,33 +112,25 @@ public partial class AlertImpl
                 _ => string.Empty
             };
 
-            return string.IsNullOrWhiteSpace(identifierType)
-                ? new Dictionary<string, QueryArg>()
-                : new Dictionary<string, QueryArg> {{"identifierType", new QueryArg {Value = identifierType}}};
-        }
+            var arguments = new Dictionary<string, QueryArg>();
 
+            if (!string.IsNullOrWhiteSpace(identifierType))
+                arguments.Add("identifierType", new QueryArg {Value = identifierType});
 
-        class AlertTeamIdentifierImpl :
-            AlertTeamIdentifier
-        {
-            string _name;
-            Guid _id;
+            string keys = string.Join(',', _details);
+            if (!string.IsNullOrWhiteSpace(keys))
+                arguments.Add("keys", new QueryArg {Value = keys});
 
-            public Team Team => new()
-            {
-                Id = _id,
-                Name = _name
-            };
+            if (!string.IsNullOrWhiteSpace(_user))
+                arguments.Add("user", new QueryArg {Value = _user});
 
-            public void Id(Guid identifier)
-            {
-                _id = identifier;
-            }
+            if (!string.IsNullOrWhiteSpace(_source))
+                arguments.Add("source", new QueryArg {Value = _source});
 
-            public void Name(string name)
-            {
-                _name = name;
-            }
+            if (!string.IsNullOrWhiteSpace(_notes))
+                arguments.Add("note", new QueryArg {Value = _notes});
+
+            return arguments;
         }
     }
 }

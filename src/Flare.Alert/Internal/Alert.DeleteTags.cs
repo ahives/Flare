@@ -12,51 +12,36 @@ public partial class AlertImpl
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new DeleteAlertTagsCriteriaImpl();
+        var impl = new DeleteAlertTagsCriteriaImpl(identifier, identifierType);
         criteria?.Invoke(impl);
 
-        var qc = impl as IQueryCriteria;
-
-        var errors = Validate().Concat(qc.Validate()).ToList();
+        var errors = impl.Validate();
         if (errors.Count != 0)
-            return Response.Failed<ResultInfo>(
-                Debug.WithErrors("alerts/{identifier}/tags?identifierType={idType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts/{identifier}/tags?identifierType={idType}", errors));
 
-        var args = qc.GetQueryArguments();
-        string url = args.Count > 0
-            ? $"alerts/{identifier}/tags?identifierType={GetIdentifierType()}&{args.BuildQueryString()}"
-            : $"alerts/{identifier}/tags?identifierType={GetIdentifierType()}";
+        string url = $"alerts/{identifier}/tags{impl.GetQueryArguments().BuildQueryString()}";
 
         return await DeleteRequest<ResultInfo>(url, Serializer.Options, cancellationToken);
-
-        string GetIdentifierType() =>
-            identifierType switch
-            {
-                IdentifierType.Id => "id",
-                IdentifierType.Tiny => "tiny",
-                IdentifierType.Alias => "alias",
-                _ => string.Empty
-            };
-
-        IReadOnlyList<Error> Validate() =>
-            identifier.ValidateIdType(identifierType, t => t switch
-            {
-                IdentifierType.Id => false,
-                IdentifierType.Tiny => false,
-                IdentifierType.Alias => false,
-                _ => true
-            });
     }
 
 
     class DeleteAlertTagsCriteriaImpl :
         DeleteAlertTagsCriteria,
-        IQueryCriteria
+        IQueryCriteria,
+        IValidator
     {
+        string _identifier;
+        IdentifierType _identifierType;
         string _notes;
         string _source;
         string _user;
         List<AlertTag> _tags;
+
+        public DeleteAlertTagsCriteriaImpl(string identifier, IdentifierType identifierType)
+        {
+            _identifier = identifier;
+            _identifierType = identifierType;
+        }
 
         public void Tags(Action<TagBuilder> action)
         {
@@ -81,8 +66,6 @@ public partial class AlertImpl
             _notes = notes;
         }
 
-        public bool IsSearchQuery() => false;
-
         public IReadOnlyList<Error> Validate()
         {
             var errors = new List<Error>();
@@ -98,11 +81,32 @@ public partial class AlertImpl
             if (!_tags.Any())
                 errors.Add(Errors.Create(ErrorType.AlertTagsMissing, "The tags are missing."));
 
+            errors.AddRange(_identifier.ValidateIdType(_identifierType, t => t switch
+            {
+                IdentifierType.Id => false,
+                IdentifierType.Tiny => false,
+                IdentifierType.Alias => false,
+                _ => true
+            }));
+
             return errors;
         }
 
         public Dictionary<string, QueryArg> GetQueryArguments()
         {
+            var arguments = new Dictionary<string, QueryArg>();
+
+            string identifierType = _identifierType switch
+            {
+                IdentifierType.Id => "id",
+                IdentifierType.Tiny => "tiny",
+                IdentifierType.Alias => "alias",
+                _ => string.Empty
+            };
+
+            if (string.IsNullOrWhiteSpace(identifierType))
+                arguments.Add("identifierType", new QueryArg {Value = identifierType});
+
             StringBuilder builder = new StringBuilder();
         
             for (int i = 0; i < _tags.Count; i++)
@@ -116,13 +120,20 @@ public partial class AlertImpl
                 builder.AppendFormat($",{_tags[i].ToString()}");
             }
 
-            return new Dictionary<string, QueryArg>
-            {
-                {"tags", new QueryArg {Value = builder.ToString()}},
-                {"user", new QueryArg {Value = _user}},
-                {"source", new QueryArg {Value = _source}},
-                {"note", new QueryArg {Value = _notes}}
-            };
+            string tags = builder.ToString();
+            if (!string.IsNullOrWhiteSpace(tags))
+                arguments.Add("tags", new QueryArg {Value = builder.ToString()});
+            
+            if (!string.IsNullOrWhiteSpace(_user))
+                arguments.Add("user", new QueryArg {Value = _user});
+
+            if (!string.IsNullOrWhiteSpace(_source))
+                arguments.Add("source", new QueryArg {Value = _source});
+
+            if (!string.IsNullOrWhiteSpace(_notes))
+                arguments.Add("note", new QueryArg {Value = _notes});
+
+            return arguments;
         }
 
 

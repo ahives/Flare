@@ -3,7 +3,7 @@ namespace Flare.Alert.Tests;
 using Flare.Model;
 
 [TestFixture]
-public class AddCustomPropertiesTests :
+public class DeleteCustomPropertiesTests :
     FlareApiTesting
 {
     [Test]
@@ -13,12 +13,12 @@ public class AddCustomPropertiesTests :
             .BuildServiceProvider()
             .GetService<IFlareClient>()!
             .API<Alert>()
-            .AddCustomProperties(NewId.NextGuid().ToString(), IdentifierType.Id, x =>
+            .DeleteCustomProperties(NewId.NextGuid().ToString(), IdentifierType.Id, x =>
             {
                 x.Details(d =>
                 {
-                    d.Add("serverName", "Zion");
-                    d.Add("region", "Oregon");
+                    d.Add("serverName");
+                    d.Add("region");
                 });
                 x.User("Monitoring Script");
                 x.Source("AWS Lambda");
