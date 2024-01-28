@@ -56,6 +56,9 @@ public interface Alert :
     Task<Maybe<ResultInfo>> DeleteCustomProperties(string identifier, IdentifierType identifierType,
         Action<DeleteAlertCustomPropertiesCriteria> criteria, CancellationToken cancellationToken = default);
 
+    Task<Maybe<ResultInfo>> UpdatePriority(string identifier, IdentifierType identifierType,
+        AlertPriority priority, CancellationToken cancellationToken = default);
+
     Task<Maybe<ResultInfo>> AddNote(string identifier, IdentifierType identifierType,
         Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default);
 

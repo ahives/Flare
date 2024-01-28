@@ -244,6 +244,45 @@ public abstract class FlareHttpClient
         }
     }
 
+    protected async Task<Maybe<T>> PutRequest<T, TRequest>(string url, TRequest request, JsonSerializerOptions options, CancellationToken cancellationToken = default)
+    {
+        string rawResponse = null!;
+        string rawRequest = null!;
+
+        try
+        {
+            rawRequest = request.ToJsonString(options);
+            var content = GetRequestContent(rawRequest);
+            var response = await _client.PutAsync(url, content, cancellationToken).ConfigureAwait(false);
+
+            rawResponse = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+
+            return !response.IsSuccessStatusCode
+                ? Response.Failed<T>(Debug.WithErrors(url, rawResponse, new List<Error> {GetError(response.StatusCode)}))
+                : Response.Success(rawResponse.ToObject<T>(options).GetDataOrDefault(), Debug.WithoutErrors(url, rawResponse));
+        }
+        catch (MissingMethodException e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, e, new List<Error> {_errors[nameof(MissingMethodException)]}));
+        }
+        catch (HttpRequestException e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(HttpRequestException)]}));
+        }
+        catch (JsonException e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(JsonException)]}));
+        }
+        catch (TaskCanceledException e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(TaskCanceledException)]}));
+        }
+        catch (Exception e)
+        {
+            return Response.Failed<T>(Debug.WithErrors(url, rawRequest, rawResponse, e, new List<Error> {_errors[nameof(Exception)]}));
+        }
+    }
+
     protected async Task<Maybe> PutRequest(string url, string request, CancellationToken cancellationToken = default)
     {
         string rawResponse = null!;
