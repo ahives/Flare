@@ -7,32 +7,32 @@ using Serialization;
 
 public partial class AlertImpl
 {
-    public async Task<Maybe<ResultInfo>> UpdatePriority(string identifier, IdentifierType identifierType, AlertPriority priority,
+    public async Task<Maybe<ResultInfo>> UpdateMessage(string identifier, IdentifierType identifierType, string message,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var impl = new UpdateAlertPriorityImpl(identifier, identifierType);
+        var impl = new UpdateAlertMessageImpl(identifier, identifierType);
 
         var errors = impl.Validate();
         if (errors.Count != 0)
-            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts{identifier}/priority?identifierType={identifierType}", errors));
+            return Response.Failed<ResultInfo>(Debug.WithErrors("alerts{identifier}/message?identifierType={identifierType}", errors));
 
-        string url = $"alerts/{identifier}/priority{impl.GetQueryArguments().BuildQueryString()}";
+        string url = $"alerts/{identifier}/message{impl.GetQueryArguments().BuildQueryString()}";
 
-        return await PutRequest<ResultInfo, UpdateAlertPriorityRequest>(url,
-            new UpdateAlertPriorityRequest {Priority = priority}, Serializer.Options, cancellationToken);
+        return await PutRequest<ResultInfo, UpdateAlertMessageRequest>(url,
+            new UpdateAlertMessageRequest {Message = message}, Serializer.Options, cancellationToken);
     }
 
 
-    class UpdateAlertPriorityImpl :
+    class UpdateAlertMessageImpl :
         IQueryCriteria,
         IValidator
     {
         string _identifier;
         IdentifierType _identifierType;
 
-        public UpdateAlertPriorityImpl(string identifier, IdentifierType identifierType)
+        public UpdateAlertMessageImpl(string identifier, IdentifierType identifierType)
         {
             _identifier = identifier;
             _identifierType = identifierType;

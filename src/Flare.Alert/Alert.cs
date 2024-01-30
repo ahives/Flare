@@ -59,6 +59,12 @@ public interface Alert :
     Task<Maybe<ResultInfo>> UpdatePriority(string identifier, IdentifierType identifierType,
         AlertPriority priority, CancellationToken cancellationToken = default);
 
+    Task<Maybe<ResultInfo>> UpdateMessage(string identifier, IdentifierType identifierType,
+        string message, CancellationToken cancellationToken = default);
+
+    Task<Maybe<ResultInfo>> UpdateDescription(string identifier, IdentifierType identifierType,
+        string description, CancellationToken cancellationToken = default);
+
     Task<Maybe<ResultInfo>> AddNote(string identifier, IdentifierType identifierType,
         Action<AddAlertNoteCriteria> criteria, CancellationToken cancellationToken = default);
 
