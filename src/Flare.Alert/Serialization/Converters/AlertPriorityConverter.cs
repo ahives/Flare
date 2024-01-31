@@ -27,23 +27,23 @@ public class AlertPriorityConverter :
             case AlertPriority.P1:
                 writer.WriteStringValue("P1");
                 break;
-            
+
             case AlertPriority.P2:
                 writer.WriteStringValue("P2");
                 break;
-            
+
             case AlertPriority.P3:
                 writer.WriteStringValue("P3");
                 break;
-            
+
             case AlertPriority.P4:
                 writer.WriteStringValue("P4");
                 break;
-            
+
             case AlertPriority.P5:
                 writer.WriteStringValue("P5");
                 break;
-            
+
             default:
                 throw new JsonException();
         }

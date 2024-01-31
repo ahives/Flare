@@ -23,6 +23,8 @@ public static class Serializer
                 new CustomStringConverter(),
                 new AlertActionConverter(),
                 new AlertTagConverter(),
+                new AlertRecipientStateConverter(),
+                new AlertMethodConverter(),
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
             }
         };

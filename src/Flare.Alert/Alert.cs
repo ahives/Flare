@@ -14,6 +14,9 @@ public interface Alert :
 
     Task<Maybe<AlertStatusInfo>> Status(Guid requestId, CancellationToken cancellationToken = default);
 
+    Task<Maybe<AlertRecipientInfo>> GetAllRecipients(string identifier, IdentifierType identifierType,
+        CancellationToken cancellationToken = default);
+
     Task<Maybe<AlertInfo>> Get(string identifier, IdentifierType identifierType,
         CancellationToken cancellationToken = default);
 

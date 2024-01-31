@@ -90,6 +90,10 @@
       <Content Include="TestData\StandardResponse.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="TestData\GetAllRecipientsResponse.json" />
+      <Content Include="TestData\GetAllRecipientsResponse.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
