@@ -17,6 +17,12 @@ public interface Alert :
     Task<Maybe<AlertRecipientInfo>> GetAllRecipients(string identifier, IdentifierType identifierType,
         CancellationToken cancellationToken = default);
 
+    Task<Maybe<AlertLogInfo>> GetLogs(string identifier, IdentifierType identifierType,
+        Action<QueryAlertLogsCriteria> criteria, CancellationToken cancellationToken = default);
+
+    Task<Maybe<AlertNoteInfo>> GetNotes(string identifier, IdentifierType identifierType,
+        Action<QueryAlertNotesCriteria> criteria, CancellationToken cancellationToken = default);
+
     Task<Maybe<AlertInfo>> Get(string identifier, IdentifierType identifierType,
         CancellationToken cancellationToken = default);
 

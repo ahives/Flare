@@ -25,6 +25,7 @@ public static class Serializer
                 new AlertTagConverter(),
                 new AlertRecipientStateConverter(),
                 new AlertMethodConverter(),
+                new AlertLogTypeConverter(),
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
             }
         };

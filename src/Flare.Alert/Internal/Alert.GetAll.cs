@@ -80,35 +80,35 @@ public partial class AlertImpl
             var errors = new List<Error>();
 
             if (_offset < 0)
-                errors.Add(Errors.Create(ErrorType.PaginationOffset, "Pagination offset must be greater than or equal to 0."));
+                errors.Add(Errors.Create(ErrorType.PaginationOffsetOutOfRange, "Pagination offset must be greater than or equal to 0."));
 
-            string sortField = _sortField switch
+            bool isSortFieldMissing = _sortField switch
             {
-                SortableFields.CreatedAt => "createdAt",
-                SortableFields.UpdatedAt => "updatedAt",
-                SortableFields.TinyId => "tinyId",
-                SortableFields.Alias => "alias",
-                SortableFields.Message => "message",
-                SortableFields.Status => "status",
-                SortableFields.Acknowledged => "acknowledged",
-                SortableFields.IsSeen => "isSeen",
-                SortableFields.Snoozed => "snoozed",
-                SortableFields.SnoozedUntil => "snoozedUntil",
-                SortableFields.Count => "count",
-                SortableFields.LastOccurredAt => "lastOccurredAt",
-                SortableFields.Source => "source",
-                SortableFields.Owner => "owner",
-                SortableFields.ReportClosedBy => "report.closedBy",
-                SortableFields.ReportAcknowledgedBy => "report.acknowledgedBy",
-                SortableFields.ReportCloseTime => "report.closeTime",
-                SortableFields.ReportAckTime => "report.ackTime",
-                SortableFields.IntegrationName => "integration.name",
-                SortableFields.IntegrationType => "integration.type",
-                _ => string.Empty
+                SortableFields.CreatedAt => false,
+                SortableFields.UpdatedAt => false,
+                SortableFields.TinyId => false,
+                SortableFields.Alias => false,
+                SortableFields.Message => false,
+                SortableFields.Status => false,
+                SortableFields.Acknowledged => false,
+                SortableFields.IsSeen => false,
+                SortableFields.Snoozed => false,
+                SortableFields.SnoozedUntil => false,
+                SortableFields.Count => false,
+                SortableFields.LastOccurredAt => false,
+                SortableFields.Source => false,
+                SortableFields.Owner => false,
+                SortableFields.ReportClosedBy => false,
+                SortableFields.ReportAcknowledgedBy => false,
+                SortableFields.ReportCloseTime => false,
+                SortableFields.ReportAckTime => false,
+                SortableFields.IntegrationName => false,
+                SortableFields.IntegrationType => false,
+                _ => true
             };
 
-            if (string.IsNullOrWhiteSpace(sortField))
-                errors.Add(Errors.Create(ErrorType.SortField, "Sortable field is not valid in the current context."));
+            if (isSortFieldMissing)
+                errors.Add(Errors.Create(ErrorType.SortFieldMissing, "Sortable field is not valid in the current context."));
 
             if (_status.HasValue)
             {

@@ -4,8 +4,8 @@ public enum ErrorType
 {
     EndTime,
     AlertStatusIncompatible,
-    SortField,
-    PaginationOffset,
+    SortFieldMissing,
+    PaginationOffsetOutOfRange,
     Message,
     StringLengthLimitExceeded,
     UserCharLimitExceeded,
@@ -23,5 +23,6 @@ public enum ErrorType
     AlertStatusMissing,
     AlertTeamMissing,
     AlertResponderMissing,
-    AlertTagsMissing
+    AlertTagsMissing,
+    PageDirectionMissing
 }
